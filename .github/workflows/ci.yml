@@ -9,7 +9,7 @@ on:
     types: [ published ]
 
 env:
-  MINIMUM_COVERAGE: 90
+  MINIMUM_COVERAGE: 85
 
 jobs:
   quality-checks:

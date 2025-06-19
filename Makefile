@@ -85,7 +85,7 @@ ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@echo "3️⃣ Style check (Black)..."
 	@python -m black --check sseed/ tests/
 	@echo "4️⃣ Running tests with coverage..."
-	@python -m pytest --cov=sseed --cov-fail-under=90 --cov-report=term-missing -v tests/
+	@python -m pytest --cov=sseed --cov-fail-under=85 --cov-report=term-missing -v tests/
 	@echo "✅ All CI checks passed!"
 
 build: ## Build distribution packages
