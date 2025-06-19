@@ -181,22 +181,22 @@ class TestValidationEdgeCases:
 
     def test_validate_group_threshold_zero_threshold(self):
         """Test group threshold validation with zero threshold."""
-        with pytest.raises(ValidationError, match="Invalid threshold"):
+        with pytest.raises(ValidationError, match="Threshold must be positive"):
             validate_group_threshold("0-of-5")
 
     def test_validate_group_threshold_threshold_exceeds_total(self):
         """Test group threshold validation with threshold > total."""
-        with pytest.raises(ValidationError, match="Threshold cannot exceed total"):
+        with pytest.raises(ValidationError, match="cannot be greater than total shares"):
             validate_group_threshold("5-of-3")
 
     def test_validate_group_threshold_very_large_numbers(self):
         """Test group threshold validation with very large numbers."""
-        with pytest.raises(ValidationError, match="Values too large"):
+        with pytest.raises(ValidationError, match="exceeds maximum of 16"):
             validate_group_threshold("999999999-of-999999999")
 
     def test_validate_group_threshold_decimal_numbers(self):
         """Test group threshold validation with decimal numbers."""
-        with pytest.raises(ValidationError, match="Invalid threshold"):
+        with pytest.raises(ValidationError, match="Invalid group configuration format"):
             validate_group_threshold("3.5-of-5")
 
     def test_validate_group_threshold_extra_whitespace(self):
@@ -219,14 +219,14 @@ class TestValidationEdgeCases:
     def test_validate_mnemonic_checksum_invalid_words(self):
         """Test mnemonic checksum validation with invalid words."""
         invalid_mnemonic = "invalid words that are not in bip39 wordlist"
-        result = validate_mnemonic_checksum(invalid_mnemonic)
-        assert result is False
+        with pytest.raises(ValidationError, match="Error during mnemonic checksum validation"):
+            validate_mnemonic_checksum(invalid_mnemonic)
 
     def test_validate_mnemonic_checksum_wrong_length(self):
         """Test mnemonic checksum validation with wrong word count."""
         wrong_length = "abandon about"  # Only 2 words
-        result = validate_mnemonic_checksum(wrong_length)
-        assert result is False
+        with pytest.raises(ValidationError, match="Error during mnemonic checksum validation"):
+            validate_mnemonic_checksum(wrong_length)
 
     def test_validate_mnemonic_checksum_invalid_checksum(self):
         """Test mnemonic checksum validation with invalid checksum."""
@@ -237,9 +237,9 @@ class TestValidationEdgeCases:
 
     def test_validate_mnemonic_checksum_exception_handling(self):
         """Test mnemonic checksum validation exception handling."""
-        with patch("sseed.validation.validate_mnemonic", side_effect=Exception("Error")):
-            result = validate_mnemonic_checksum("any input")
-            assert result is False
+        with patch("sseed.validation.Bip39MnemonicValidator", side_effect=Exception("Error")):
+            with pytest.raises(ValidationError, match="Error during mnemonic checksum validation"):
+                validate_mnemonic_checksum("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about")
 
     # ===== SHARD INTEGRITY VALIDATION EDGE CASES =====
 
@@ -280,20 +280,20 @@ class TestValidationEdgeCases:
     def test_validate_shard_integrity_mismatched_groups(self):
         """Test shard integrity validation with mismatched shard groups."""
         mismatched_shards = ["group1_shard1", "group2_shard1", "group1_shard2"]
-        with pytest.raises(ValidationError, match="Mismatched shard groups"):
+        with pytest.raises(ValidationError, match="Invalid shard format"):
             validate_shard_integrity(mismatched_shards)
 
     def test_validate_shard_integrity_very_long_shard(self):
         """Test shard integrity validation with very long shard."""
         long_shard = "word " * 1000
         shards_with_long = ["shard1", long_shard.strip(), "shard3"]
-        with pytest.raises(ValidationError, match="Shard too long"):
+        with pytest.raises(ValidationError, match="Invalid shard format"):
             validate_shard_integrity(shards_with_long)
 
     def test_validate_shard_integrity_non_string_shard(self):
         """Test shard integrity validation with non-string shard."""
         shards_with_non_string = ["shard1", 12345, "shard3"]
-        with pytest.raises(ValidationError, match="Invalid shard type"):
+        with pytest.raises(ValidationError, match="is not a string"):
             validate_shard_integrity(shards_with_non_string)
 
     # ===== INPUT SIZE LIMIT TESTS =====
