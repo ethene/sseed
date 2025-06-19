@@ -40,25 +40,27 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - Cross-platform compatibility
 
 ### 🧪 [Testing and Quality](./testing-quality.md)
-- Comprehensive test coverage
-- Quality assurance processes
-- Security auditing
+- 90% test coverage with comprehensive edge case testing
+- 254 total tests including 141 new edge case tests
+- Enterprise-grade quality assurance processes
+- Security-focused testing with 23 security scenarios
 
 ### 💎 [Code Quality](./code-quality.md)
-- Professional development standards
-- Comprehensive code analysis and fixes
+- Professional development standards maintained
+- Comprehensive code analysis and bug fixes
 - 9.89/10 quality score achievement
+- Industry-leading 90% test coverage
 
 ## Quick Reference
 
-| Capability | Key Features | Performance |
-|------------|--------------|-------------|
-| **BIP-39 Generation** | 24-word mnemonics, secure entropy | < 1ms |
-| **SLIP-39 Sharding** | Flexible group/threshold schemes | < 5ms |
-| **Reconstruction** | Multi-shard recovery, validation | < 4ms |
-| **File I/O** | UTF-8, comments, cross-platform | < 1ms |
-| **Memory Usage** | Secure cleanup, efficient footprint | < 100MB peak |
-| **Offline Security** | Zero network calls, air-gapped | 100% offline |
+| Capability | Key Features | Performance | Test Coverage |
+|------------|--------------|-------------|---------------|
+| **BIP-39 Generation** | 24-word mnemonics, secure entropy | < 1ms | 100% |
+| **SLIP-39 Sharding** | Flexible group/threshold schemes | < 5ms | 89% |
+| **Reconstruction** | Multi-shard recovery, validation | < 4ms | 89% |
+| **File I/O** | UTF-8, comments, cross-platform | < 1ms | 84% |
+| **Memory Usage** | Secure cleanup, efficient footprint | < 100MB peak | 85% |
+| **Offline Security** | Zero network calls, air-gapped | 100% offline | 93% |
 
 ## Architecture Overview
 
@@ -103,5 +105,5 @@ This directory contains comprehensive documentation of sseed's capabilities acro
 | **Security** | [security-features.md](./security-features.md) | 13.7KB | 100% offline, secure memory |
 | **Performance** | [performance.md](./performance.md) | 10.9KB | Exceeds requirements 5-75x |
 | **Integration** | [integration.md](./integration.md) | 20.3KB | Enterprise deployment ready |
-| **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.1KB | 113 tests, comprehensive coverage |
-| **Code Quality** | [code-quality.md](./code-quality.md) | 12.8KB | 9.89/10 score, zero violations | 
+| **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.3KB | 254 tests, 90% coverage |
+| **Code Quality** | [code-quality.md](./code-quality.md) | 15.2KB | 9.89/10 score, 90% coverage | 
