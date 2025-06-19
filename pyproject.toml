@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sseed"
-version = "1.0.0"
+version = "1.0.1"
 description = "Offline BIP39/SLIP39 CLI Tool for secure cryptocurrency seed management"
 readme = "README.md"
 requires-python = ">=3.10"
