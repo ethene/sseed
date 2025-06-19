@@ -1,0 +1,10 @@
+# Core dependencies for sseed - Offline BIP39/SLIP39 CLI Tool
+bip-utils==2.9.3
+shamir-mnemonic==0.3.0
+
+# Development and testing dependencies
+pytest==8.3.4
+pytest-asyncio==0.23.5
+mypy==1.16.1
+ruff==0.12.0
+bandit==1.8.5 

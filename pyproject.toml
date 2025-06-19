@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sseed"
+version = "0.1.0"
+description = "Offline BIP39/SLIP39 CLI Tool for secure cryptocurrency seed management"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "sseed", email = "shroomshroom@gmail.com"},
+]
+keywords = ["bip39", "slip39", "cryptocurrency", "mnemonic", "seed", "cli", "offline"]
+license = "MIT"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "bip-utils>=2.9.3",
+    "slip39>=13.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.23.5",
+    "mypy>=1.16.1",
+    "ruff>=0.12.0",
+    "bandit>=1.8.5",
+    "psutil>=5.9.0",
+]
+
+[project.scripts]
+sseed = "sseed.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sseed*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I", "N", "D", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
+ignore = ["D100", "D104", "D107", "EM101", "EM102", "TRY003", "TRY300", "TRY400", "PLR2004", "PLC0415", "COM812", "T201", "BLE001", "C901", "PLW2901", "PTH119", "PTH120", "PTH123", "DTZ005", "E501", "PERF203", "PLR0912", "PLR0915", "PLR0911", "UP038", "FBT001", "FBT002"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--strict-markers --strict-config"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+asyncio_mode = "strict" 
