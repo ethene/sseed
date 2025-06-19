@@ -459,7 +459,7 @@ class TestCLIErrorHandling:
                 text=True,
                 cwd=Path(__file__).parent.parent,
             )
-            assert result.returncode in [EXIT_USAGE_ERROR, EXIT_CRYPTO_ERROR]
+            assert result.returncode == EXIT_FILE_ERROR
         finally:
             # Restore permissions for cleanup
             readonly_dir.chmod(0o755)
@@ -473,7 +473,7 @@ class TestCLIErrorHandling:
             cwd=Path(__file__).parent.parent,
         )
         assert result.returncode == EXIT_FILE_ERROR
-        assert "Error:" in result.stderr
+        assert "File error:" in result.stderr
 
     def test_cli_subprocess_invalid_shard_files(self):
         """Test CLI subprocess with invalid shard files."""

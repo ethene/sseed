@@ -29,12 +29,12 @@ class TestEntropyEdgeCases:
 
     def test_generate_entropy_bytes_invalid_size_zero(self):
         """Test entropy generation with zero byte size."""
-        with pytest.raises(EntropyError, match="Invalid entropy size"):
+        with pytest.raises(SecurityError, match="Invalid entropy bytes requested"):
             generate_entropy_bytes(0)
 
     def test_generate_entropy_bytes_invalid_size_negative(self):
         """Test entropy generation with negative byte size."""
-        with pytest.raises(EntropyError, match="Invalid entropy size"):
+        with pytest.raises(SecurityError, match="Invalid entropy bytes requested"):
             generate_entropy_bytes(-5)
 
     def test_generate_entropy_bytes_excessive_size(self):
@@ -45,13 +45,13 @@ class TestEntropyEdgeCases:
     def test_generate_entropy_bytes_system_random_failure(self):
         """Test entropy generation when SystemRandom fails."""
         with patch("secrets.token_bytes", side_effect=OSError("System entropy unavailable")):
-            with pytest.raises(EntropyError, match="Failed to generate entropy"):
+            with pytest.raises(EntropyError, match="Failed to generate .* bytes of entropy"):
                 generate_entropy_bytes(32)
 
     def test_generate_entropy_bytes_memory_error(self):
         """Test entropy generation with memory allocation failure."""
         with patch("secrets.token_bytes", side_effect=MemoryError("Insufficient memory")):
-            with pytest.raises(EntropyError, match="Failed to generate entropy"):
+            with pytest.raises(EntropyError, match="Failed to generate .* bytes of entropy"):
                 generate_entropy_bytes(32)
 
     def test_generate_entropy_bits_invalid_bits_zero(self):
@@ -111,12 +111,16 @@ class TestEntropyEdgeCases:
 
     def test_secure_delete_variable_exception_handling(self):
         """Test secure deletion with exception during cleanup."""
-        # Create a mock object that raises an exception when deleted
-        mock_obj = MagicMock()
-        mock_obj.__del__ = MagicMock(side_effect=Exception("Cleanup error"))
+
+        # Create a custom object that raises an exception when deleted
+        class BadCleanupObject:
+            def __del__(self):
+                raise Exception("Cleanup error")
+
+        obj = BadCleanupObject()
 
         # Should not raise exception even if cleanup fails
-        secure_delete_variable(mock_obj)
+        secure_delete_variable(obj)
 
     def test_entropy_generation_system_entropy_exhaustion(self):
         """Test behavior when system entropy is temporarily exhausted."""
@@ -160,7 +164,7 @@ class TestEntropyEdgeCases:
             assert len(result) == 32
 
             # Large allocations should fail
-            with pytest.raises(EntropyError):
+            with pytest.raises(SecurityError):
                 generate_entropy_bytes(2048)
 
     def test_generate_entropy_bits_boundary_conditions(self):
@@ -220,7 +224,7 @@ class TestEntropyEdgeCases:
         # Test when primary entropy source fails
         with patch("secrets.token_bytes", side_effect=OSError("Primary source failed")):
             with patch("os.urandom", side_effect=OSError("Fallback also failed")):
-                with pytest.raises(EntropyError, match="Failed to generate entropy"):
+                with pytest.raises(EntropyError, match="Failed to generate .* bytes of entropy"):
                     generate_entropy_bytes(32)
 
     def test_entropy_generation_edge_cases(self):

@@ -355,7 +355,7 @@ def handle_shard_command(args: argparse.Namespace) -> int:
         except ValidationError as e:
             logger.error("Invalid group configuration: %s", e)
             print(f"Invalid group configuration: {e}", file=sys.stderr)
-            return EXIT_USAGE_ERROR
+            return EXIT_VALIDATION_ERROR
 
         # Read mnemonic from input source
         if args.input:

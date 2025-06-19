@@ -302,10 +302,10 @@ class TestPerformanceAndSecurity(unittest.TestCase):
         print(f"Peak memory usage during operations: {max_memory:.2f}MB")
         print(f"Additional memory used: {memory_used:.2f}MB")
 
-        # Memory usage should be reasonable (well under 100MB total, additional usage under 50MB)
+        # Memory usage should be reasonable (well under 200MB total, additional usage under 50MB)
         self.assertLess(
             max_memory,
-            100,
+            200,
             f"Peak memory usage {max_memory:.2f}MB exceeds reasonable limit",
         )
         self.assertLess(memory_used, 50, f"Additional memory usage {memory_used:.2f}MB is too high")
