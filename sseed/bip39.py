@@ -4,7 +4,7 @@ Implements BIP-39 mnemonic operations using bip_utils.Bip39MnemonicGenerator
 as specified in F-2 of the PRD. Provides 24-word mnemonic generation in English.
 """
 
-from bip_utils import Bip39MnemonicGenerator, Bip39MnemonicValidator
+from bip_utils import Bip39MnemonicDecoder, Bip39MnemonicGenerator, Bip39MnemonicValidator
 
 from sseed.entropy import generate_entropy_bytes, secure_delete_variable
 from sseed.exceptions import EntropyError, MnemonicError
@@ -192,8 +192,6 @@ def get_mnemonic_entropy(mnemonic: str) -> bytes:
         normalized_mnemonic = normalize_input(mnemonic)
 
         # Extract entropy using bip_utils
-        from bip_utils import Bip39MnemonicDecoder
-
         entropy_bytes: bytes = bytes(Bip39MnemonicDecoder().Decode(normalized_mnemonic))
 
         logger.info("Extracted %d bytes of entropy from mnemonic", len(entropy_bytes))

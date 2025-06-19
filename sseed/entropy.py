@@ -126,11 +126,11 @@ def secure_delete_variable(*variables: Any) -> None:
                     var.clear()
             elif hasattr(var, "__setitem__") and hasattr(var, "__len__"):
                 # List-like objects
-                for i in range(len(var)):
+                for i, _ in enumerate(var):
                     var[i] = 0
             elif isinstance(var, bytearray):
                 # Overwrite bytearray with zeros
-                for i in range(len(var)):
+                for i, _ in enumerate(var):
                     var[i] = 0
 
         except Exception as e:

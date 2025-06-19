@@ -9,6 +9,8 @@ Provides command-line interface for BIP39/SLIP39 operations:
 import argparse
 import sys
 
+from sseed.bip39 import generate_mnemonic
+from sseed.entropy import secure_delete_variable
 from sseed.exceptions import (
     EntropyError,
     FileError,
@@ -18,7 +20,26 @@ from sseed.exceptions import (
     SseedError,
     ValidationError,
 )
+from sseed.file_operations import (
+    read_from_stdin,
+    read_mnemonic_from_file,
+    read_shards_from_files,
+    write_mnemonic_to_file,
+    write_shards_to_file,
+    write_shards_to_separate_files,
+)
 from sseed.logging_config import get_logger, setup_logging
+from sseed.slip39_operations import (
+    create_slip39_shards,
+    parse_group_config,
+    reconstruct_mnemonic_from_shards,
+)
+from sseed.validation import (
+    sanitize_filename,
+    validate_group_threshold,
+    validate_mnemonic_checksum,
+    validate_shard_integrity,
+)
 
 # Exit codes as specified in PRD
 EXIT_SUCCESS = 0
@@ -138,11 +159,6 @@ def handle_gen_command(args: argparse.Namespace) -> int:
     logger.info("Starting mnemonic generation")
 
     try:
-        # Import here to avoid circular imports
-        from sseed.bip39 import generate_mnemonic
-        from sseed.entropy import secure_delete_variable
-        from sseed.validation import sanitize_filename, validate_mnemonic_checksum
-
         # Generate the mnemonic
         mnemonic = generate_mnemonic()
 
@@ -202,17 +218,6 @@ def handle_shard_command(args: argparse.Namespace) -> int:
     logger.info("Starting mnemonic sharding with group: %s", args.group)
 
     try:
-        # Import here to avoid circular imports
-        from sseed.entropy import secure_delete_variable
-        from sseed.file_operations import (
-            read_from_stdin,
-            read_mnemonic_from_file,
-            write_shards_to_file,
-            write_shards_to_separate_files,
-        )
-        from sseed.slip39_operations import create_slip39_shards, parse_group_config
-        from sseed.validation import validate_group_threshold, validate_mnemonic_checksum
-
         # Validate group configuration first (Phase 5 requirement)
         try:
             validate_group_threshold(args.group)
@@ -308,12 +313,6 @@ def handle_restore_command(args: argparse.Namespace) -> int:
     logger.info("Starting mnemonic restoration from %d shards", len(args.shards))
 
     try:
-        # Import here to avoid circular imports
-        from sseed.entropy import secure_delete_variable
-        from sseed.file_operations import read_shards_from_files, write_mnemonic_to_file
-        from sseed.slip39_operations import reconstruct_mnemonic_from_shards
-        from sseed.validation import validate_mnemonic_checksum, validate_shard_integrity
-
         # Read shards from files
         shards = read_shards_from_files(args.shards)
         logger.info("Read %d shards from files", len(shards))

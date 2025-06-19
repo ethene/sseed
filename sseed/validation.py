@@ -7,6 +7,8 @@ in step 8 of Phase 2 and edge cases section of the PRD.
 import re
 import unicodedata
 
+from bip_utils import Bip39MnemonicValidator
+
 from sseed.exceptions import ValidationError
 from sseed.logging_config import get_logger
 
@@ -124,8 +126,6 @@ def validate_mnemonic_checksum(mnemonic: str) -> bool:
         ValidationError: If validation encounters an error.
     """
     try:
-        from bip_utils import Bip39MnemonicValidator
-
         # Normalize input
         normalized_mnemonic = normalize_input(mnemonic)
 
@@ -345,7 +345,8 @@ def validate_shard_integrity(shards: list[str]) -> None:
         # SLIP-39 shards should have 20 or 33 words
         if len(words) not in [20, 33]:
             raise ValidationError(
-                f"Invalid shard format at position {i}: {len(words)} words. Expected 20 or 33 words.",
+                f"Invalid shard format at position {i}: {len(words)} words. "
+                f"Expected 20 or 33 words.",
                 context={"position": i, "word_count": len(words)},
             )
 

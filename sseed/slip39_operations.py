@@ -14,11 +14,16 @@ try:
 except ImportError as e:
     raise ImportError(f"shamir_mnemonic library not available: {e}") from e
 
+try:
+    from bip_utils import Bip39MnemonicGenerator
+except ImportError as e:
+    raise ImportError(f"bip_utils library not available: {e}") from e
+
 from sseed.bip39 import get_mnemonic_entropy, validate_mnemonic
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import MnemonicError, ShardError, ValidationError
 from sseed.logging_config import get_logger, log_security_event
-from sseed.validation import normalize_input, validate_group_threshold
+from sseed.validation import detect_duplicate_shards, normalize_input, validate_group_threshold
 
 logger = get_logger(__name__)
 
@@ -196,8 +201,6 @@ def reconstruct_mnemonic_from_shards(
             normalized_shards.append(normalized_shard)
 
         # Use enhanced duplicate detection from validation module (Phase 5 requirement)
-        from sseed.validation import detect_duplicate_shards
-
         duplicates = detect_duplicate_shards(normalized_shards)
         if duplicates:
             logger.warning("Removing %d duplicate shards", len(duplicates))
@@ -218,8 +221,6 @@ def reconstruct_mnemonic_from_shards(
             )
 
             # Convert entropy back to BIP-39 mnemonic
-            from bip_utils import Bip39MnemonicGenerator
-
             bip39_mnemonic = Bip39MnemonicGenerator().FromEntropy(master_secret)
             mnemonic_str = str(bip39_mnemonic)
 
@@ -289,7 +290,8 @@ def validate_slip39_shard(shard: str) -> bool:
                 len(words),
             )
             log_security_event(
-                f"SLIP-39 shard validation: {'VALID' if is_valid else 'INVALID'} ({len(words)} words)"
+                f"SLIP-39 shard validation: "
+                f"{'VALID' if is_valid else 'INVALID'} ({len(words)} words)"
             )
 
             return is_valid

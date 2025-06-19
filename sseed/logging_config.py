@@ -31,7 +31,10 @@ def setup_logging(log_level: str = "INFO", log_dir: str = "logs") -> None:
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
             "detailed": {
-                "format": "%(asctime)s | %(name)s | %(levelname)s | %(funcName)s:%(lineno)d | %(message)s",
+                "format": (
+                    "%(asctime)s | %(name)s | %(levelname)s | "
+                    "%(funcName)s:%(lineno)d | %(message)s"
+                ),
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
         },
