@@ -19,8 +19,10 @@ import pytest
 
 from sseed.cli import (
     EXIT_CRYPTO_ERROR,
+    EXIT_FILE_ERROR,
     EXIT_SUCCESS,
     EXIT_USAGE_ERROR,
+    EXIT_VALIDATION_ERROR,
     handle_gen_command,
     handle_restore_command,
     handle_shard_command,
@@ -89,7 +91,7 @@ class TestCLIErrorHandling:
             side_effect=ValidationError("Validation failure"),
         ):
             result = handle_gen_command(args)
-            assert result == EXIT_USAGE_ERROR
+            assert result == EXIT_VALIDATION_ERROR
 
     def test_gen_file_error_handling(self):
         """Test gen command handling FileError."""
@@ -98,7 +100,7 @@ class TestCLIErrorHandling:
 
         with patch("sseed.cli.generate_mnemonic", side_effect=FileError("File failure")):
             result = handle_gen_command(args)
-            assert result == EXIT_USAGE_ERROR
+            assert result == EXIT_FILE_ERROR
 
     def test_gen_unexpected_error_handling(self):
         """Test gen command handling unexpected exceptions."""
@@ -131,7 +133,7 @@ class TestCLIErrorHandling:
                     side_effect=FileError("Write failed"),
                 ):
                     result = handle_gen_command(args)
-                    assert result == EXIT_USAGE_ERROR
+                    assert result == EXIT_FILE_ERROR
 
     # ===== SHARD COMMAND ERROR TESTS =====
 
@@ -148,7 +150,7 @@ class TestCLIErrorHandling:
             side_effect=ValidationError("Invalid config"),
         ):
             result = handle_shard_command(args)
-            assert result == EXIT_USAGE_ERROR
+            assert result == EXIT_VALIDATION_ERROR
 
     def test_shard_file_read_error(self):
         """Test shard command when input file reading fails."""
@@ -164,7 +166,7 @@ class TestCLIErrorHandling:
                 side_effect=FileError("File not found"),
             ):
                 result = handle_shard_command(args)
-                assert result == EXIT_USAGE_ERROR
+                assert result == EXIT_FILE_ERROR
 
     def test_shard_stdin_read_error(self):
         """Test shard command when stdin reading fails."""
@@ -177,7 +179,7 @@ class TestCLIErrorHandling:
         with patch("sseed.cli.validate_group_threshold"):
             with patch("sseed.cli.read_from_stdin", side_effect=FileError("Stdin read failed")):
                 result = handle_shard_command(args)
-                assert result == EXIT_USAGE_ERROR
+                assert result == EXIT_FILE_ERROR
 
     def test_shard_checksum_validation_failure(self):
         """Test shard command when input mnemonic fails checksum validation."""
@@ -254,7 +256,7 @@ class TestCLIErrorHandling:
                                 side_effect=FileError("Write failed"),
                             ):
                                 result = handle_shard_command(args)
-                                assert result == EXIT_USAGE_ERROR
+                                assert result == EXIT_FILE_ERROR
 
     def test_shard_single_file_write_error(self):
         """Test shard command when single file writing fails."""
@@ -277,7 +279,7 @@ class TestCLIErrorHandling:
                                 side_effect=FileError("Write failed"),
                             ):
                                 result = handle_shard_command(args)
-                                assert result == EXIT_USAGE_ERROR
+                                assert result == EXIT_FILE_ERROR
 
     def test_shard_unexpected_error(self):
         """Test shard command handling unexpected exceptions."""
@@ -308,7 +310,7 @@ class TestCLIErrorHandling:
             side_effect=FileError("File read failed"),
         ):
             result = handle_restore_command(args)
-            assert result == EXIT_USAGE_ERROR
+            assert result == EXIT_FILE_ERROR
 
     def test_restore_shard_integrity_error(self):
         """Test restore command when shard integrity validation fails."""
@@ -322,7 +324,7 @@ class TestCLIErrorHandling:
                 side_effect=ValidationError("Integrity failed"),
             ):
                 result = handle_restore_command(args)
-                assert result == EXIT_USAGE_ERROR
+                assert result == EXIT_VALIDATION_ERROR
 
     def test_restore_reconstruction_error(self):
         """Test restore command when mnemonic reconstruction fails."""
@@ -373,7 +375,7 @@ class TestCLIErrorHandling:
                             side_effect=FileError("Write failed"),
                         ):
                             result = handle_restore_command(args)
-                            assert result == EXIT_USAGE_ERROR
+                            assert result == EXIT_FILE_ERROR
 
     def test_restore_unexpected_error(self):
         """Test restore command handling unexpected exceptions."""
@@ -470,7 +472,7 @@ class TestCLIErrorHandling:
             text=True,
             cwd=Path(__file__).parent.parent,
         )
-        assert result.returncode == EXIT_USAGE_ERROR
+        assert result.returncode == EXIT_FILE_ERROR
         assert "Error:" in result.stderr
 
     def test_cli_subprocess_invalid_shard_files(self):
@@ -495,4 +497,4 @@ class TestCLIErrorHandling:
             text=True,
             cwd=Path(__file__).parent.parent,
         )
-        assert result.returncode == EXIT_USAGE_ERROR  # Shard validation is usage error
+        assert result.returncode == EXIT_VALIDATION_ERROR  # Shard validation is validation error
