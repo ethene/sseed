@@ -372,7 +372,7 @@ jobs:
         import psutil
         import os
         from sseed.bip39 import generate_mnemonic
-        from sseed.slip39_operations import create_slip39_shards, restore_from_slip39_shards
+        from sseed.slip39_operations import create_slip39_shards, reconstruct_mnemonic_from_shards
         
         print('🚀 SSeed Performance Benchmarks')
         print('=' * 40)
@@ -394,7 +394,7 @@ jobs:
         start_time = time.perf_counter()
         start_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
         
-        shards = create_slip39_shards(mnemonic, {'groups': [(3, 5)]})
+        shards = create_slip39_shards(mnemonic, 1, [(3, 5)])
         
         end_time = time.perf_counter()
         end_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
@@ -409,7 +409,7 @@ jobs:
         start_time = time.perf_counter()
         start_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
         
-        restored = restore_from_slip39_shards(selected_shards)
+        restored = reconstruct_mnemonic_from_shards(selected_shards)
         
         end_time = time.perf_counter()
         end_memory = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
