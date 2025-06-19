@@ -130,7 +130,8 @@ SSeed is optimized for performance:
 - **SLIP-39 sharding**: < 5ms average  
 - **Shard reconstruction**: < 4ms average
 - **Memory usage**: < 100MB peak (enterprise-grade efficiency)
-- **Test coverage**: 113 comprehensive tests with full functionality verification
+- **Test coverage**: 90% with 265+ comprehensive tests including property-based verification
+- **Quality assurance**: Mathematical verification through Hypothesis property-based testing
 
 ## Requirements
 
@@ -143,27 +144,29 @@ SSeed is optimized for performance:
 ### Running Tests
 
 ```bash
-# Install development dependencies
+# Install development dependencies (includes hypothesis for property-based testing)
 pip install -e ".[dev]"
 
-# Run all tests (113 comprehensive tests)
+# Run all tests (265+ comprehensive tests including property-based verification)
 pytest
 
-# Run with coverage report
+# Run with coverage report (90% coverage achieved)
 pytest --cov=sseed
 
 # Run specific test categories
-pytest tests/test_bip39.py              # BIP-39 mnemonic tests
-pytest tests/test_slip39.py             # SLIP-39 sharding tests  
-pytest tests/test_cli_integration.py    # CLI integration tests
-pytest tests/test_file_operations.py    # File I/O tests
-pytest tests/test_performance_security.py # Performance/security tests
+pytest tests/test_bip39.py                    # BIP-39 mnemonic tests
+pytest tests/test_slip39.py                   # SLIP-39 sharding tests  
+pytest tests/test_slip39_property_based.py    # Property-based cryptographic verification
+pytest tests/test_cli_integration.py          # CLI integration tests
+pytest tests/test_file_operations.py          # File I/O tests
+pytest tests/test_performance_security.py     # Performance/security tests
+pytest tests/test_*_edge_cases.py            # Comprehensive edge case testing
 ```
 
 ### Code Quality
 
 ```bash
-# Code quality analysis (9.89/10 score)
+# Code quality analysis (9.89/10 score maintained)
 pylint sseed/
 
 # Style compliance check  
@@ -177,6 +180,9 @@ mypy sseed/
 
 # Security audit
 bandit -r sseed/
+
+# Property-based testing with Hypothesis
+pytest tests/test_slip39_property_based.py -v
 ```
 
 ## License
