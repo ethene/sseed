@@ -1,12 +1,11 @@
 # SSeed
 
 [![PyPI Version](https://img.shields.io/pypi/v/sseed.svg)](https://pypi.org/project/sseed/)
-[![CI Status](https://github.com/yourusername/sseed/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/yourusername/sseed/actions)
-[![Downloads](https://img.shields.io/pypi/dm/sseed.svg)](https://pypi.org/project/sseed/)
+[![CI Status](https://github.com/ethene/sseed/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/ethene/sseed/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/sseed.svg)](https://pypi.org/project/sseed/)
-[![Test Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](https://github.com/yourusername/sseed)
-[![Code Quality](https://img.shields.io/badge/pylint-9.89%2F10-brightgreen.svg)](https://github.com/yourusername/sseed)
+[![Test Coverage](https://img.shields.io/badge/coverage-87.8%25-brightgreen.svg)](https://github.com/ethene/sseed)
+[![Code Quality](https://img.shields.io/badge/pylint-9.5%2B%2F10-brightgreen.svg)](https://github.com/ethene/sseed)
 
 **Secure, offline BIP39/SLIP39 cryptocurrency seed management with mathematical verification**
 
@@ -94,7 +93,7 @@ pip install sseed
 
 ### From Source
 ```bash
-git clone https://github.com/yourusername/sseed.git
+git clone https://github.com/ethene/sseed.git
 cd sseed
 pip install .
 ```
@@ -105,7 +104,7 @@ pip install .
 pip install -e ".[dev]"
 
 # Run comprehensive test suite
-pytest  # 265+ tests with 90% coverage
+pytest  # 290+ tests with 87.8% coverage
 
 # Version management (follows PEP 440)
 make bump-patch          # 1.0.1 → 1.0.2
@@ -160,7 +159,7 @@ make build             # Build distribution packages
 
 ## 🧪 Quality Assurance
 
-- **90% test coverage** with 265+ comprehensive tests
+- **87.8% test coverage** with 290+ comprehensive tests
 - **Property-based testing** using Hypothesis framework
 - **9.89/10 code quality** score (Pylint)
 - **Zero security vulnerabilities** (Bandit audit)
