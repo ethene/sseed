@@ -154,7 +154,7 @@ class TestCLIIntegration:
     def test_error_handling_invalid_threshold(self):
         """Test CLI error handling with invalid threshold."""
         exit_code, stdout, stderr = self.run_sseed_command(["shard", "-g", "5-of-3"])
-        assert exit_code == 1  # Usage error
+        assert exit_code == 4  # Validation error
         assert "Invalid group configuration" in stderr
 
     def test_error_handling_nonexistent_file(self):

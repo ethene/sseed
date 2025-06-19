@@ -155,9 +155,10 @@ class TestValidationEdgeCases:
 
     def test_validate_mnemonic_words_mixed_case(self):
         """Test mnemonic word validation with mixed case."""
-        words = ["Abandon", "About", "ABILITY", "able"]
-        # Should normalize to lowercase
-        validate_mnemonic_words(words)
+        words = ["Abandon", "About", "ABILITY", "able"] * 3  # 12 words
+        # Should fail because validation expects lowercase only
+        with pytest.raises(ValidationError, match="Invalid word format"):
+            validate_mnemonic_words(words)
 
     # ===== GROUP THRESHOLD VALIDATION EDGE CASES =====
 
