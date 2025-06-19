@@ -60,13 +60,13 @@ def valid_group_configs(draw) -> List[Tuple[int, int]]:
     """
     # SLIP-39 rule: threshold 1 requires exactly 1 total share
     # For meaningful sharing, use threshold >= 2
-    
+
     # Generate threshold first (2-6 for meaningful secret sharing)
     threshold = draw(st.integers(min_value=2, max_value=6))
-    
+
     # Generate total count >= threshold (up to 8 for performance)
     total = draw(st.integers(min_value=threshold, max_value=8))
-    
+
     # Return single group configuration
     return [(threshold, total)]
 
