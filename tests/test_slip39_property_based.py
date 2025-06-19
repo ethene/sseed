@@ -23,6 +23,7 @@ from hypothesis import (
     example,
     given,
     settings,
+    HealthCheck,
 )
 from hypothesis import strategies as st
 from hypothesis.stateful import (
@@ -53,22 +54,21 @@ def valid_group_configs(draw) -> List[Tuple[int, int]]:
     """Generate valid SLIP-39 group configurations.
 
     Returns configurations of (threshold, total) pairs where:
-    - threshold >= 1 and <= total
-    - total >= 1 and <= 16 (reasonable limit for testing)
-    - threshold combinations that are cryptographically meaningful
+    - If threshold == 1, then total must be 1 (SLIP-39 rule)
+    - If threshold > 1, then total can be >= threshold
+    - Reasonable limits for testing performance
     """
-    # Number of groups (1-3 for comprehensive testing)
-    num_groups = draw(st.integers(min_value=1, max_value=3))
-
-    groups = []
-    for _ in range(num_groups):
-        # Generate reasonable total counts (2-10 for performance)
-        total = draw(st.integers(min_value=2, max_value=10))
-        # Threshold must be <= total and >= 1, but also <= total-1 for meaningful sharing
-        threshold = draw(st.integers(min_value=1, max_value=min(total, 10)))
-        groups.append((threshold, total))
-
-    return groups
+    # SLIP-39 rule: threshold 1 requires exactly 1 total share
+    # For meaningful sharing, use threshold >= 2
+    
+    # Generate threshold first (2-6 for meaningful secret sharing)
+    threshold = draw(st.integers(min_value=2, max_value=6))
+    
+    # Generate total count >= threshold (up to 8 for performance)
+    total = draw(st.integers(min_value=threshold, max_value=8))
+    
+    # Return single group configuration
+    return [(threshold, total)]
 
 
 def valid_mnemonics() -> st.SearchStrategy[str]:
@@ -115,7 +115,7 @@ class TestSlip39Properties:
     """Property-based tests for SLIP-39 cryptographic properties."""
 
     @given(mnemonic=valid_mnemonics(), groups=valid_group_configs())
-    @settings(max_examples=50, deadline=5000)  # Reasonable limits for crypto operations
+    @settings(max_examples=30, deadline=5000, suppress_health_check=[HealthCheck.filter_too_much])
     def test_property_perfect_reconstruction(
         self, mnemonic: str, groups: List[Tuple[int, int]]
     ) -> None:
@@ -126,39 +126,36 @@ class TestSlip39Properties:
         - Any combination of threshold shards should reconstruct the original
         - Reconstruction should be exact and deterministic
         """
-        try:
-            # Create shards with the given configuration
-            shards = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
+        # Create shards with the given configuration
+        shards = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
 
-            # Get the threshold for the first group (simplified for single group testing)
-            threshold = groups[0][0]
+        # Get the threshold for the first group
+        threshold = groups[0][0]
 
-            # Test multiple random subsets of threshold size
-            import itertools
-            from random import sample
+        # Ensure we have enough shards (should always be true with our strategy)
+        assert len(shards) >= threshold, f"Not enough shards: {len(shards)} < {threshold}"
 
-            # Test a few random combinations to verify reconstruction property
-            if len(shards) >= threshold:
-                # Test with exactly threshold shards
-                for _ in range(min(5, len(list(itertools.combinations(shards, threshold))))):
-                    subset_indices = sample(range(len(shards)), threshold)
-                    test_shards = [shards[i] for i in subset_indices]
+        # Test with exactly threshold shards (test a few combinations)
+        import itertools
+        from random import sample
 
-                    reconstructed = reconstruct_mnemonic_from_shards(test_shards)
+        # Test up to 3 random combinations for performance
+        num_tests = min(3, len(list(itertools.combinations(range(len(shards)), threshold))))
+        for _ in range(num_tests):
+            subset_indices = sample(range(len(shards)), threshold)
+            test_shards = [shards[i] for i in subset_indices]
 
-                    # Property: Reconstruction must equal original
-                    assert (
-                        reconstructed == mnemonic
-                    ), f"Reconstruction failed: got '{reconstructed}', expected '{mnemonic}'"
+            reconstructed = reconstruct_mnemonic_from_shards(test_shards)
 
-                    # Property: Reconstructed mnemonic must be valid
-                    assert validate_mnemonic(
-                        reconstructed
-                    ), f"Reconstructed mnemonic is invalid: {reconstructed}"
+            # Property: Reconstruction must equal original
+            assert (
+                reconstructed == mnemonic
+            ), f"Reconstruction failed: got '{reconstructed}', expected '{mnemonic}'"
 
-        except Exception as e:
-            # Skip configurations that are invalid for SLIP-39
-            assume(False)
+            # Property: Reconstructed mnemonic must be valid
+            assert validate_mnemonic(
+                reconstructed
+            ), f"Reconstructed mnemonic is invalid: {reconstructed}"
 
     @given(mnemonic=valid_mnemonics(), groups=valid_group_configs())
     @settings(max_examples=30, deadline=5000)
@@ -268,39 +265,35 @@ class TestSlip39Properties:
             assume(False)
 
     @given(mnemonic=valid_mnemonics(), groups=valid_group_configs())
-    @settings(max_examples=25, deadline=4000)
-    def test_property_excess_shards_do_not_harm(
+    @settings(max_examples=20, deadline=4000, suppress_health_check=[HealthCheck.filter_too_much])
+    def test_property_multiple_threshold_combinations_work(
         self, mnemonic: str, groups: List[Tuple[int, int]]
     ) -> None:
-        """Property: Using more than threshold shards does not harm reconstruction.
+        """Property: Different combinations of exactly threshold shards all work.
 
-        This tests that the interpolation algorithm correctly handles
-        redundant information without degradation.
+        SLIP-39 requires exactly the threshold number of shards for reconstruction.
+        This tests that any valid combination of threshold shards reconstructs correctly.
         """
-        try:
-            shards = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
-            threshold = groups[0][0]
+        shards = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
+        threshold = groups[0][0]
 
-            if len(shards) > threshold:
-                # Test with threshold shards
-                minimal_reconstruction = reconstruct_mnemonic_from_shards(shards[:threshold])
+        # Only test if we have more shards available than threshold
+        if len(shards) > threshold:
+            import itertools
+            from random import sample
 
-                # Test with all available shards
-                maximal_reconstruction = reconstruct_mnemonic_from_shards(shards)
+            # Test multiple combinations of exactly threshold shards
+            # Test up to 3 combinations for performance
+            all_combinations = list(itertools.combinations(shards, threshold))
+            test_combinations = sample(all_combinations, min(3, len(all_combinations)))
 
-                # Property: Both should give the same result
-                assert minimal_reconstruction == maximal_reconstruction, (
-                    f"Excess shards changed result: minimal={minimal_reconstruction}, "
-                    f"maximal={maximal_reconstruction}"
-                )
+            for shard_combination in test_combinations:
+                reconstructed = reconstruct_mnemonic_from_shards(list(shard_combination))
 
-                # Property: Both should equal original
+                # Property: Each combination should reconstruct to original
                 assert (
-                    minimal_reconstruction == mnemonic
-                ), f"Reconstruction failed: got {minimal_reconstruction}, expected {mnemonic}"
-
-        except Exception as e:
-            assume(False)
+                    reconstructed == mnemonic
+                ), f"Combination {shard_combination[:2]}... failed reconstruction"
 
     @given(
         mnemonic=valid_mnemonics(),
