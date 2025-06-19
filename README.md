@@ -1,6 +1,7 @@
 # SSeed
 
 [![PyPI Version](https://img.shields.io/pypi/v/sseed.svg)](https://pypi.org/project/sseed/)
+[![CI Status](https://github.com/yourusername/sseed/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/yourusername/sseed/actions)
 [![Downloads](https://img.shields.io/pypi/dm/sseed.svg)](https://pypi.org/project/sseed/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/sseed.svg)](https://pypi.org/project/sseed/)
@@ -115,6 +116,8 @@ make bump-patch DRY_RUN=1  # Preview changes
 # Quality assurance
 make test               # Run tests with coverage
 make check             # Code quality checks
+make ci-test           # Run CI-style tests (lint + mypy + pytest)
+make build             # Build distribution packages
 ```
 
 ## 🔧 Command Reference

@@ -1,7 +1,7 @@
 # SSeed Project Makefile
 # Provides convenient targets for development and release management
 
-.PHONY: help bump-major bump-minor bump-patch test check install clean docs version
+.PHONY: help bump-major bump-minor bump-patch test check install clean docs version ci-test build
 
 # Default target
 help: ## Show this help message
@@ -17,6 +17,8 @@ help: ## Show this help message
 	@echo "Development:"
 	@echo "  test           Run all tests with coverage"
 	@echo "  check          Run code quality checks (pylint, flake8, mypy)"
+	@echo "  ci-test        Run CI-style tests (lint + mypy + pytest)"
+	@echo "  build          Build distribution packages"
 	@echo "  install        Install package in development mode"
 	@echo "  clean          Clean build artifacts and cache files"
 	@echo ""
@@ -72,6 +74,26 @@ clean: ## Clean build artifacts and cache files
 	@rm -rf htmlcov/
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@find . -type f -name "*.pyc" -delete
+
+# CI/CD targets
+ci-test: ## Run CI-style tests (same as GitHub Actions)
+	@echo "🧪 Running CI-style tests..."
+	@echo "1️⃣ Linting (Pylint)..."
+	@python -m pylint sseed/ --fail-under=9.5
+	@echo "2️⃣ Type checking (MyPy)..."
+	@python -m mypy sseed/
+	@echo "3️⃣ Style check (Black)..."
+	@python -m black --check sseed/ tests/
+	@echo "4️⃣ Running tests with coverage..."
+	@python -m pytest --cov=sseed --cov-fail-under=90 --cov-report=term-missing -v tests/
+	@echo "✅ All CI checks passed!"
+
+build: ## Build distribution packages
+	@echo "📦 Building distribution packages..."
+	@python -m pip install --upgrade build twine
+	@python -m build
+	@python -m twine check dist/*
+	@echo "✅ Packages built successfully!"
 
 # Advanced version management (specific versions)
 bump-to: ## Bump to specific version (usage: make bump-to VERSION=1.2.3)

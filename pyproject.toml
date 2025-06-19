@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sseed"
-version = "1.1.0"
+version = "1.2.0"
 description = "Offline BIP39/SLIP39 CLI Tool for secure cryptocurrency seed management"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -31,12 +31,38 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    # Testing framework
     "pytest>=8.3.4",
     "pytest-asyncio>=0.23.5",
+    "pytest-cov>=4.1.0",
+    "pytest-xdist>=3.6.1",
+    "pytest-html>=4.1.1",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.112.0",
+    "coverage[toml]>=7.3.0",
+    
+    # Code quality and linting
+    "pylint>=3.0.0",
     "mypy>=1.16.1",
+    "flake8>=7.0.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
     "ruff>=0.12.0",
+    
+    # Security tools
     "bandit>=1.8.5",
+    "safety>=3.0.0",
+    "pip-audit>=2.6.0",
+    
+    # Build and distribution
+    "build>=1.0.0",
+    "twine>=4.0.0",
+    "wheel>=0.42.0",
+    "setuptools>=69.0.0",
+    
+    # Performance monitoring
     "psutil>=5.9.0",
+    "memory-profiler>=0.61.0",
 ]
 
 [project.scripts]
@@ -48,7 +74,7 @@ include = ["sseed*"]
 
 [tool.ruff]
 line-length = 100
-target-version = "1.1.0"
+target-version = "1.2.0"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "D", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
@@ -58,7 +84,7 @@ ignore = ["D100", "D104", "D107", "EM101", "EM102", "TRY003", "TRY300", "TRY400"
 convention = "google"
 
 [tool.mypy]
-python_version = "1.1.0"
+python_version = "1.2.0"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

@@ -120,4 +120,5 @@ This directory contains comprehensive documentation of sseed's capabilities acro
 | **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.3KB | 265+ tests, 90% coverage |
 | **Code Quality** | [code-quality.md](./code-quality.md) | 15.2KB | 9.89/10 score, 90% coverage |
 | **Version Management** | [version-management.md](./version-management.md) | 14.1KB | PEP 440 compliance, changelog automation |
+| **CI/CD Automation** | [ci-cd-automation.md](./ci-cd-automation.md) | 12.8KB | Multi-stage pipelines, 90% coverage enforcement |
 | **Coverage Analysis** | [COVERAGE_ANALYSIS.md](./COVERAGE_ANALYSIS.md) | 8.5KB | Detailed 90% coverage breakdown | 
