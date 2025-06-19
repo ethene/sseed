@@ -19,11 +19,11 @@ from typing import (
 
 import pytest
 from hypothesis import (
+    HealthCheck,
     assume,
     example,
     given,
     settings,
-    HealthCheck,
 )
 from hypothesis import strategies as st
 from hypothesis.stateful import (
