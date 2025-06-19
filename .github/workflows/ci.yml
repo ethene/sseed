@@ -75,8 +75,8 @@ jobs:
     - name: Dependency security check
       run: |
         echo "::group::Dependency security check"
-        safety check --json --output safety-report.json
-        safety check
+        safety check -r requirements.txt --save-json safety-report.json 2>/dev/null || true
+        safety check -r requirements.txt
         echo "::endgroup::"
     
     - name: Upload security reports
@@ -323,8 +323,8 @@ jobs:
         bandit -r sseed/ -ll
         
         echo "🔒 Running Safety dependency check..."
-        safety check --json --output safety-detailed.json
-        safety check
+        safety check -r requirements.txt --save-json safety-detailed.json 2>/dev/null || true
+        safety check -r requirements.txt
         
         echo "🔒 Running pip-audit..."
         pip-audit --format=json --output=pip-audit.json
