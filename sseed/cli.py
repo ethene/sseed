@@ -9,6 +9,7 @@ Provides command-line interface for BIP39/SLIP39 operations:
 import argparse
 import sys
 
+from sseed import __version__
 from sseed.bip39 import generate_mnemonic
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import (
@@ -41,12 +42,88 @@ from sseed.validation import (
     validate_shard_integrity,
 )
 
-# Exit codes as specified in PRD
+# Comprehensive exit codes for better script integration
 EXIT_SUCCESS = 0
 EXIT_USAGE_ERROR = 1
 EXIT_CRYPTO_ERROR = 2
+EXIT_FILE_ERROR = 3
+EXIT_VALIDATION_ERROR = 4
+EXIT_INTERRUPTED = 130  # Standard exit code for SIGINT
 
 logger = get_logger(__name__)
+
+
+def show_examples() -> None:
+    """Display comprehensive usage examples."""
+    examples = """
+SSEED USAGE EXAMPLES
+
+Basic Operations:
+  # Generate a new mnemonic
+  sseed gen
+  
+  # Generate and save to file
+  sseed gen -o my-wallet-backup.txt
+
+  # Split mnemonic into 3-of-5 shards
+  sseed shard -i my-wallet-backup.txt -g 3-of-5
+  
+  # Split and save to separate files
+  sseed shard -i seed.txt -g 3-of-5 --separate -o shards
+
+  # Restore from any 3 shards
+  sseed restore shard_01.txt shard_02.txt shard_03.txt
+
+Advanced Workflows:
+  # Generate and immediately shard (one-liner)
+  sseed gen | sseed shard -g 2-of-3
+  
+  # Multi-group enterprise setup
+  sseed shard -g "2:(2-of-3,3-of-5)" -i seed.txt --separate -o enterprise-shards
+  
+  # Complex multi-group with geographic distribution
+  sseed shard -g "3:(3-of-5,4-of-7,2-of-3)" -i master-seed.txt --separate -o geo-dist
+
+  # Restore and save to new file
+  sseed restore shard*.txt -o restored-seed.txt
+
+File Management:
+  # Generate with timestamp
+  sseed gen -o "backup-$(date +%Y%m%d-%H%M%S).txt"
+  
+  # Restore from pattern
+  sseed restore /secure/location/shard_*.txt
+
+Group Configuration Examples:
+  Simple Threshold:
+    3-of-5    Any 3 of 5 shards required
+    2-of-3    Any 2 of 3 shards required
+    
+  Multi-Group Security:
+    2:(2-of-3,3-of-5)         Need 2 groups: 2-of-3 AND 3-of-5
+    3:(3-of-5,4-of-7,2-of-3)  Need all 3 groups with different thresholds
+
+Security Best Practices:
+  # Always verify generated mnemonics
+  sseed gen -o backup.txt && cat backup.txt
+  
+  # Store shards in separate secure locations
+  sseed shard -i seed.txt -g 3-of-5 --separate -o /secure/location1/
+  cp shard_*.txt /secure/location2/ && rm shard_*.txt
+  
+  # Test restoration before relying on shards
+  sseed restore /test/shard*.txt
+
+Integration Examples:
+  # Backup existing wallet
+  echo "your existing mnemonic words here" | sseed shard -g 3-of-5 --separate -o backup
+  
+  # Automated backup with verification
+  sseed gen -o master.txt && sseed shard -i master.txt -g 3-of-5 --separate -o shards
+
+For more information, see: https://github.com/yourusername/sseed
+"""
+    print(examples)
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -57,15 +134,59 @@ def create_parser() -> argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(
         prog="sseed",
-        description="Offline BIP39/SLIP39 CLI Tool for secure cryptocurrency seed management",
+        description="Secure, offline BIP39/SLIP39 cryptocurrency seed management with mathematical verification",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  sseed gen                           # Generate mnemonic to stdout
-  sseed gen -o seed.txt              # Generate mnemonic to file
-  sseed shard -i seed.txt -g 3-of-5  # Shard with 3-of-5 threshold
-  sseed restore shard1.txt shard2.txt shard3.txt  # Restore from shards
+QUICK EXAMPLES:
+  sseed gen                              Generate secure mnemonic
+  sseed gen -o backup.txt               Save mnemonic to file
+  sseed shard -i seed.txt -g 3-of-5     Split into 3-of-5 threshold shards
+  sseed shard -g 2-of-3 --separate      Split stdin and save to separate files
+  sseed restore shard*.txt              Restore from shard files
+
+ADVANCED CONFIGURATIONS:
+  Multi-group:     sseed shard -g "2:(2-of-3,3-of-5)" -i seed.txt
+  Enterprise:      sseed shard -g "3:(3-of-5,4-of-7,2-of-3)" --separate -o geo-dist
+  One-liner:       sseed gen | sseed shard -g 3-of-5
+
+EXIT CODES:
+  0   Success
+  1   Usage/argument error
+  2   Cryptographic error (entropy, validation, reconstruction)
+  3   File I/O error
+  4   Validation error (checksums, format)
+  130 Interrupted by user (Ctrl+C)
+
+Use 'sseed --examples' for comprehensive usage examples and best practices.
+For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/security.md
         """,
+    )
+
+    # Global options (before subcommands)
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"sseed {__version__}",
+        help="Show version information and exit"
+    )
+    
+    parser.add_argument(
+        "--examples",
+        action="store_true",
+        help="Show comprehensive usage examples and exit"
+    )
+    
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging",
+    )
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="INFO",
+        help="Set logging level (default: INFO)",
     )
 
     # Add subcommands
@@ -75,11 +196,14 @@ Examples:
     gen_parser = subparsers.add_parser(
         "gen",
         help="Generate a 24-word BIP-39 mnemonic using secure entropy",
+        description="Generate a cryptographically secure 24-word BIP-39 mnemonic using system entropy.",
+        epilog="Example: sseed gen -o my-wallet-backup.txt"
     )
     gen_parser.add_argument(
         "-o",
         "--output",
         type=str,
+        metavar="FILE",
         help="Output file (default: stdout)",
     )
 
@@ -87,11 +211,19 @@ Examples:
     shard_parser = subparsers.add_parser(
         "shard",
         help="Split mnemonic into SLIP-39 shards with group/threshold configuration",
+        description="Split a BIP-39 mnemonic into SLIP-39 threshold shards for secure distribution.",
+        epilog="""
+Examples:
+  sseed shard -i seed.txt -g 3-of-5                    Simple threshold
+  sseed shard -g "2:(2-of-3,3-of-5)" --separate       Multi-group setup
+  echo "mnemonic words..." | sseed shard -g 2-of-3     From stdin
+        """
     )
     shard_parser.add_argument(
         "-i",
         "--input",
         type=str,
+        metavar="FILE",
         help="Input file containing mnemonic (default: stdin)",
     )
     shard_parser.add_argument(
@@ -99,12 +231,14 @@ Examples:
         "--group",
         type=str,
         default="3-of-5",
-        help="Group threshold configuration (default: 3-of-5)",
+        metavar="CONFIG",
+        help="Group threshold configuration (default: 3-of-5). Examples: '3-of-5', '2:(2-of-3,3-of-5)'",
     )
     shard_parser.add_argument(
         "-o",
         "--output",
         type=str,
+        metavar="FILE",
         help="Output file for shards (default: stdout)",
     )
     shard_parser.add_argument(
@@ -117,31 +251,26 @@ Examples:
     restore_parser = subparsers.add_parser(
         "restore",
         help="Reconstruct mnemonic from a valid set of SLIP-39 shards",
+        description="Reconstruct the original mnemonic from SLIP-39 shards using Shamir's Secret Sharing.",
+        epilog="""
+Examples:
+  sseed restore shard1.txt shard2.txt shard3.txt       From specific files
+  sseed restore shard*.txt                             Using shell glob
+  sseed restore /backup/location/shard_*.txt           Full paths
+        """
     )
     restore_parser.add_argument(
         "shards",
         nargs="+",
+        metavar="SHARD_FILE",
         help="Shard files to use for reconstruction",
     )
     restore_parser.add_argument(
         "-o",
         "--output",
         type=str,
+        metavar="FILE",
         help="Output file for reconstructed mnemonic (default: stdout)",
-    )
-
-    # Global options
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging",
-    )
-    parser.add_argument(
-        "--log-level",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        default="INFO",
-        help="Set logging level (default: INFO)",
     )
 
     return parser
@@ -191,10 +320,14 @@ def handle_gen_command(args: argparse.Namespace) -> int:
         logger.error("Cryptographic error during generation: %s", e)
         print(f"Cryptographic error: {e}", file=sys.stderr)
         return EXIT_CRYPTO_ERROR
-    except (ValidationError, FileError) as e:
-        logger.error("Validation/file error during generation: %s", e)
-        print(f"Error: {e}", file=sys.stderr)
-        return EXIT_USAGE_ERROR
+    except FileError as e:
+        logger.error("File I/O error during generation: %s", e)
+        print(f"File error: {e}", file=sys.stderr)
+        return EXIT_FILE_ERROR
+    except ValidationError as e:
+        logger.error("Validation error during generation: %s", e)
+        print(f"Validation error: {e}", file=sys.stderr)
+        return EXIT_VALIDATION_ERROR
     except Exception as e:
         logger.error("Unexpected error during generation: %s", e)
         print(f"Unexpected error: {e}", file=sys.stderr)
@@ -286,10 +419,14 @@ def handle_shard_command(args: argparse.Namespace) -> int:
         logger.error("Cryptographic error during sharding: %s", e)
         print(f"Cryptographic error: {e}", file=sys.stderr)
         return EXIT_CRYPTO_ERROR
-    except (ValidationError, FileError) as e:
-        logger.error("Validation/file error during sharding: %s", e)
-        print(f"Error: {e}", file=sys.stderr)
-        return EXIT_USAGE_ERROR
+    except FileError as e:
+        logger.error("File I/O error during sharding: %s", e)
+        print(f"File error: {e}", file=sys.stderr)
+        return EXIT_FILE_ERROR
+    except ValidationError as e:
+        logger.error("Validation error during sharding: %s", e)
+        print(f"Validation error: {e}", file=sys.stderr)
+        return EXIT_VALIDATION_ERROR
     except Exception as e:
         logger.error("Unexpected error during sharding: %s", e)
         print(f"Unexpected error: {e}", file=sys.stderr)
@@ -318,7 +455,7 @@ def handle_restore_command(args: argparse.Namespace) -> int:
         except ValidationError as e:
             logger.error("Shard integrity validation failed: %s", e)
             print(f"Shard validation error: {e}", file=sys.stderr)
-            return EXIT_USAGE_ERROR
+            return EXIT_VALIDATION_ERROR
 
         try:
             # Reconstruct mnemonic from shards
@@ -353,10 +490,14 @@ def handle_restore_command(args: argparse.Namespace) -> int:
         logger.error("Cryptographic error during restoration: %s", e)
         print(f"Cryptographic error: {e}", file=sys.stderr)
         return EXIT_CRYPTO_ERROR
-    except (ValidationError, FileError) as e:
-        logger.error("Validation/file error during restoration: %s", e)
-        print(f"Error: {e}", file=sys.stderr)
-        return EXIT_USAGE_ERROR
+    except FileError as e:
+        logger.error("File I/O error during restoration: %s", e)
+        print(f"File error: {e}", file=sys.stderr)
+        return EXIT_FILE_ERROR
+    except ValidationError as e:
+        logger.error("Validation error during restoration: %s", e)
+        print(f"Validation error: {e}", file=sys.stderr)
+        return EXIT_VALIDATION_ERROR
     except Exception as e:
         logger.error("Unexpected error during restoration: %s", e)
         print(f"Unexpected error: {e}", file=sys.stderr)
@@ -370,7 +511,7 @@ def main(argv: list[str] | None = None) -> int:
         argv: Command-line arguments (default: sys.argv[1:]).
 
     Returns:
-        Exit code.
+        Exit code (0=success, 1=usage error, 2=crypto error, 3=file error, 4=validation error, 130=interrupted).
     """
     parser = create_parser()
 
@@ -379,6 +520,11 @@ def main(argv: list[str] | None = None) -> int:
     except SystemExit as e:
         # argparse calls sys.exit(), capture and convert to our exit codes
         return EXIT_USAGE_ERROR if e.code != 0 else EXIT_SUCCESS
+
+    # Handle --examples flag
+    if hasattr(args, 'examples') and args.examples:
+        show_examples()
+        return EXIT_SUCCESS
 
     # Set up logging
     log_level = "DEBUG" if args.verbose else args.log_level
@@ -394,20 +540,31 @@ def main(argv: list[str] | None = None) -> int:
             return handle_shard_command(args)
         if args.command == "restore":
             return handle_restore_command(args)
+        
+        # No command specified - show help
         parser.print_help()
         return EXIT_USAGE_ERROR
 
     except KeyboardInterrupt:
-        logger.info("Operation cancelled by user")
-        print("Operation cancelled by user", file=sys.stderr)
-        return EXIT_USAGE_ERROR
+        logger.info("Operation cancelled by user (SIGINT)")
+        print("\nOperation cancelled by user", file=sys.stderr)
+        return EXIT_INTERRUPTED
+    except FileError as e:
+        logger.error("File I/O error: %s", e)
+        print(f"File error: {e}", file=sys.stderr)
+        return EXIT_FILE_ERROR
+    except ValidationError as e:
+        logger.error("Validation error: %s", e)
+        print(f"Validation error: {e}", file=sys.stderr)
+        return EXIT_VALIDATION_ERROR
+    except (MnemonicError, ShardError, SecurityError, EntropyError) as e:
+        logger.error("Cryptographic error: %s", e)
+        print(f"Cryptographic error: {e}", file=sys.stderr)
+        return EXIT_CRYPTO_ERROR
     except SseedError as e:
-        # Handle all sseed-specific errors
+        # Handle any other sseed-specific errors
         logger.error("sseed error: %s", e)
         print(f"Error: {e}", file=sys.stderr)
-        # Determine exit code based on error type
-        if isinstance(e, (MnemonicError, ShardError, SecurityError, EntropyError)):
-            return EXIT_CRYPTO_ERROR
         return EXIT_USAGE_ERROR
     except Exception as e:
         logger.exception("Unexpected error: %s", e)

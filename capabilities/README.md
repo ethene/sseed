@@ -55,6 +55,13 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - 9.89/10 quality score achievement
 - Industry-leading 90% test coverage
 
+### 🏷️ [Version Management](./version-management.md)
+- PEP 440 compliant version validation and bumping
+- Automatic changelog generation following Keep a Changelog format
+- Multi-file synchronization (__init__.py, pyproject.toml)
+- Git integration with commit and tag automation
+- Dry-run support for safe testing
+
 ## Quick Reference
 
 | Capability | Key Features | Performance | Test Coverage |
@@ -110,6 +117,7 @@ This directory contains comprehensive documentation of sseed's capabilities acro
 | **Security** | [security-features.md](./security-features.md) | 13.7KB | 100% offline, secure memory |
 | **Performance** | [performance.md](./performance.md) | 10.9KB | Exceeds requirements 5-75x |
 | **Integration** | [integration.md](./integration.md) | 20.3KB | Enterprise deployment ready |
-| **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.3KB | 254 tests, 90% coverage |
+| **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.3KB | 265+ tests, 90% coverage |
 | **Code Quality** | [code-quality.md](./code-quality.md) | 15.2KB | 9.89/10 score, 90% coverage |
+| **Version Management** | [version-management.md](./version-management.md) | 14.1KB | PEP 440 compliance, changelog automation |
 | **Coverage Analysis** | [COVERAGE_ANALYSIS.md](./COVERAGE_ANALYSIS.md) | 8.5KB | Detailed 90% coverage breakdown | 

@@ -159,8 +159,8 @@ class TestCLIIntegration:
     def test_error_handling_nonexistent_file(self):
         """Test CLI error handling with nonexistent input file."""
         exit_code, stdout, stderr = self.run_sseed_command(["shard", "-i", "nonexistent_file.txt"])
-        assert exit_code == 1  # File error
-        assert "Error:" in stderr
+        assert exit_code == 3  # File I/O error (improved exit codes)
+        assert "File error:" in stderr
 
     def test_help_commands(self):
         """Test help functionality for all commands."""

@@ -100,8 +100,21 @@ pip install .
 
 ### Development Setup
 ```bash
+# Install in development mode
 pip install -e ".[dev]"
-pytest  # Run 265+ comprehensive tests
+
+# Run comprehensive test suite
+pytest  # 265+ tests with 90% coverage
+
+# Version management (follows PEP 440)
+make bump-patch          # 1.0.1 → 1.0.2
+make bump-minor          # 1.0.1 → 1.1.0
+make bump-major          # 1.0.1 → 2.0.0
+make bump-patch DRY_RUN=1  # Preview changes
+
+# Quality assurance
+make test               # Run tests with coverage
+make check             # Code quality checks
 ```
 
 ## 🔧 Command Reference
