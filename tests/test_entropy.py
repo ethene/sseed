@@ -5,8 +5,7 @@ Tests secure entropy generation and memory handling as implemented in Phase 2.
 
 import pytest
 
-from sseed.entropy import (generate_entropy_bits, generate_entropy_bytes,
-                           secure_delete_variable)
+from sseed.entropy import generate_entropy_bits, generate_entropy_bytes, secure_delete_variable
 from sseed.exceptions import EntropyError, SecurityError
 
 
@@ -110,21 +109,13 @@ class TestFuzzTesting:
         duration = end_time - start_time
 
         # Verify all seeds are unique
-        assert (
-            len(seeds) == num_seeds
-        ), f"Expected {num_seeds} unique seeds, got {len(seeds)}"
+        assert len(seeds) == num_seeds, f"Expected {num_seeds} unique seeds, got {len(seeds)}"
 
         # Verify performance requirement (should be well under 5 seconds for 100k)
-        print(
-            f"Fuzz test completed in {duration:.2f} seconds ({num_seeds/duration:.0f} seeds/sec)"
-        )
-        assert (
-            duration < 30.0
-        ), f"Fuzz test took too long: {duration:.2f}s (should be < 30s)"
+        print(f"Fuzz test completed in {duration:.2f} seconds ({num_seeds/duration:.0f} seeds/sec)")
+        assert duration < 30.0, f"Fuzz test took too long: {duration:.2f}s (should be < 30s)"
 
-        print(
-            f"✅ Fuzz test PASSED: {num_seeds:,} unique seeds generated in {duration:.2f}s"
-        )
+        print(f"✅ Fuzz test PASSED: {num_seeds:,} unique seeds generated in {duration:.2f}s")
 
     def test_fuzz_entropy_bytes_unique_check(self) -> None:
         """Fuzz test: Generate 10k entropy byte arrays and verify uniqueness."""
@@ -137,6 +128,4 @@ class TestFuzzTesting:
 
         # All byte arrays should be unique
         assert len(entropy_set) == num_samples
-        print(
-            f"✅ Bytes fuzz test PASSED: {num_samples:,} unique byte arrays generated"
-        )
+        print(f"✅ Bytes fuzz test PASSED: {num_samples:,} unique byte arrays generated")

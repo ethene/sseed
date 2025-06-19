@@ -11,8 +11,7 @@ from pathlib import Path
 
 from sseed.exceptions import FileError
 from sseed.logging_config import get_logger
-from sseed.validation import (normalize_input, sanitize_filename,
-                              validate_mnemonic_words)
+from sseed.validation import normalize_input, sanitize_filename, validate_mnemonic_words
 
 logger = get_logger(__name__)
 
@@ -78,9 +77,7 @@ def read_mnemonic_from_file(file_path: str) -> str:
         raise FileError(error_msg) from e
 
 
-def write_mnemonic_to_file(
-    mnemonic: str, file_path: str, include_comments: bool = True
-) -> None:
+def write_mnemonic_to_file(mnemonic: str, file_path: str, include_comments: bool = True) -> None:
     """Write a mnemonic to a file.
 
     Writes a mnemonic to a file in UTF-8 format as specified in Phase 6 requirements.
@@ -121,9 +118,7 @@ def write_mnemonic_to_file(
                     "# Keep this file extremely secure and consider "
                     "splitting into SLIP-39 shards.\n"
                 )
-                f.write(
-                    "# Anyone with access to this mnemonic can access your funds.\n"
-                )
+                f.write("# Anyone with access to this mnemonic can access your funds.\n")
                 f.write("#\n")
                 f.write("# File format: Plain text UTF-8\n")
                 f.write("# Lines starting with '#' are comments and will be ignored.\n")
@@ -137,9 +132,7 @@ def write_mnemonic_to_file(
     except Exception as e:
         error_msg = f"Failed to write mnemonic to file '{file_path}': {e}"
         logger.error(error_msg)
-        raise FileError(
-            error_msg, context={"file_path": str(file_path), "error": str(e)}
-        ) from e
+        raise FileError(error_msg, context={"file_path": str(file_path), "error": str(e)}) from e
 
 
 def read_shard_from_file(file_path: str) -> str:
@@ -235,9 +228,7 @@ def read_shards_from_files(file_paths: list[str]) -> list[str]:
     except Exception as e:
         error_msg = f"Failed to read shards from files: {e}"
         logger.error(error_msg)
-        raise FileError(
-            error_msg, context={"file_paths": file_paths, "error": str(e)}
-        ) from e
+        raise FileError(error_msg, context={"file_paths": file_paths, "error": str(e)}) from e
 
 
 def write_shards_to_file(shards: list[str], file_path: str) -> None:
@@ -273,12 +264,8 @@ def write_shards_to_file(shards: list[str], file_path: str) -> None:
             )
             f.write(f"# Contains {len(shards)} SLIP-39 shards\n")
             f.write("#\n")
-            f.write(
-                "# This file contains multiple SLIP-39 shards for mnemonic reconstruction.\n"
-            )
-            f.write(
-                "# Keep this file secure and consider splitting shards into separate files.\n"
-            )
+            f.write("# This file contains multiple SLIP-39 shards for mnemonic reconstruction.\n")
+            f.write("# Keep this file secure and consider splitting shards into separate files.\n")
             f.write(
                 "# You need at least the threshold number of shards to "
                 "reconstruct the original mnemonic.\n"
@@ -401,9 +388,7 @@ def _write_shard_with_comments(
             )
             f.write(f"# Shard {shard_num} of {total_shards}\n")
             f.write("#\n")
-            f.write(
-                "# This file contains a SLIP-39 shard for mnemonic reconstruction.\n"
-            )
+            f.write("# This file contains a SLIP-39 shard for mnemonic reconstruction.\n")
             f.write("# Keep this shard secure and separate from other shards.\n")
             f.write(
                 "# You need at least the threshold number of shards to "

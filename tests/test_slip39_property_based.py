@@ -21,8 +21,11 @@ from hypothesis.stateful import Bundle, RuleBasedStateMachine, invariant, rule
 
 from sseed.bip39 import generate_mnemonic, validate_mnemonic
 from sseed.exceptions import MnemonicError, ShardError
-from sseed.slip39_operations import (create_slip39_shards, parse_group_config,
-                                     reconstruct_mnemonic_from_shards)
+from sseed.slip39_operations import (
+    create_slip39_shards,
+    parse_group_config,
+    reconstruct_mnemonic_from_shards,
+)
 
 
 # Hypothesis strategies for SLIP-39 testing
@@ -118,9 +121,7 @@ class TestSlip39Properties:
             # Test a few random combinations to verify reconstruction property
             if len(shards) >= threshold:
                 # Test with exactly threshold shards
-                for _ in range(
-                    min(5, len(list(itertools.combinations(shards, threshold))))
-                ):
+                for _ in range(min(5, len(list(itertools.combinations(shards, threshold))))):
                     subset_indices = sample(range(len(shards)), threshold)
                     test_shards = [shards[i] for i in subset_indices]
 
@@ -263,9 +264,7 @@ class TestSlip39Properties:
 
             if len(shards) > threshold:
                 # Test with threshold shards
-                minimal_reconstruction = reconstruct_mnemonic_from_shards(
-                    shards[:threshold]
-                )
+                minimal_reconstruction = reconstruct_mnemonic_from_shards(shards[:threshold])
 
                 # Test with all available shards
                 maximal_reconstruction = reconstruct_mnemonic_from_shards(shards)
@@ -343,9 +342,7 @@ class TestSlip39AdvancedProperties:
 
             reconstructions = []
             for groups in configs:
-                shards = create_slip39_shards(
-                    mnemonic, group_threshold=1, groups=groups
-                )
+                shards = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
 
                 # Use exactly 3 shards from each configuration
                 test_shards = shards[:3]
@@ -376,14 +373,10 @@ class TestSlip39AdvancedProperties:
             )
 
             # Create shards with no passphrase parameter (default)
-            shards_none = create_slip39_shards(
-                mnemonic, group_threshold=1, groups=groups
-            )
+            shards_none = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
 
             # Test reconstruction consistency
-            reconstructed_empty = reconstruct_mnemonic_from_shards(
-                shards_empty[:3], passphrase=""
-            )
+            reconstructed_empty = reconstruct_mnemonic_from_shards(shards_empty[:3], passphrase="")
             reconstructed_none = reconstruct_mnemonic_from_shards(shards_none[:3])
 
             # Property: Both should reconstruct to original

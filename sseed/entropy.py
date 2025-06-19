@@ -62,9 +62,7 @@ def generate_entropy_bits(bits: int = 256) -> int:
         log_security_event(
             f"Entropy generation failed: {error_msg}", {"bits": bits, "error": str(e)}
         )
-        raise EntropyError(
-            error_msg, context={"bits": bits, "original_error": str(e)}
-        ) from e
+        raise EntropyError(error_msg, context={"bits": bits, "original_error": str(e)}) from e
 
 
 def generate_entropy_bytes(num_bytes: int = 32) -> bytes:
@@ -104,9 +102,7 @@ def generate_entropy_bytes(num_bytes: int = 32) -> bytes:
             )
 
         logger.info("Successfully generated %d bytes of entropy", num_bytes)
-        log_security_event(
-            f"Entropy generation: {num_bytes} bytes", {"bytes": num_bytes}
-        )
+        log_security_event(f"Entropy generation: {num_bytes} bytes", {"bytes": num_bytes})
 
         return entropy_bytes
 
@@ -117,9 +113,7 @@ def generate_entropy_bytes(num_bytes: int = 32) -> bytes:
             f"Entropy generation failed: {error_msg}",
             {"bytes": num_bytes, "error": str(e)},
         )
-        raise EntropyError(
-            error_msg, context={"bytes": num_bytes, "original_error": str(e)}
-        ) from e
+        raise EntropyError(error_msg, context={"bytes": num_bytes, "original_error": str(e)}) from e
 
 
 def secure_delete_variable(*variables: Any) -> None:

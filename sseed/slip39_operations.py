@@ -23,8 +23,7 @@ from sseed.bip39 import get_mnemonic_entropy, validate_mnemonic
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import MnemonicError, ShardError, ValidationError
 from sseed.logging_config import get_logger, log_security_event
-from sseed.validation import (detect_duplicate_shards, normalize_input,
-                              validate_group_threshold)
+from sseed.validation import detect_duplicate_shards, normalize_input, validate_group_threshold
 
 logger = get_logger(__name__)
 
@@ -151,18 +150,14 @@ def parse_group_config(group_config: str) -> tuple[int, list[tuple[int, int]]]:
                 context={"group_threshold": group_threshold, "num_groups": len(groups)},
             )
 
-        logger.info(
-            "Parsed group config: threshold=%d, groups=%s", group_threshold, groups
-        )
+        logger.info("Parsed group config: threshold=%d, groups=%s", group_threshold, groups)
 
         return group_threshold, groups
 
     except Exception as e:
         error_msg = f"Failed to parse group configuration '{group_config}': {e}"
         logger.error(error_msg)
-        raise ValidationError(
-            error_msg, context={"config": group_config, "error": str(e)}
-        ) from e
+        raise ValidationError(error_msg, context={"config": group_config, "error": str(e)}) from e
 
 
 def reconstruct_mnemonic_from_shards(
@@ -236,9 +231,7 @@ def reconstruct_mnemonic_from_shards(
                     context={"mnemonic_valid": False},
                 )
 
-            logger.info(
-                "Successfully reconstructed BIP-39 mnemonic from SLIP-39 shards"
-            )
+            logger.info("Successfully reconstructed BIP-39 mnemonic from SLIP-39 shards")
             log_security_event("SLIP-39 reconstruction completed successfully")
 
             return mnemonic_str

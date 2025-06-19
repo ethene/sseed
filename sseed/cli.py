@@ -12,20 +12,35 @@ import sys
 from sseed import __version__
 from sseed.bip39 import generate_mnemonic
 from sseed.entropy import secure_delete_variable
-from sseed.exceptions import (EntropyError, FileError, MnemonicError,
-                              SecurityError, ShardError, SseedError,
-                              ValidationError)
-from sseed.file_operations import (read_from_stdin, read_mnemonic_from_file,
-                                   read_shards_from_files,
-                                   write_mnemonic_to_file,
-                                   write_shards_to_file,
-                                   write_shards_to_separate_files)
+from sseed.exceptions import (
+    EntropyError,
+    FileError,
+    MnemonicError,
+    SecurityError,
+    ShardError,
+    SseedError,
+    ValidationError,
+)
+from sseed.file_operations import (
+    read_from_stdin,
+    read_mnemonic_from_file,
+    read_shards_from_files,
+    write_mnemonic_to_file,
+    write_shards_to_file,
+    write_shards_to_separate_files,
+)
 from sseed.logging_config import get_logger, setup_logging
-from sseed.slip39_operations import (create_slip39_shards, parse_group_config,
-                                     reconstruct_mnemonic_from_shards)
-from sseed.validation import (sanitize_filename, validate_group_threshold,
-                              validate_mnemonic_checksum,
-                              validate_shard_integrity)
+from sseed.slip39_operations import (
+    create_slip39_shards,
+    parse_group_config,
+    reconstruct_mnemonic_from_shards,
+)
+from sseed.validation import (
+    sanitize_filename,
+    validate_group_threshold,
+    validate_mnemonic_checksum,
+    validate_shard_integrity,
+)
 
 # Comprehensive exit codes for better script integration
 EXIT_SUCCESS = 0

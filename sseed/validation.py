@@ -52,9 +52,7 @@ def normalize_input(text: str) -> str:
         # Strip leading/trailing whitespace
         normalized = normalized.strip()
 
-        logger.debug(
-            "Normalized input: %d -> %d characters", len(text), len(normalized)
-        )
+        logger.debug("Normalized input: %d -> %d characters", len(text), len(normalized))
 
         return normalized
 
@@ -146,9 +144,7 @@ def validate_mnemonic_checksum(mnemonic: str) -> bool:
         if is_valid:
             logger.info("Mnemonic checksum validation: VALID (%d words)", len(words))
         else:
-            logger.warning(
-                "Mnemonic checksum validation: INVALID (%d words)", len(words)
-            )
+            logger.warning("Mnemonic checksum validation: INVALID (%d words)", len(words))
 
         return is_valid
 
@@ -228,9 +224,7 @@ def validate_group_threshold(group_config: str) -> tuple[int, int]:
 
     # Minimum threshold should be meaningful
     if threshold == 1 and total_shares > 1:
-        logger.warning(
-            "Threshold of 1 provides no security benefit with multiple shares"
-        )
+        logger.warning("Threshold of 1 provides no security benefit with multiple shares")
 
     logger.info("Validated group configuration: %d-of-%d", threshold, total_shares)
 

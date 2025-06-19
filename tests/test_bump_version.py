@@ -12,6 +12,7 @@ These tests verify:
 import importlib.util
 import re
 import subprocess
+
 # Import the BumpVersion class from the script
 import sys
 import tempfile
@@ -61,9 +62,7 @@ class TestVersionValidation:
             ]
 
             for version in valid_versions:
-                assert bumper.validate_pep440(
-                    version
-                ), f"Version {version} should be valid"
+                assert bumper.validate_pep440(version), f"Version {version} should be valid"
 
     def test_invalid_pep440_versions(self):
         """Test that invalid PEP 440 versions fail validation."""
@@ -86,9 +85,7 @@ class TestVersionValidation:
                 if version == "1.0.0.0.0.0":
                     # This is actually valid per PEP 440, so skip
                     continue
-                assert not bumper.validate_pep440(
-                    version
-                ), f"Version {version} should be invalid"
+                assert not bumper.validate_pep440(version), f"Version {version} should be invalid"
 
     def _create_minimal_project(self, temp_path: Path):
         """Create minimal project structure for testing."""
@@ -219,9 +216,7 @@ class TestFileOperations:
                 bumper = BumpVersion(temp_path)
 
                 version = bumper.get_current_version()
-                assert (
-                    version == "1.2.3"
-                ), f"Failed to extract version from: {init_content}"
+                assert version == "1.2.3", f"Failed to extract version from: {init_content}"
 
     def test_get_current_version_missing(self):
         """Test error when __version__ is missing."""

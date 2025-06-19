@@ -12,12 +12,15 @@ import pytest
 
 from sseed.bip39 import generate_mnemonic
 from sseed.exceptions import FileError
-from sseed.file_operations import (read_from_stdin, read_mnemonic_from_file,
-                                   read_shards_from_files,
-                                   write_mnemonic_to_file,
-                                   write_shards_to_file,
-                                   write_shards_to_separate_files,
-                                   write_to_stdout)
+from sseed.file_operations import (
+    read_from_stdin,
+    read_mnemonic_from_file,
+    read_shards_from_files,
+    write_mnemonic_to_file,
+    write_shards_to_file,
+    write_shards_to_separate_files,
+    write_to_stdout,
+)
 
 
 class TestFileOperations:
@@ -40,9 +43,7 @@ class TestFileOperations:
         """Test writing and reading a mnemonic to/from file."""
         mnemonic = generate_mnemonic()
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".txt"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
             tmp_path = tmp_file.name
 
         try:
@@ -63,9 +64,7 @@ class TestFileOperations:
         """Test reading mnemonic from file with comments."""
         mnemonic = generate_mnemonic()
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".txt"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
             # Write file with comments
             tmp_file.write("# This is a comment\n")
             tmp_file.write("\n")  # Empty line
@@ -91,9 +90,7 @@ class TestFileOperations:
 
     def test_read_mnemonic_empty_file(self) -> None:
         """Test reading from empty file."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".txt"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
             # Write only comments and empty lines
             tmp_file.write("# Only comments\n")
             tmp_file.write("# No actual content\n")
@@ -116,9 +113,7 @@ class TestFileOperations:
             "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon",
         ]
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".txt"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
             tmp_path = tmp_file.name
 
         try:
@@ -231,9 +226,7 @@ class TestFileOperations:
 
         # Test mnemonic file without comments
         file_path_no_comments = self.temp_dir / "test_mnemonic_no_comments.txt"
-        write_mnemonic_to_file(
-            mnemonic, str(file_path_no_comments), include_comments=False
-        )
+        write_mnemonic_to_file(mnemonic, str(file_path_no_comments), include_comments=False)
 
         with open(file_path_no_comments, "r", encoding="utf-8") as f:
             content_no_comments = f.read()
@@ -417,9 +410,7 @@ class TestFileOperations:
         # Use a valid 12-word BIP-39 mnemonic for Unicode testing
         mnemonic_with_unicode = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".txt"
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
             tmp_path = tmp_file.name
 
         try:

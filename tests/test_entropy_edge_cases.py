@@ -10,8 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from sseed.entropy import (generate_entropy_bits, generate_entropy_bytes,
-                           secure_delete_variable)
+from sseed.entropy import generate_entropy_bits, generate_entropy_bytes, secure_delete_variable
 from sseed.exceptions import EntropyError, SecurityError
 
 
@@ -35,17 +34,13 @@ class TestEntropyEdgeCases:
 
     def test_generate_entropy_bytes_system_random_failure(self):
         """Test entropy generation when SystemRandom fails."""
-        with patch(
-            "secrets.token_bytes", side_effect=OSError("System entropy unavailable")
-        ):
+        with patch("secrets.token_bytes", side_effect=OSError("System entropy unavailable")):
             with pytest.raises(EntropyError, match="Failed to generate entropy"):
                 generate_entropy_bytes(32)
 
     def test_generate_entropy_bytes_memory_error(self):
         """Test entropy generation with memory allocation failure."""
-        with patch(
-            "secrets.token_bytes", side_effect=MemoryError("Insufficient memory")
-        ):
+        with patch("secrets.token_bytes", side_effect=MemoryError("Insufficient memory")):
             with pytest.raises(EntropyError, match="Failed to generate entropy"):
                 generate_entropy_bytes(32)
 
@@ -67,9 +62,7 @@ class TestEntropyEdgeCases:
     def test_generate_entropy_bits_system_random_failure(self):
         """Test entropy bits generation when SystemRandom fails."""
         with patch("secrets.SystemRandom") as mock_random:
-            mock_random.return_value.getrandbits.side_effect = OSError(
-                "System entropy unavailable"
-            )
+            mock_random.return_value.getrandbits.side_effect = OSError("System entropy unavailable")
             with pytest.raises(EntropyError, match="Failed to generate"):
                 generate_entropy_bits(256)
 

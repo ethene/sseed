@@ -11,10 +11,13 @@ from unittest.mock import patch
 import pytest
 
 from sseed.exceptions import ValidationError
-from sseed.validation import (normalize_input, validate_group_threshold,
-                              validate_mnemonic_checksum,
-                              validate_mnemonic_words,
-                              validate_shard_integrity)
+from sseed.validation import (
+    normalize_input,
+    validate_group_threshold,
+    validate_mnemonic_checksum,
+    validate_mnemonic_words,
+    validate_shard_integrity,
+)
 
 
 class TestValidationEdgeCases:
@@ -234,9 +237,7 @@ class TestValidationEdgeCases:
 
     def test_validate_mnemonic_checksum_exception_handling(self):
         """Test mnemonic checksum validation exception handling."""
-        with patch(
-            "sseed.validation.validate_mnemonic", side_effect=Exception("Error")
-        ):
+        with patch("sseed.validation.validate_mnemonic", side_effect=Exception("Error")):
             result = validate_mnemonic_checksum("any input")
             assert result is False
 

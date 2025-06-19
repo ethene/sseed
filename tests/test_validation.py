@@ -12,11 +12,15 @@ from unittest.mock import patch
 import pytest
 
 from sseed.exceptions import ValidationError
-from sseed.validation import (detect_duplicate_shards, normalize_input,
-                              sanitize_filename, validate_group_threshold,
-                              validate_mnemonic_checksum,
-                              validate_mnemonic_words,
-                              validate_shard_integrity)
+from sseed.validation import (
+    detect_duplicate_shards,
+    normalize_input,
+    sanitize_filename,
+    validate_group_threshold,
+    validate_mnemonic_checksum,
+    validate_mnemonic_words,
+    validate_shard_integrity,
+)
 
 
 class TestNormalization:
