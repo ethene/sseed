@@ -11,9 +11,13 @@ import pytest
 from unittest.mock import patch
 
 from sseed.validation import (
-    normalize_input, validate_mnemonic_words, validate_mnemonic_checksum,
-    validate_group_threshold, detect_duplicate_shards, validate_shard_integrity,
-    sanitize_filename
+    normalize_input,
+    validate_mnemonic_words,
+    validate_mnemonic_checksum,
+    validate_group_threshold,
+    detect_duplicate_shards,
+    validate_shard_integrity,
+    sanitize_filename,
 )
 from sseed.exceptions import ValidationError
 
@@ -79,21 +83,21 @@ class TestMnemonicValidation:
             validate_mnemonic_words("not a list")
         assert "Mnemonic words must be a list" in str(exc_info.value)
 
-    @patch('bip_utils.Bip39MnemonicValidator')
+    @patch("bip_utils.Bip39MnemonicValidator")
     def test_validate_mnemonic_checksum_valid(self, mock_validator):
         """Test checksum validation with valid mnemonic."""
         mock_validator.return_value.IsValid.return_value = True
-        
+
         # Use a real BIP-39 mnemonic for testing
         mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         result = validate_mnemonic_checksum(mnemonic)
         assert result is True
 
-    @patch('bip_utils.Bip39MnemonicValidator')
+    @patch("bip_utils.Bip39MnemonicValidator")
     def test_validate_mnemonic_checksum_invalid(self, mock_validator):
         """Test checksum validation with invalid mnemonic."""
         mock_validator.return_value.IsValid.return_value = False
-        
+
         # Use an invalid mnemonic
         mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
         result = validate_mnemonic_checksum(mnemonic)
@@ -120,7 +124,7 @@ class TestThresholdValidation:
         threshold, total = validate_group_threshold("1-of-1")
         assert threshold == 1
         assert total == 1
-        
+
         # Maximum valid
         threshold, total = validate_group_threshold("16-of-16")
         assert threshold == 16
@@ -215,11 +219,7 @@ class TestShardIntegrity:
     def test_validate_shard_integrity_valid(self):
         """Test shard integrity validation with valid shards."""
         # Create mock 20-word shards
-        shards = [
-            " ".join(["word"] * 20),
-            " ".join(["test"] * 20),
-            " ".join(["shard"] * 20)
-        ]
+        shards = [" ".join(["word"] * 20), " ".join(["test"] * 20), " ".join(["shard"] * 20)]
         validate_shard_integrity(shards)  # Should not raise
 
     def test_validate_shard_integrity_no_shards(self):
@@ -247,7 +247,7 @@ class TestShardIntegrity:
         """Test shard integrity validation with invalid shard format."""
         shards = [
             " ".join(["word"] * 20),  # Valid 20-word shard
-            " ".join(["test"] * 15)   # Invalid 15-word shard
+            " ".join(["test"] * 15),  # Invalid 15-word shard
         ]
         with pytest.raises(ValidationError) as exc_info:
             validate_shard_integrity(shards)
@@ -300,4 +300,4 @@ class TestFilenameSanitization:
         """Test sanitization with non-string input."""
         with pytest.raises(ValidationError) as exc_info:
             sanitize_filename(123)
-        assert "Filename must be a string" in str(exc_info.value) 
+        assert "Filename must be a string" in str(exc_info.value)
