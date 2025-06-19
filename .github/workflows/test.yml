@@ -75,7 +75,7 @@ jobs:
           -v tests/
     
     - name: Upload coverage
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       if: matrix.python-version == '3.12'
       with:
         file: ./coverage.xml
