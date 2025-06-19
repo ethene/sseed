@@ -10,11 +10,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from sseed.entropy import (
-    generate_entropy_bytes,
-    generate_entropy_bits,
-    secure_delete_variable,
-)
+from sseed.entropy import (generate_entropy_bits, generate_entropy_bytes,
+                           secure_delete_variable)
 from sseed.exceptions import EntropyError, SecurityError
 
 
@@ -38,13 +35,17 @@ class TestEntropyEdgeCases:
 
     def test_generate_entropy_bytes_system_random_failure(self):
         """Test entropy generation when SystemRandom fails."""
-        with patch("secrets.token_bytes", side_effect=OSError("System entropy unavailable")):
+        with patch(
+            "secrets.token_bytes", side_effect=OSError("System entropy unavailable")
+        ):
             with pytest.raises(EntropyError, match="Failed to generate entropy"):
                 generate_entropy_bytes(32)
 
     def test_generate_entropy_bytes_memory_error(self):
         """Test entropy generation with memory allocation failure."""
-        with patch("secrets.token_bytes", side_effect=MemoryError("Insufficient memory")):
+        with patch(
+            "secrets.token_bytes", side_effect=MemoryError("Insufficient memory")
+        ):
             with pytest.raises(EntropyError, match="Failed to generate entropy"):
                 generate_entropy_bytes(32)
 
@@ -66,7 +67,9 @@ class TestEntropyEdgeCases:
     def test_generate_entropy_bits_system_random_failure(self):
         """Test entropy bits generation when SystemRandom fails."""
         with patch("secrets.SystemRandom") as mock_random:
-            mock_random.return_value.getrandbits.side_effect = OSError("System entropy unavailable")
+            mock_random.return_value.getrandbits.side_effect = OSError(
+                "System entropy unavailable"
+            )
             with pytest.raises(EntropyError, match="Failed to generate"):
                 generate_entropy_bits(256)
 
@@ -108,20 +111,20 @@ class TestEntropyEdgeCases:
         # Create a mock object that raises an exception when deleted
         mock_obj = MagicMock()
         mock_obj.__del__ = MagicMock(side_effect=Exception("Cleanup error"))
-        
+
         # Should not raise exception even if cleanup fails
         secure_delete_variable(mock_obj)
 
     def test_entropy_generation_system_entropy_exhaustion(self):
         """Test behavior when system entropy is temporarily exhausted."""
         call_count = [0]
-        
+
         def failing_token_bytes(size):
             call_count[0] += 1
             if call_count[0] <= 2:  # Fail first two calls
                 raise OSError("Entropy temporarily unavailable")
             return os.urandom(size)  # Succeed on third call
-        
+
         with patch("secrets.token_bytes", side_effect=failing_token_bytes):
             # Should retry and eventually succeed (if retry logic exists)
             # Or fail with appropriate error
@@ -133,7 +136,7 @@ class TestEntropyEdgeCases:
         # Test minimum valid size
         result = generate_entropy_bytes(1)
         assert len(result) == 1
-        
+
         # Test maximum valid size
         result = generate_entropy_bytes(512)
         assert len(result) == 512
@@ -142,17 +145,17 @@ class TestEntropyEdgeCases:
         """Test entropy generation under memory pressure."""
         # Simulate memory pressure by making allocation fail
         original_token_bytes = __import__("secrets").token_bytes
-        
+
         def memory_limited_token_bytes(size):
             if size > 1024:  # Fail for large allocations
                 raise MemoryError("Memory allocation failed")
             return original_token_bytes(size)
-        
+
         with patch("secrets.token_bytes", side_effect=memory_limited_token_bytes):
             # Small allocations should work
             result = generate_entropy_bytes(32)
             assert len(result) == 32
-            
+
             # Large allocations should fail
             with pytest.raises(EntropyError):
                 generate_entropy_bytes(2048)
@@ -162,7 +165,7 @@ class TestEntropyEdgeCases:
         # Test minimum valid size
         result = generate_entropy_bits(1)
         assert result >= 0
-        
+
         # Test maximum valid size
         result = generate_entropy_bits(4096)
         assert result >= 0
@@ -172,10 +175,10 @@ class TestEntropyEdgeCases:
         # Create sensitive data
         sensitive = bytearray(b"very secret data" * 100)
         original_id = id(sensitive)
-        
+
         # Perform secure deletion
         secure_delete_variable(sensitive)
-        
+
         # Memory should be overwritten (implementation detail)
         # This test verifies the function doesn't crash
 
@@ -183,10 +186,10 @@ class TestEntropyEdgeCases:
         """Test entropy generation thread safety."""
         import threading
         import time
-        
+
         results = []
         errors = []
-        
+
         def generate_entropy_worker():
             try:
                 for _ in range(10):
@@ -195,15 +198,15 @@ class TestEntropyEdgeCases:
                     time.sleep(0.001)  # Small delay
             except Exception as e:
                 errors.append(e)
-        
+
         # Start multiple threads
         threads = [threading.Thread(target=generate_entropy_worker) for _ in range(5)]
         for thread in threads:
             thread.start()
-        
+
         for thread in threads:
             thread.join()
-        
+
         # Should have no errors and all unique results
         assert len(errors) == 0
         assert len(results) == 50
@@ -222,6 +225,6 @@ class TestEntropyEdgeCases:
         # Test normal operation
         result = generate_entropy_bytes(32)
         assert len(result) == 32
-        
+
         result = generate_entropy_bits(256)
-        assert result >= 0 
+        assert result >= 0

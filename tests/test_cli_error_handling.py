@@ -14,23 +14,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from sseed.cli import (
-    EXIT_CRYPTO_ERROR,
-    EXIT_SUCCESS,
-    EXIT_USAGE_ERROR,
-    handle_gen_command,
-    handle_restore_command,
-    handle_shard_command,
-    main,
-)
-from sseed.exceptions import (
-    EntropyError,
-    FileError,
-    MnemonicError,
-    SecurityError,
-    ShardError,
-    ValidationError,
-)
+from sseed.cli import (EXIT_CRYPTO_ERROR, EXIT_SUCCESS, EXIT_USAGE_ERROR,
+                       handle_gen_command, handle_restore_command,
+                       handle_shard_command, main)
+from sseed.exceptions import (EntropyError, FileError, MnemonicError,
+                              SecurityError, ShardError, ValidationError)
 
 
 class TestCLIErrorHandling:
@@ -54,7 +42,9 @@ class TestCLIErrorHandling:
         args = mock.MagicMock()
         args.output = None
 
-        with patch("sseed.cli.generate_mnemonic", side_effect=EntropyError("Entropy failure")):
+        with patch(
+            "sseed.cli.generate_mnemonic", side_effect=EntropyError("Entropy failure")
+        ):
             result = handle_gen_command(args)
             assert result == EXIT_CRYPTO_ERROR
 
@@ -63,7 +53,9 @@ class TestCLIErrorHandling:
         args = mock.MagicMock()
         args.output = None
 
-        with patch("sseed.cli.generate_mnemonic", side_effect=MnemonicError("Mnemonic failure")):
+        with patch(
+            "sseed.cli.generate_mnemonic", side_effect=MnemonicError("Mnemonic failure")
+        ):
             result = handle_gen_command(args)
             assert result == EXIT_CRYPTO_ERROR
 
@@ -72,7 +64,9 @@ class TestCLIErrorHandling:
         args = mock.MagicMock()
         args.output = None
 
-        with patch("sseed.cli.generate_mnemonic", side_effect=SecurityError("Security failure")):
+        with patch(
+            "sseed.cli.generate_mnemonic", side_effect=SecurityError("Security failure")
+        ):
             result = handle_gen_command(args)
             assert result == EXIT_CRYPTO_ERROR
 
@@ -81,7 +75,10 @@ class TestCLIErrorHandling:
         args = mock.MagicMock()
         args.output = None
 
-        with patch("sseed.cli.generate_mnemonic", side_effect=ValidationError("Validation failure")):
+        with patch(
+            "sseed.cli.generate_mnemonic",
+            side_effect=ValidationError("Validation failure"),
+        ):
             result = handle_gen_command(args)
             assert result == EXIT_USAGE_ERROR
 
@@ -90,7 +87,9 @@ class TestCLIErrorHandling:
         args = mock.MagicMock()
         args.output = None
 
-        with patch("sseed.cli.generate_mnemonic", side_effect=FileError("File failure")):
+        with patch(
+            "sseed.cli.generate_mnemonic", side_effect=FileError("File failure")
+        ):
             result = handle_gen_command(args)
             assert result == EXIT_USAGE_ERROR
 
@@ -99,7 +98,9 @@ class TestCLIErrorHandling:
         args = mock.MagicMock()
         args.output = None
 
-        with patch("sseed.cli.generate_mnemonic", side_effect=RuntimeError("Unexpected error")):
+        with patch(
+            "sseed.cli.generate_mnemonic", side_effect=RuntimeError("Unexpected error")
+        ):
             result = handle_gen_command(args)
             assert result == EXIT_CRYPTO_ERROR
 
@@ -120,7 +121,10 @@ class TestCLIErrorHandling:
 
         with patch("sseed.cli.generate_mnemonic", return_value="valid mnemonic"):
             with patch("sseed.cli.validate_mnemonic_checksum", return_value=True):
-                with patch("sseed.cli.write_mnemonic_to_file", side_effect=FileError("Write failed")):
+                with patch(
+                    "sseed.cli.write_mnemonic_to_file",
+                    side_effect=FileError("Write failed"),
+                ):
                     result = handle_gen_command(args)
                     assert result == EXIT_USAGE_ERROR
 
@@ -134,7 +138,10 @@ class TestCLIErrorHandling:
         args.output = None
         args.separate = False
 
-        with patch("sseed.cli.validate_group_threshold", side_effect=ValidationError("Invalid config")):
+        with patch(
+            "sseed.cli.validate_group_threshold",
+            side_effect=ValidationError("Invalid config"),
+        ):
             result = handle_shard_command(args)
             assert result == EXIT_USAGE_ERROR
 
@@ -147,7 +154,10 @@ class TestCLIErrorHandling:
         args.separate = False
 
         with patch("sseed.cli.validate_group_threshold"):
-            with patch("sseed.cli.read_mnemonic_from_file", side_effect=FileError("File not found")):
+            with patch(
+                "sseed.cli.read_mnemonic_from_file",
+                side_effect=FileError("File not found"),
+            ):
                 result = handle_shard_command(args)
                 assert result == EXIT_USAGE_ERROR
 
@@ -160,7 +170,9 @@ class TestCLIErrorHandling:
         args.separate = False
 
         with patch("sseed.cli.validate_group_threshold"):
-            with patch("sseed.cli.read_from_stdin", side_effect=FileError("Stdin read failed")):
+            with patch(
+                "sseed.cli.read_from_stdin", side_effect=FileError("Stdin read failed")
+            ):
                 result = handle_shard_command(args)
                 assert result == EXIT_USAGE_ERROR
 
@@ -189,8 +201,13 @@ class TestCLIErrorHandling:
         with patch("sseed.cli.validate_group_threshold"):
             with patch("sseed.cli.read_from_stdin", return_value="valid mnemonic"):
                 with patch("sseed.cli.validate_mnemonic_checksum", return_value=True):
-                    with patch("sseed.cli.parse_group_config", return_value=(1, [(3, 5)])):
-                        with patch("sseed.cli.create_slip39_shards", side_effect=ShardError("Shard failed")):
+                    with patch(
+                        "sseed.cli.parse_group_config", return_value=(1, [(3, 5)])
+                    ):
+                        with patch(
+                            "sseed.cli.create_slip39_shards",
+                            side_effect=ShardError("Shard failed"),
+                        ):
                             result = handle_shard_command(args)
                             assert result == EXIT_CRYPTO_ERROR
 
@@ -205,12 +222,21 @@ class TestCLIErrorHandling:
         with patch("sseed.cli.validate_group_threshold"):
             with patch("sseed.cli.read_from_stdin", return_value="valid mnemonic"):
                 with patch("sseed.cli.validate_mnemonic_checksum", return_value=True):
-                    with patch("sseed.cli.parse_group_config", return_value=(1, [(3, 5)])):
-                        with patch("sseed.cli.create_slip39_shards", return_value=["shard1", "shard2", "shard3"]):
-                            with patch("sys.stderr", new_callable=io.StringIO) as mock_stderr:
+                    with patch(
+                        "sseed.cli.parse_group_config", return_value=(1, [(3, 5)])
+                    ):
+                        with patch(
+                            "sseed.cli.create_slip39_shards",
+                            return_value=["shard1", "shard2", "shard3"],
+                        ):
+                            with patch(
+                                "sys.stderr", new_callable=io.StringIO
+                            ) as mock_stderr:
                                 result = handle_shard_command(args)
                                 assert result == EXIT_SUCCESS
-                                assert "--separate flag ignored" in mock_stderr.getvalue()
+                                assert (
+                                    "--separate flag ignored" in mock_stderr.getvalue()
+                                )
 
     def test_shard_separate_files_write_error(self):
         """Test shard command when separate file writing fails."""
@@ -223,9 +249,17 @@ class TestCLIErrorHandling:
         with patch("sseed.cli.validate_group_threshold"):
             with patch("sseed.cli.read_from_stdin", return_value="valid mnemonic"):
                 with patch("sseed.cli.validate_mnemonic_checksum", return_value=True):
-                    with patch("sseed.cli.parse_group_config", return_value=(1, [(3, 5)])):
-                        with patch("sseed.cli.create_slip39_shards", return_value=["shard1", "shard2", "shard3"]):
-                            with patch("sseed.cli.write_shards_to_separate_files", side_effect=FileError("Write failed")):
+                    with patch(
+                        "sseed.cli.parse_group_config", return_value=(1, [(3, 5)])
+                    ):
+                        with patch(
+                            "sseed.cli.create_slip39_shards",
+                            return_value=["shard1", "shard2", "shard3"],
+                        ):
+                            with patch(
+                                "sseed.cli.write_shards_to_separate_files",
+                                side_effect=FileError("Write failed"),
+                            ):
                                 result = handle_shard_command(args)
                                 assert result == EXIT_USAGE_ERROR
 
@@ -240,9 +274,17 @@ class TestCLIErrorHandling:
         with patch("sseed.cli.validate_group_threshold"):
             with patch("sseed.cli.read_from_stdin", return_value="valid mnemonic"):
                 with patch("sseed.cli.validate_mnemonic_checksum", return_value=True):
-                    with patch("sseed.cli.parse_group_config", return_value=(1, [(3, 5)])):
-                        with patch("sseed.cli.create_slip39_shards", return_value=["shard1", "shard2", "shard3"]):
-                            with patch("sseed.cli.write_shards_to_file", side_effect=FileError("Write failed")):
+                    with patch(
+                        "sseed.cli.parse_group_config", return_value=(1, [(3, 5)])
+                    ):
+                        with patch(
+                            "sseed.cli.create_slip39_shards",
+                            return_value=["shard1", "shard2", "shard3"],
+                        ):
+                            with patch(
+                                "sseed.cli.write_shards_to_file",
+                                side_effect=FileError("Write failed"),
+                            ):
                                 result = handle_shard_command(args)
                                 assert result == EXIT_USAGE_ERROR
 
@@ -255,7 +297,10 @@ class TestCLIErrorHandling:
         args.separate = False
 
         with patch("sseed.cli.validate_group_threshold"):
-            with patch("sseed.cli.read_from_stdin", side_effect=RuntimeError("Unexpected error")):
+            with patch(
+                "sseed.cli.read_from_stdin",
+                side_effect=RuntimeError("Unexpected error"),
+            ):
                 result = handle_shard_command(args)
                 assert result == EXIT_CRYPTO_ERROR
 
@@ -267,7 +312,10 @@ class TestCLIErrorHandling:
         args.shards = ["shard1.txt", "shard2.txt"]
         args.output = None
 
-        with patch("sseed.cli.read_shards_from_files", side_effect=FileError("File read failed")):
+        with patch(
+            "sseed.cli.read_shards_from_files",
+            side_effect=FileError("File read failed"),
+        ):
             result = handle_restore_command(args)
             assert result == EXIT_USAGE_ERROR
 
@@ -277,8 +325,13 @@ class TestCLIErrorHandling:
         args.shards = ["shard1.txt", "shard2.txt"]
         args.output = None
 
-        with patch("sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]):
-            with patch("sseed.cli.validate_shard_integrity", side_effect=ValidationError("Integrity failed")):
+        with patch(
+            "sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]
+        ):
+            with patch(
+                "sseed.cli.validate_shard_integrity",
+                side_effect=ValidationError("Integrity failed"),
+            ):
                 result = handle_restore_command(args)
                 assert result == EXIT_USAGE_ERROR
 
@@ -288,9 +341,14 @@ class TestCLIErrorHandling:
         args.shards = ["shard1.txt", "shard2.txt"]
         args.output = None
 
-        with patch("sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]):
+        with patch(
+            "sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]
+        ):
             with patch("sseed.cli.validate_shard_integrity"):
-                with patch("sseed.cli.reconstruct_mnemonic_from_shards", side_effect=ShardError("Reconstruction failed")):
+                with patch(
+                    "sseed.cli.reconstruct_mnemonic_from_shards",
+                    side_effect=ShardError("Reconstruction failed"),
+                ):
                     result = handle_restore_command(args)
                     assert result == EXIT_CRYPTO_ERROR
 
@@ -300,10 +358,17 @@ class TestCLIErrorHandling:
         args.shards = ["shard1.txt", "shard2.txt"]
         args.output = None
 
-        with patch("sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]):
+        with patch(
+            "sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]
+        ):
             with patch("sseed.cli.validate_shard_integrity"):
-                with patch("sseed.cli.reconstruct_mnemonic_from_shards", return_value="invalid mnemonic"):
-                    with patch("sseed.cli.validate_mnemonic_checksum", return_value=False):
+                with patch(
+                    "sseed.cli.reconstruct_mnemonic_from_shards",
+                    return_value="invalid mnemonic",
+                ):
+                    with patch(
+                        "sseed.cli.validate_mnemonic_checksum", return_value=False
+                    ):
                         result = handle_restore_command(args)
                         assert result == EXIT_CRYPTO_ERROR
 
@@ -313,11 +378,21 @@ class TestCLIErrorHandling:
         args.shards = ["shard1.txt", "shard2.txt"]
         args.output = "/invalid/path/restored.txt"
 
-        with patch("sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]):
+        with patch(
+            "sseed.cli.read_shards_from_files", return_value=["shard1", "shard2"]
+        ):
             with patch("sseed.cli.validate_shard_integrity"):
-                with patch("sseed.cli.reconstruct_mnemonic_from_shards", return_value="valid mnemonic"):
-                    with patch("sseed.cli.validate_mnemonic_checksum", return_value=True):
-                        with patch("sseed.cli.write_mnemonic_to_file", side_effect=FileError("Write failed")):
+                with patch(
+                    "sseed.cli.reconstruct_mnemonic_from_shards",
+                    return_value="valid mnemonic",
+                ):
+                    with patch(
+                        "sseed.cli.validate_mnemonic_checksum", return_value=True
+                    ):
+                        with patch(
+                            "sseed.cli.write_mnemonic_to_file",
+                            side_effect=FileError("Write failed"),
+                        ):
                             result = handle_restore_command(args)
                             assert result == EXIT_USAGE_ERROR
 
@@ -327,7 +402,10 @@ class TestCLIErrorHandling:
         args.shards = ["shard1.txt", "shard2.txt"]
         args.output = None
 
-        with patch("sseed.cli.read_shards_from_files", side_effect=RuntimeError("Unexpected error")):
+        with patch(
+            "sseed.cli.read_shards_from_files",
+            side_effect=RuntimeError("Unexpected error"),
+        ):
             result = handle_restore_command(args)
             assert result == EXIT_CRYPTO_ERROR
 
@@ -388,7 +466,14 @@ class TestCLIErrorHandling:
 
         try:
             result = subprocess.run(
-                ["python", "-m", "sseed", "gen", "-o", str(readonly_dir / "output.txt")],
+                [
+                    "python",
+                    "-m",
+                    "sseed",
+                    "gen",
+                    "-o",
+                    str(readonly_dir / "output.txt"),
+                ],
                 capture_output=True,
                 text=True,
                 cwd=Path(__file__).parent.parent,
@@ -419,9 +504,16 @@ class TestCLIErrorHandling:
         invalid_shard2.write_text("another invalid shard")
 
         result = subprocess.run(
-            ["python", "-m", "sseed", "restore", str(invalid_shard1), str(invalid_shard2)],
+            [
+                "python",
+                "-m",
+                "sseed",
+                "restore",
+                str(invalid_shard1),
+                str(invalid_shard2),
+            ],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent,
         )
-        assert result.returncode == EXIT_USAGE_ERROR  # Shard validation is usage error 
+        assert result.returncode == EXIT_USAGE_ERROR  # Shard validation is usage error

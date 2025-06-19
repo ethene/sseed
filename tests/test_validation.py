@@ -7,19 +7,16 @@ Tests the validation functions implemented in Phase 5:
 - Shard integrity validation
 """
 
-import pytest
 from unittest.mock import patch
 
-from sseed.validation import (
-    normalize_input,
-    validate_mnemonic_words,
-    validate_mnemonic_checksum,
-    validate_group_threshold,
-    detect_duplicate_shards,
-    validate_shard_integrity,
-    sanitize_filename,
-)
+import pytest
+
 from sseed.exceptions import ValidationError
+from sseed.validation import (detect_duplicate_shards, normalize_input,
+                              sanitize_filename, validate_group_threshold,
+                              validate_mnemonic_checksum,
+                              validate_mnemonic_words,
+                              validate_shard_integrity)
 
 
 class TestNormalization:
@@ -219,7 +216,11 @@ class TestShardIntegrity:
     def test_validate_shard_integrity_valid(self):
         """Test shard integrity validation with valid shards."""
         # Create mock 20-word shards
-        shards = [" ".join(["word"] * 20), " ".join(["test"] * 20), " ".join(["shard"] * 20)]
+        shards = [
+            " ".join(["word"] * 20),
+            " ".join(["test"] * 20),
+            " ".join(["shard"] * 20),
+        ]
         validate_shard_integrity(shards)  # Should not raise
 
     def test_validate_shard_integrity_no_shards(self):

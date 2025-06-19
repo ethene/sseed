@@ -11,13 +11,10 @@ from unittest.mock import patch
 import pytest
 
 from sseed.exceptions import ValidationError
-from sseed.validation import (
-    normalize_input,
-    validate_group_threshold,
-    validate_mnemonic_checksum,
-    validate_mnemonic_words,
-    validate_shard_integrity,
-)
+from sseed.validation import (normalize_input, validate_group_threshold,
+                              validate_mnemonic_checksum,
+                              validate_mnemonic_words,
+                              validate_shard_integrity)
 
 
 class TestValidationEdgeCases:
@@ -37,10 +34,10 @@ class TestValidationEdgeCases:
         # Test with different Unicode representations
         input_nfc = "é"  # NFC form (single character)
         input_nfd = "e\u0301"  # NFD form (e + combining accent)
-        
+
         normalized_nfc = normalize_input(input_nfc)
         normalized_nfd = normalize_input(input_nfd)
-        
+
         # Both should normalize to the same form
         assert normalized_nfc == normalized_nfd
 
@@ -237,7 +234,9 @@ class TestValidationEdgeCases:
 
     def test_validate_mnemonic_checksum_exception_handling(self):
         """Test mnemonic checksum validation exception handling."""
-        with patch("sseed.validation.validate_mnemonic", side_effect=Exception("Error")):
+        with patch(
+            "sseed.validation.validate_mnemonic", side_effect=Exception("Error")
+        ):
             result = validate_mnemonic_checksum("any input")
             assert result is False
 
@@ -319,29 +318,31 @@ class TestValidationEdgeCases:
     def test_validation_thread_safety(self):
         """Test validation functions are thread-safe."""
         import threading
-        
+
         results = []
         errors = []
-        
+
         def validation_worker():
             try:
                 for _ in range(100):
                     # Test various validation functions
                     validate_group_threshold("3-of-5")
-                    validate_mnemonic_checksum("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about")
+                    validate_mnemonic_checksum(
+                        "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+                    )
                     normalize_input("test input")
                     results.append(True)
             except Exception as e:
                 errors.append(e)
-        
+
         # Start multiple threads
         threads = [threading.Thread(target=validation_worker) for _ in range(5)]
         for thread in threads:
             thread.start()
-        
+
         for thread in threads:
             thread.join()
-        
+
         # Should have no errors
         assert len(errors) == 0
         assert len(results) == 500
@@ -353,7 +354,7 @@ class TestValidationEdgeCases:
         # Test at exact word count boundaries
         validate_mnemonic_words(["abandon"] * 12)  # Minimum valid
         validate_mnemonic_words(["abandon"] * 24)  # Maximum valid
-        
+
         # Test at threshold boundaries
         validate_group_threshold("1-of-1")  # Minimum valid
-        validate_group_threshold("15-of-16")  # High but valid 
+        validate_group_threshold("15-of-16")  # High but valid

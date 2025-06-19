@@ -12,35 +12,20 @@ import sys
 from sseed import __version__
 from sseed.bip39 import generate_mnemonic
 from sseed.entropy import secure_delete_variable
-from sseed.exceptions import (
-    EntropyError,
-    FileError,
-    MnemonicError,
-    SecurityError,
-    ShardError,
-    SseedError,
-    ValidationError,
-)
-from sseed.file_operations import (
-    read_from_stdin,
-    read_mnemonic_from_file,
-    read_shards_from_files,
-    write_mnemonic_to_file,
-    write_shards_to_file,
-    write_shards_to_separate_files,
-)
+from sseed.exceptions import (EntropyError, FileError, MnemonicError,
+                              SecurityError, ShardError, SseedError,
+                              ValidationError)
+from sseed.file_operations import (read_from_stdin, read_mnemonic_from_file,
+                                   read_shards_from_files,
+                                   write_mnemonic_to_file,
+                                   write_shards_to_file,
+                                   write_shards_to_separate_files)
 from sseed.logging_config import get_logger, setup_logging
-from sseed.slip39_operations import (
-    create_slip39_shards,
-    parse_group_config,
-    reconstruct_mnemonic_from_shards,
-)
-from sseed.validation import (
-    sanitize_filename,
-    validate_group_threshold,
-    validate_mnemonic_checksum,
-    validate_shard_integrity,
-)
+from sseed.slip39_operations import (create_slip39_shards, parse_group_config,
+                                     reconstruct_mnemonic_from_shards)
+from sseed.validation import (sanitize_filename, validate_group_threshold,
+                              validate_mnemonic_checksum,
+                              validate_shard_integrity)
 
 # Comprehensive exit codes for better script integration
 EXIT_SUCCESS = 0
@@ -167,15 +152,15 @@ For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/se
         "--version",
         action="version",
         version=f"sseed {__version__}",
-        help="Show version information and exit"
+        help="Show version information and exit",
     )
-    
+
     parser.add_argument(
         "--examples",
         action="store_true",
-        help="Show comprehensive usage examples and exit"
+        help="Show comprehensive usage examples and exit",
     )
-    
+
     parser.add_argument(
         "-v",
         "--verbose",
@@ -197,7 +182,7 @@ For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/se
         "gen",
         help="Generate a 24-word BIP-39 mnemonic using secure entropy",
         description="Generate a cryptographically secure 24-word BIP-39 mnemonic using system entropy.",
-        epilog="Example: sseed gen -o my-wallet-backup.txt"
+        epilog="Example: sseed gen -o my-wallet-backup.txt",
     )
     gen_parser.add_argument(
         "-o",
@@ -217,7 +202,7 @@ Examples:
   sseed shard -i seed.txt -g 3-of-5                    Simple threshold
   sseed shard -g "2:(2-of-3,3-of-5)" --separate       Multi-group setup
   echo "mnemonic words..." | sseed shard -g 2-of-3     From stdin
-        """
+        """,
     )
     shard_parser.add_argument(
         "-i",
@@ -257,7 +242,7 @@ Examples:
   sseed restore shard1.txt shard2.txt shard3.txt       From specific files
   sseed restore shard*.txt                             Using shell glob
   sseed restore /backup/location/shard_*.txt           Full paths
-        """
+        """,
     )
     restore_parser.add_argument(
         "shards",
@@ -483,7 +468,8 @@ def handle_restore_command(args: argparse.Namespace) -> int:
         finally:
             # Securely delete shards and mnemonic from memory
             secure_delete_variable(
-                shards, reconstructed_mnemonic if "reconstructed_mnemonic" in locals() else ""
+                shards,
+                reconstructed_mnemonic if "reconstructed_mnemonic" in locals() else "",
             )
 
     except (MnemonicError, ShardError, SecurityError) as e:
@@ -522,7 +508,7 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_USAGE_ERROR if e.code != 0 else EXIT_SUCCESS
 
     # Handle --examples flag
-    if hasattr(args, 'examples') and args.examples:
+    if hasattr(args, "examples") and args.examples:
         show_examples()
         return EXIT_SUCCESS
 
@@ -540,7 +526,7 @@ def main(argv: list[str] | None = None) -> int:
             return handle_shard_command(args)
         if args.command == "restore":
             return handle_restore_command(args)
-        
+
         # No command specified - show help
         parser.print_help()
         return EXIT_USAGE_ERROR

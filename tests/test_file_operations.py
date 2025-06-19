@@ -3,23 +3,21 @@
 Tests file I/O operations for mnemonics and SLIP-39 shards.
 """
 
-import tempfile
 import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch
+
 import pytest
 
-from sseed.file_operations import (
-    read_mnemonic_from_file,
-    write_mnemonic_to_file,
-    read_shards_from_files,
-    write_shards_to_file,
-    write_shards_to_separate_files,
-    read_from_stdin,
-    write_to_stdout,
-)
-from sseed.exceptions import FileError
 from sseed.bip39 import generate_mnemonic
+from sseed.exceptions import FileError
+from sseed.file_operations import (read_from_stdin, read_mnemonic_from_file,
+                                   read_shards_from_files,
+                                   write_mnemonic_to_file,
+                                   write_shards_to_file,
+                                   write_shards_to_separate_files,
+                                   write_to_stdout)
 
 
 class TestFileOperations:
@@ -42,7 +40,9 @@ class TestFileOperations:
         """Test writing and reading a mnemonic to/from file."""
         mnemonic = generate_mnemonic()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt"
+        ) as tmp_file:
             tmp_path = tmp_file.name
 
         try:
@@ -63,7 +63,9 @@ class TestFileOperations:
         """Test reading mnemonic from file with comments."""
         mnemonic = generate_mnemonic()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt"
+        ) as tmp_file:
             # Write file with comments
             tmp_file.write("# This is a comment\n")
             tmp_file.write("\n")  # Empty line
@@ -89,7 +91,9 @@ class TestFileOperations:
 
     def test_read_mnemonic_empty_file(self) -> None:
         """Test reading from empty file."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt"
+        ) as tmp_file:
             # Write only comments and empty lines
             tmp_file.write("# Only comments\n")
             tmp_file.write("# No actual content\n")
@@ -112,7 +116,9 @@ class TestFileOperations:
             "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon",
         ]
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt"
+        ) as tmp_file:
             tmp_path = tmp_file.name
 
         try:
@@ -200,7 +206,10 @@ class TestFileOperations:
 
         file_paths = write_shards_to_separate_files(shards, str(base_path))
 
-        expected_paths = [str(self.temp_dir / "noext_01.txt"), str(self.temp_dir / "noext_02.txt")]
+        expected_paths = [
+            str(self.temp_dir / "noext_01.txt"),
+            str(self.temp_dir / "noext_02.txt"),
+        ]
         assert file_paths == expected_paths
 
     def test_enhanced_file_format_comments(self):
@@ -222,7 +231,9 @@ class TestFileOperations:
 
         # Test mnemonic file without comments
         file_path_no_comments = self.temp_dir / "test_mnemonic_no_comments.txt"
-        write_mnemonic_to_file(mnemonic, str(file_path_no_comments), include_comments=False)
+        write_mnemonic_to_file(
+            mnemonic, str(file_path_no_comments), include_comments=False
+        )
 
         with open(file_path_no_comments, "r", encoding="utf-8") as f:
             content_no_comments = f.read()
@@ -236,8 +247,8 @@ class TestFileOperations:
         # Use valid BIP-39 mnemonics as test shard data
         shards = [
             "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon", 
-            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon affair"
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon",
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon affair",
         ]
         file_path = self.temp_dir / "test_shards_enhanced.txt"
 
@@ -313,7 +324,7 @@ class TestFileOperations:
         shards = [
             "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
             "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon",
-            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon affair"
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon affair",
         ]
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -337,7 +348,9 @@ class TestFileOperations:
             # Create one valid file with valid BIP-39 mnemonic
             valid_file = os.path.join(tmp_dir, "shard1.txt")
             with open(valid_file, "w", encoding="utf-8") as f:
-                f.write("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n")
+                f.write(
+                    "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n"
+                )
 
             # Reference a non-existent file
             missing_file = os.path.join(tmp_dir, "missing.txt")
@@ -401,10 +414,12 @@ class TestFileOperations:
 
     def test_unicode_handling(self) -> None:
         """Test proper Unicode handling in files."""
-        # Use a valid 12-word BIP-39 mnemonic for Unicode testing  
+        # Use a valid 12-word BIP-39 mnemonic for Unicode testing
         mnemonic_with_unicode = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".txt"
+        ) as tmp_file:
             tmp_path = tmp_file.name
 
         try:

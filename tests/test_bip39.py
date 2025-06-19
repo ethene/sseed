@@ -5,7 +5,8 @@ Tests BIP-39 mnemonic generation and validation as implemented in Phase 2.
 
 import pytest
 
-from sseed.bip39 import generate_mnemonic, validate_mnemonic, parse_mnemonic, get_mnemonic_entropy
+from sseed.bip39 import (generate_mnemonic, get_mnemonic_entropy,
+                         parse_mnemonic, validate_mnemonic)
 from sseed.exceptions import MnemonicError
 
 

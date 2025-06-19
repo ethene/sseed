@@ -4,10 +4,11 @@ Tests the complete CLI interface functionality as specified in Phase 7
 requirement 32: Add integration tests for CLI commands.
 """
 
+import os
 import subprocess
 import tempfile
-import os
 from pathlib import Path
+
 import pytest
 
 
@@ -25,7 +26,9 @@ class TestCLIIntegration:
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
-    def run_sseed_command(self, args: list, input_data: str = None) -> tuple[int, str, str]:
+    def run_sseed_command(
+        self, args: list, input_data: str = None
+    ) -> tuple[int, str, str]:
         """Run sseed command and return exit code, stdout, stderr."""
         cmd = ["python", "-m", "sseed"] + args
         result = subprocess.run(
@@ -47,7 +50,9 @@ class TestCLIIntegration:
     def test_gen_command_to_file_success(self):
         """Test gen command with file output."""
         output_file = self.temp_dir / "test_mnemonic.txt"
-        exit_code, stdout, stderr = self.run_sseed_command(["gen", "-o", str(output_file)])
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["gen", "-o", str(output_file)]
+        )
 
         assert exit_code == 0
         assert output_file.exists()
@@ -158,7 +163,9 @@ class TestCLIIntegration:
 
     def test_error_handling_nonexistent_file(self):
         """Test CLI error handling with nonexistent input file."""
-        exit_code, stdout, stderr = self.run_sseed_command(["shard", "-i", "nonexistent_file.txt"])
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["shard", "-i", "nonexistent_file.txt"]
+        )
         assert exit_code == 3  # File I/O error (improved exit codes)
         assert "File error:" in stderr
 
@@ -231,7 +238,9 @@ class TestCLIIntegration:
         gen_duration = time.time() - start_time
 
         assert exit_code == 0
-        print(f"Gen command took {gen_duration*1000:.1f}ms (including subprocess overhead)")
+        print(
+            f"Gen command took {gen_duration*1000:.1f}ms (including subprocess overhead)"
+        )
 
         # Performance should be reasonable (allowing for subprocess overhead)
         assert gen_duration < 5.0  # Should complete within 5 seconds
@@ -244,7 +253,13 @@ class TestCLIIntegration:
 
         # Should be able to read the file and shard it
         exit_code, stdout, stderr = self.run_sseed_command(
-            ["shard", "-i", str(mnemonic_file), "-o", str(self.temp_dir / "test_shards.txt")]
+            [
+                "shard",
+                "-i",
+                str(mnemonic_file),
+                "-o",
+                str(self.temp_dir / "test_shards.txt"),
+            ]
         )
         assert exit_code == 0
 

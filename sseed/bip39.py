@@ -4,7 +4,8 @@ Implements BIP-39 mnemonic operations using bip_utils.Bip39MnemonicGenerator
 as specified in F-2 of the PRD. Provides 24-word mnemonic generation in English.
 """
 
-from bip_utils import Bip39MnemonicDecoder, Bip39MnemonicGenerator, Bip39MnemonicValidator
+from bip_utils import (Bip39MnemonicDecoder, Bip39MnemonicGenerator,
+                       Bip39MnemonicValidator)
 
 from sseed.entropy import generate_entropy_bytes, secure_delete_variable
 from sseed.exceptions import EntropyError, MnemonicError
