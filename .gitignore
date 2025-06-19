@@ -265,6 +265,7 @@ tmp/
 config.json
 .config/
 local_config.py
+.pypirc
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
