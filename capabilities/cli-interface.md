@@ -20,12 +20,15 @@ sseed [global-options] <command> [command-options] [arguments]
 
 ### Help and Information
 ```bash
-# Show main help
+# Show main help with quick examples
 sseed --help
 sseed -h
 
 # Show version information  
 sseed --version
+
+# Show comprehensive usage examples and best practices
+sseed --examples
 ```
 
 ### Logging Control
@@ -42,14 +45,70 @@ sseed --log-level ERROR <command>
 sseed --log-level CRITICAL <command>
 ```
 
-### Examples
+### Usage Examples
 ```bash
+# Show version
+sseed --version
+# Output: sseed 1.0.1
+
+# Get comprehensive examples
+sseed --examples
+# Shows 30+ practical examples with real command syntax
+
 # Generate with debug logging
 sseed --log-level DEBUG gen
 
 # Shard with verbose output
 sseed -v shard -i seed.txt -g 3-of-5
 ```
+
+### Comprehensive Examples System
+The `--examples` flag provides an extensive reference of practical usage patterns:
+
+#### Example Categories
+- **Basic Operations**: Standard generation, sharding, and restoration workflows
+- **Advanced Workflows**: Complex multi-group configurations and automation
+- **File Management**: Timestamp handling, directory organization, pattern matching
+- **Security Best Practices**: Verification procedures, secure storage, testing protocols
+- **Integration Examples**: Shell scripting, batch processing, enterprise deployment
+
+#### Sample Output from `sseed --examples`
+```bash
+SSEED USAGE EXAMPLES
+
+Basic Operations:
+  # Generate a new mnemonic
+  sseed gen
+  
+  # Generate and save to file
+  sseed gen -o my-wallet-backup.txt
+
+  # Split mnemonic into 3-of-5 shards
+  sseed shard -i my-wallet-backup.txt -g 3-of-5
+  
+  # Restore from any 3 shards
+  sseed restore shard_01.txt shard_02.txt shard_03.txt
+
+Advanced Workflows:
+  # Generate and immediately shard (one-liner)
+  sseed gen | sseed shard -g 2-of-3
+  
+  # Multi-group enterprise setup
+  sseed shard -g "2:(2-of-3,3-of-5)" -i seed.txt --separate -o enterprise-shards
+
+Security Best Practices:
+  # Always verify generated mnemonics
+  sseed gen -o backup.txt && cat backup.txt
+  
+  # Store shards in separate secure locations
+  sseed shard -i seed.txt -g 3-of-5 --separate -o /secure/location1/
+```
+
+#### Benefits of Examples System
+- **Learning Tool**: Helps users understand advanced features and patterns
+- **Reference**: Quick lookup for complex command combinations
+- **Best Practices**: Incorporates security and operational recommendations
+- **Real-World**: Practical examples for common deployment scenarios
 
 ## Generation Command (`gen`)
 
@@ -302,50 +361,149 @@ sseed gen | gpg --encrypt > encrypted_seed.gpg
 
 ## Error Handling and Exit Codes
 
-### Exit Codes
-- `0` - Success
-- `1` - Invalid usage or file error
-- `2` - Cryptographic error (invalid seed or shard)
+### Comprehensive Exit Code System
+SSeed provides granular exit codes for precise error handling in automation and scripting:
 
-### Error Message Categories
+- `0` - **Success** - Operation completed successfully
+- `1` - **Usage/Argument Error** - Invalid command syntax or missing arguments
+- `2` - **Cryptographic Error** - Entropy, validation, or reconstruction failures
+- `3` - **File I/O Error** - File system access, permission, or storage issues
+- `4` - **Validation Error** - Checksum failures, format errors, or data integrity issues
+- `130` - **Interrupted by User** - Operation cancelled with Ctrl+C (SIGINT)
+
+### Error Categories and Examples
 
 #### Usage Errors (Exit Code 1)
 ```bash
 # Invalid command
 sseed invalid_command
 # Output: error: argument command: invalid choice: 'invalid_command'
+# Exit code: 1
 
 # Missing required arguments
 sseed restore
 # Output: error: the following arguments are required: shards
+# Exit code: 1
 
+# Invalid group configuration
+sseed shard -g "5-of-3"
+# Output: Invalid group configuration: threshold cannot exceed total
+# Exit code: 1
+```
+
+#### Cryptographic Errors (Exit Code 2)
+```bash
+# Entropy generation failure
+sseed gen  # When system entropy is exhausted
+# Output: Cryptographic error: Failed to generate secure entropy
+# Exit code: 2
+
+# Invalid mnemonic checksum
+echo "invalid mnemonic words here that dont have valid checksum" | sseed shard
+# Output: Cryptographic error: Mnemonic checksum validation failed
+# Exit code: 2
+
+# Insufficient shards for reconstruction
+sseed restore shard1.txt shard2.txt  # When 3 required
+# Output: Cryptographic error: Insufficient shards for reconstruction
+# Exit code: 2
+```
+
+#### File I/O Errors (Exit Code 3)
+```bash
 # File not found
 sseed shard -i nonexistent.txt
-# Output: Error: Mnemonic file not found: nonexistent.txt
+# Output: File error: Failed to read mnemonic from file 'nonexistent.txt'
+# Exit code: 3
+
+# Permission denied
+sseed gen -o /root/restricted.txt
+# Output: File error: Permission denied: '/root/restricted.txt'
+# Exit code: 3
+
+# Disk full
+sseed gen -o /full-disk/file.txt
+# Output: File error: No space left on device
+# Exit code: 3
 ```
 
-#### Validation Errors (Exit Code 2)
+#### Validation Errors (Exit Code 4)
 ```bash
-# Invalid mnemonic
-echo "invalid words here" | sseed shard
-# Output: Error: Invalid mnemonic length: 3. Must be one of [12, 15, 18, 21, 24]
+# Invalid mnemonic format
+echo "not enough words" | sseed shard
+# Output: Validation error: Invalid mnemonic length: 3. Must be 24 words
+# Exit code: 4
 
-# Insufficient shards
-sseed restore shard1.txt shard2.txt  # When 3 required
-# Output: Error: Insufficient shards for reconstruction
+# Duplicate shards
+sseed restore shard1.txt shard1.txt shard2.txt
+# Output: Validation error: Duplicate shard detected
+# Exit code: 4
+
+# Invalid file format
+echo "corrupted data" > bad.txt && sseed shard -i bad.txt
+# Output: Validation error: Invalid mnemonic format
+# Exit code: 4
 ```
 
-### Error Recovery
+#### User Interruption (Exit Code 130)
+```bash
+# User presses Ctrl+C during operation
+sseed gen -o large_file.txt
+^C
+# Output: Operation cancelled by user
+# Exit code: 130
+```
+
+### Advanced Error Handling and Recovery
 ```bash
 # Check if operation succeeded
 if sseed gen -o seed.txt; then
     echo "Seed generated successfully"
 else
-    echo "Failed to generate seed"
+    echo "Failed to generate seed (exit code: $?)"
 fi
 
-# Conditional execution
-sseed restore shard*.txt && echo "Recovery successful"
+# Handle specific error types
+sseed shard -i input.txt -g 3-of-5 -o output.txt
+case $? in
+    0) echo "Sharding successful" ;;
+    1) echo "Usage error - check command syntax" ;;
+    2) echo "Cryptographic error - check input validity" ;;
+    3) echo "File I/O error - check permissions and disk space" ;;
+    4) echo "Validation error - check data integrity" ;;
+    130) echo "Operation cancelled by user" ;;
+    *) echo "Unexpected error" ;;
+esac
+
+# Conditional execution with error awareness
+sseed restore shard*.txt && echo "Recovery successful" || echo "Recovery failed (exit code: $?)"
+
+# Robust backup script with error handling
+backup_seed() {
+    local seed_file="$1"
+    local backup_dir="$2"
+    
+    # Generate with error checking
+    if ! sseed gen -o "$seed_file"; then
+        echo "Failed to generate seed" >&2
+        return 1
+    fi
+    
+    # Shard with error checking  
+    if ! sseed shard -i "$seed_file" -g 3-of-5 --separate -o "$backup_dir/shard"; then
+        echo "Failed to create shards" >&2
+        return 1
+    fi
+    
+    # Verify reconstruction
+    if ! sseed restore "$backup_dir"/shard_*.txt >/dev/null; then
+        echo "Failed to verify shards" >&2
+        return 1
+    fi
+    
+    echo "Backup completed successfully"
+    return 0
+}
 ```
 
 ## Integration Features

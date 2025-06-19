@@ -17,7 +17,9 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - Generation command (`gen`)
 - Sharding command (`shard`)
 - Restoration command (`restore`)
-- Advanced CLI features and options
+- Enhanced ergonomics with --version, --examples flags
+- Comprehensive exit codes (5 specific codes for automation)
+- Extensive help system with 30+ practical examples
 
 ### 📁 [File Operations](./file-operations.md)
 - Input/output handling (stdin/stdout/files)
@@ -103,7 +105,7 @@ This directory contains comprehensive documentation of sseed's capabilities acro
 | Capability Area | File | Size | Key Metrics |
 |----------------|------|------|-------------|
 | **Core Operations** | [cryptographic-operations.md](./cryptographic-operations.md) | 7.4KB | <1ms generation, <5ms sharding |
-| **User Interface** | [cli-interface.md](./cli-interface.md) | 10.8KB | 3 commands, full automation |
+| **User Interface** | [cli-interface.md](./cli-interface.md) | 15.2KB | 3 commands, 5 exit codes, --examples system |
 | **File Handling** | [file-operations.md](./file-operations.md) | 16.4KB | UTF-8, cross-platform |
 | **Security** | [security-features.md](./security-features.md) | 13.7KB | 100% offline, secure memory |
 | **Performance** | [performance.md](./performance.md) | 10.9KB | Exceeds requirements 5-75x |
