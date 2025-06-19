@@ -10,7 +10,10 @@ from typing import Any
 # Import shamir_mnemonic library components
 try:
     from shamir_mnemonic import MnemonicError as ShamirMnemonicError
-    from shamir_mnemonic import combine_mnemonics, generate_mnemonics
+    from shamir_mnemonic import (
+        combine_mnemonics,
+        generate_mnemonics,
+    )
 except ImportError as e:
     raise ImportError(f"shamir_mnemonic library not available: {e}") from e
 
@@ -19,10 +22,20 @@ try:
 except ImportError as e:
     raise ImportError(f"bip_utils library not available: {e}") from e
 
-from sseed.bip39 import get_mnemonic_entropy, validate_mnemonic
+from sseed.bip39 import (
+    get_mnemonic_entropy,
+    validate_mnemonic,
+)
 from sseed.entropy import secure_delete_variable
-from sseed.exceptions import MnemonicError, ShardError, ValidationError
-from sseed.logging_config import get_logger, log_security_event
+from sseed.exceptions import (
+    MnemonicError,
+    ShardError,
+    ValidationError,
+)
+from sseed.logging_config import (
+    get_logger,
+    log_security_event,
+)
 from sseed.validation import (
     detect_duplicate_shards,
     normalize_input,

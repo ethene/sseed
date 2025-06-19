@@ -1,6 +1,9 @@
 """Comprehensive BIP39 edge case tests for sseed."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
 
 import pytest
 
@@ -10,7 +13,10 @@ from sseed.bip39 import (
     parse_mnemonic,
     validate_mnemonic,
 )
-from sseed.exceptions import EntropyError, MnemonicError
+from sseed.exceptions import (
+    EntropyError,
+    MnemonicError,
+)
 
 
 class TestBip39EdgeCases:

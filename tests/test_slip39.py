@@ -5,8 +5,14 @@ Tests SLIP-39 sharding and reconstruction operations as implemented in Phase 3.
 
 import pytest
 
-from sseed.bip39 import generate_mnemonic, validate_mnemonic
-from sseed.exceptions import ShardError, ValidationError
+from sseed.bip39 import (
+    generate_mnemonic,
+    validate_mnemonic,
+)
+from sseed.exceptions import (
+    ShardError,
+    ValidationError,
+)
 from sseed.slip39_operations import (
     create_slip39_shards,
     get_shard_info,

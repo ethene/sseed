@@ -1,10 +1,16 @@
 """Comprehensive SLIP39 edge case tests for sseed."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
 
 import pytest
 
-from sseed.exceptions import MnemonicError, ShardError
+from sseed.exceptions import (
+    MnemonicError,
+    ShardError,
+)
 from sseed.slip39_operations import (
     create_slip39_shards,
     parse_group_config,

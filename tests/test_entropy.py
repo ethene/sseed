@@ -10,7 +10,10 @@ from sseed.entropy import (
     generate_entropy_bytes,
     secure_delete_variable,
 )
-from sseed.exceptions import EntropyError, SecurityError
+from sseed.exceptions import (
+    EntropyError,
+    SecurityError,
+)
 
 
 class TestEntropyGeneration:

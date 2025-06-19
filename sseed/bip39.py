@@ -10,10 +10,22 @@ from bip_utils import (
     Bip39MnemonicValidator,
 )
 
-from sseed.entropy import generate_entropy_bytes, secure_delete_variable
-from sseed.exceptions import EntropyError, MnemonicError
-from sseed.logging_config import get_logger, log_security_event
-from sseed.validation import normalize_input, validate_mnemonic_words
+from sseed.entropy import (
+    generate_entropy_bytes,
+    secure_delete_variable,
+)
+from sseed.exceptions import (
+    EntropyError,
+    MnemonicError,
+)
+from sseed.logging_config import (
+    get_logger,
+    log_security_event,
+)
+from sseed.validation import (
+    normalize_input,
+    validate_mnemonic_words,
+)
 
 logger = get_logger(__name__)
 

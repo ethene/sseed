@@ -12,15 +12,34 @@ Uses Hypothesis for generating random test cases to provide mathematical confide
 in the correctness of the SLIP-39 implementation.
 """
 
-from typing import List, Tuple
+from typing import (
+    List,
+    Tuple,
+)
 
 import pytest
-from hypothesis import assume, example, given, settings
+from hypothesis import (
+    assume,
+    example,
+    given,
+    settings,
+)
 from hypothesis import strategies as st
-from hypothesis.stateful import Bundle, RuleBasedStateMachine, invariant, rule
+from hypothesis.stateful import (
+    Bundle,
+    RuleBasedStateMachine,
+    invariant,
+    rule,
+)
 
-from sseed.bip39 import generate_mnemonic, validate_mnemonic
-from sseed.exceptions import MnemonicError, ShardError
+from sseed.bip39 import (
+    generate_mnemonic,
+    validate_mnemonic,
+)
+from sseed.exceptions import (
+    MnemonicError,
+    ShardError,
+)
 from sseed.slip39_operations import (
     create_slip39_shards,
     parse_group_config,

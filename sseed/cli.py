@@ -29,7 +29,10 @@ from sseed.file_operations import (
     write_shards_to_file,
     write_shards_to_separate_files,
 )
-from sseed.logging_config import get_logger, setup_logging
+from sseed.logging_config import (
+    get_logger,
+    setup_logging,
+)
 from sseed.slip39_operations import (
     create_slip39_shards,
     parse_group_config,

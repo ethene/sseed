@@ -7,8 +7,14 @@ as specified in F-1 of the PRD. No fallback to random module.
 import secrets
 from typing import Any
 
-from sseed.exceptions import EntropyError, SecurityError
-from sseed.logging_config import get_logger, log_security_event
+from sseed.exceptions import (
+    EntropyError,
+    SecurityError,
+)
+from sseed.logging_config import (
+    get_logger,
+    log_security_event,
+)
 
 logger = get_logger(__name__)
 

@@ -12,7 +12,10 @@ import subprocess
 import sys
 import time
 import unittest
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import (
+    redirect_stderr,
+    redirect_stdout,
+)
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
@@ -23,7 +26,11 @@ import pytest
 # Add the sseed package to the path for testing
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from sseed.bip39 import generate_mnemonic, get_mnemonic_entropy, validate_mnemonic
+from sseed.bip39 import (
+    generate_mnemonic,
+    get_mnemonic_entropy,
+    validate_mnemonic,
+)
 from sseed.cli import main as cli_main
 from sseed.entropy import (
     generate_entropy_bits,

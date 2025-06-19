@@ -6,7 +6,10 @@ to achieve comprehensive coverage of entropy handling logic.
 
 import os
 import unittest.mock as mock
-from unittest.mock import MagicMock, patch
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
 
 import pytest
 
@@ -15,7 +18,10 @@ from sseed.entropy import (
     generate_entropy_bytes,
     secure_delete_variable,
 )
-from sseed.exceptions import EntropyError, SecurityError
+from sseed.exceptions import (
+    EntropyError,
+    SecurityError,
+)
 
 
 class TestEntropyEdgeCases:

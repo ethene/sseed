@@ -44,7 +44,7 @@ jobs:
     - name: Import sorting check (isort)
       run: |
         echo "::group::Import sorting check"
-        isort --check-only --diff sseed/ tests/
+        isort --check-only --diff --profile black --line-length 100 --force-grid-wrap 2 sseed/ tests/
         echo "::endgroup::"
     
     - name: Linting (Pylint)

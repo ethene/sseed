@@ -11,7 +11,11 @@ from pathlib import Path
 
 from sseed.exceptions import FileError
 from sseed.logging_config import get_logger
-from sseed.validation import normalize_input, sanitize_filename, validate_mnemonic_words
+from sseed.validation import (
+    normalize_input,
+    sanitize_filename,
+    validate_mnemonic_words,
+)
 
 logger = get_logger(__name__)
 
