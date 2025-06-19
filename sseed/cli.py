@@ -172,15 +172,10 @@ def handle_gen_command(args: argparse.Namespace) -> int:
         try:
             # Output to file or stdout
             if args.output:
-                # Sanitize filename (Phase 5 requirement)
-                safe_filename = sanitize_filename(args.output)
-
-                # Write to file
-                with open(safe_filename, "w", encoding="utf-8") as f:
-                    f.write(mnemonic + "\n")
-
-                logger.info("Mnemonic written to file: %s", safe_filename)
-                print(f"Mnemonic written to: {safe_filename}")
+                # Use the proper file writing function with path sanitization
+                write_mnemonic_to_file(mnemonic, args.output, include_comments=True)
+                logger.info("Mnemonic written to file: %s", args.output)
+                print(f"Mnemonic written to: {args.output}")
             else:
                 # Output to stdout
                 print(mnemonic)

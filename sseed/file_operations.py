@@ -92,9 +92,10 @@ def write_mnemonic_to_file(mnemonic: str, file_path: str, include_comments: bool
         FileError: If file cannot be written.
     """
     try:
-        # Sanitize the filename
-        safe_filename = sanitize_filename(os.path.basename(file_path))
-        safe_path = Path(os.path.dirname(file_path)) / safe_filename
+        # Convert to Path and sanitize only the filename component
+        file_path_obj = Path(file_path)
+        safe_filename = sanitize_filename(file_path_obj.name)
+        safe_path = file_path_obj.parent / safe_filename
 
         # Create directory if it doesn't exist
         safe_path.parent.mkdir(parents=True, exist_ok=True)
@@ -135,6 +136,63 @@ def write_mnemonic_to_file(mnemonic: str, file_path: str, include_comments: bool
         raise FileError(error_msg, context={"file_path": str(file_path), "error": str(e)}) from e
 
 
+def read_shard_from_file(file_path: str) -> str:
+    """Read a SLIP-39 shard from a file without BIP-39 validation.
+
+    Reads a shard from a file, ignoring comment lines (starting with #)
+    and applying input normalization, but without BIP-39 mnemonic validation.
+
+    Args:
+        file_path: Path to the file containing the shard.
+
+    Returns:
+        The normalized shard string.
+
+    Raises:
+        FileError: If file cannot be read or contains invalid content.
+    """
+    try:
+        file_path_obj = Path(file_path)
+
+        if not file_path_obj.exists():
+            raise FileError(f"Shard file not found: {file_path}")
+
+        logger.debug("Reading shard from file: %s", file_path_obj)
+
+        if not file_path_obj.is_file():
+            raise FileError(f"Path is not a file: {file_path}")
+
+        with open(file_path_obj, encoding="utf-8") as f:
+            content = f.read().strip()
+
+        if not content:
+            raise FileError(f"File is empty: {file_path}")
+
+        # Extract shard (ignoring comments)
+        shard_lines = []
+        for line in content.split("\n"):
+            line = line.strip()
+            if line and not line.startswith("#"):
+                shard_lines.append(line)
+
+        if not shard_lines:
+            raise FileError(f"No shard found in file: {file_path}")
+
+        if len(shard_lines) > 1:
+            raise FileError(f"File contains multiple non-comment lines: {file_path}")
+
+        shard = normalize_input(shard_lines[0])
+
+        # Note: No BIP-39 validation for SLIP-39 shards
+        logger.debug("Successfully read shard from file: %s", file_path_obj)
+        return shard
+
+    except OSError as e:
+        error_msg = f"Failed to read shard file {file_path}: {e}"
+        logger.error(error_msg)
+        raise FileError(error_msg) from e
+
+
 def read_shards_from_files(file_paths: list[str]) -> list[str]:
     """Read SLIP-39 shards from multiple files.
 
@@ -155,7 +213,7 @@ def read_shards_from_files(file_paths: list[str]) -> list[str]:
 
         for file_path in file_paths:
             try:
-                shard = read_mnemonic_from_file(file_path)  # Reuse mnemonic reader
+                shard = read_shard_from_file(file_path)  # Use shard-specific reader
                 shards.append(shard)
                 logger.debug("Read shard from file: %s", file_path)
             except FileError as e:
@@ -188,9 +246,10 @@ def write_shards_to_file(shards: list[str], file_path: str) -> None:
         FileError: If file cannot be written.
     """
     try:
-        # Sanitize the filename
-        safe_filename = sanitize_filename(os.path.basename(file_path))
-        safe_path = Path(os.path.dirname(file_path)) / safe_filename
+        # Convert to Path and sanitize only the filename component
+        file_path_obj = Path(file_path)
+        safe_filename = sanitize_filename(file_path_obj.name)
+        safe_path = file_path_obj.parent / safe_filename
 
         # Create directory if it doesn't exist
         safe_path.parent.mkdir(parents=True, exist_ok=True)
@@ -303,9 +362,10 @@ def _write_shard_with_comments(
         FileError: If file cannot be written.
     """
     try:
-        # Sanitize the filename
-        safe_filename = sanitize_filename(os.path.basename(file_path))
-        safe_path = Path(os.path.dirname(file_path)) / safe_filename
+        # Convert to Path and sanitize only the filename component
+        file_path_obj = Path(file_path)
+        safe_filename = sanitize_filename(file_path_obj.name)
+        safe_path = file_path_obj.parent / safe_filename
 
         # Create directory if it doesn't exist
         safe_path.parent.mkdir(parents=True, exist_ok=True)
