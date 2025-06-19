@@ -106,4 +106,5 @@ This directory contains comprehensive documentation of sseed's capabilities acro
 | **Performance** | [performance.md](./performance.md) | 10.9KB | Exceeds requirements 5-75x |
 | **Integration** | [integration.md](./integration.md) | 20.3KB | Enterprise deployment ready |
 | **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.3KB | 254 tests, 90% coverage |
-| **Code Quality** | [code-quality.md](./code-quality.md) | 15.2KB | 9.89/10 score, 90% coverage | 
+| **Code Quality** | [code-quality.md](./code-quality.md) | 15.2KB | 9.89/10 score, 90% coverage |
+| **Coverage Analysis** | [COVERAGE_ANALYSIS.md](./COVERAGE_ANALYSIS.md) | 8.5KB | Detailed 90% coverage breakdown | 
