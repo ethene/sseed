@@ -68,14 +68,14 @@ class TestValidationEdgeCases:
     def test_normalize_input_zero_width_characters(self):
         """Test Unicode normalization with zero-width characters."""
         # Test with zero-width joiners and non-joiners
-        input_with_zwj = "test\u200C\u200Dstring"
+        input_with_zwj = "test\u200c\u200dstring"
         normalized = normalize_input(input_with_zwj)
         # Should handle zero-width characters
 
     def test_normalize_input_bidirectional_text(self):
         """Test Unicode normalization with bidirectional text."""
         # Test with right-to-left text
-        input_bidi = "hello \u0627\u0644\u0639\u0631\u0628\u064A\u0629 world"
+        input_bidi = "hello \u0627\u0644\u0639\u0631\u0628\u064a\u0629 world"
         normalized = normalize_input(input_bidi)
         # Should preserve text direction
 
@@ -91,7 +91,7 @@ class TestValidationEdgeCases:
         # Test with invalid Unicode surrogates
         try:
             # This might contain invalid Unicode sequences
-            invalid_unicode = "test\uD800\uDC00invalid"
+            invalid_unicode = "test\ud800\udc00invalid"
             normalized = normalize_input(invalid_unicode)
         except ValidationError:
             pass  # Expected for invalid Unicode
