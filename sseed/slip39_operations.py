@@ -23,7 +23,11 @@ from sseed.bip39 import get_mnemonic_entropy, validate_mnemonic
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import MnemonicError, ShardError, ValidationError
 from sseed.logging_config import get_logger, log_security_event
-from sseed.validation import detect_duplicate_shards, normalize_input, validate_group_threshold
+from sseed.validation import (
+    detect_duplicate_shards,
+    normalize_input,
+    validate_group_threshold,
+)
 
 logger = get_logger(__name__)
 

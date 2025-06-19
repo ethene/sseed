@@ -25,7 +25,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from sseed.bip39 import generate_mnemonic, get_mnemonic_entropy, validate_mnemonic
 from sseed.cli import main as cli_main
-from sseed.entropy import generate_entropy_bits, generate_entropy_bytes, secure_delete_variable
+from sseed.entropy import (
+    generate_entropy_bits,
+    generate_entropy_bytes,
+    secure_delete_variable,
+)
 from sseed.slip39_operations import (
     create_slip39_shards,
     reconstruct_mnemonic_from_shards,

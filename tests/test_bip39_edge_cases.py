@@ -4,7 +4,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from sseed.bip39 import generate_mnemonic, get_mnemonic_entropy, parse_mnemonic, validate_mnemonic
+from sseed.bip39 import (
+    generate_mnemonic,
+    get_mnemonic_entropy,
+    parse_mnemonic,
+    validate_mnemonic,
+)
 from sseed.exceptions import EntropyError, MnemonicError
 
 

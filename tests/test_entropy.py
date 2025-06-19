@@ -5,7 +5,11 @@ Tests secure entropy generation and memory handling as implemented in Phase 2.
 
 import pytest
 
-from sseed.entropy import generate_entropy_bits, generate_entropy_bytes, secure_delete_variable
+from sseed.entropy import (
+    generate_entropy_bits,
+    generate_entropy_bytes,
+    secure_delete_variable,
+)
 from sseed.exceptions import EntropyError, SecurityError
 
 
