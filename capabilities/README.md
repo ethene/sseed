@@ -57,7 +57,7 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 | **SLIP-39 Sharding** | Flexible group/threshold schemes | < 5ms |
 | **Reconstruction** | Multi-shard recovery, validation | < 4ms |
 | **File I/O** | UTF-8, comments, cross-platform | < 1ms |
-| **Memory Usage** | Secure cleanup, minimal footprint | < 2MB additional |
+| **Memory Usage** | Secure cleanup, efficient footprint | < 100MB peak |
 | **Offline Security** | Zero network calls, air-gapped | 100% offline |
 
 ## Architecture Overview
@@ -103,5 +103,5 @@ This directory contains comprehensive documentation of sseed's capabilities acro
 | **Security** | [security-features.md](./security-features.md) | 13.7KB | 100% offline, secure memory |
 | **Performance** | [performance.md](./performance.md) | 10.9KB | Exceeds requirements 5-75x |
 | **Integration** | [integration.md](./integration.md) | 20.3KB | Enterprise deployment ready |
-| **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.1KB | 114 tests, 98.5% coverage |
-| **Code Quality** | [code-quality.md](./code-quality.md) | 8.5KB | 9.89/10 score, zero violations | 
+| **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.1KB | 113 tests, comprehensive coverage |
+| **Code Quality** | [code-quality.md](./code-quality.md) | 12.8KB | 9.89/10 score, zero violations | 

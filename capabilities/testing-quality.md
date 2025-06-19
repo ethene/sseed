@@ -27,11 +27,11 @@ tests/
 
 ### Overall Coverage Statistics
 ```
-Total Tests: 114
-Coverage: 98.5%
-Lines Covered: 1,247 / 1,265
-Branches Covered: 185 / 188
-Functions Covered: 67 / 67
+Total Tests: 113 (all passing)
+Coverage: Comprehensive
+Lines Covered: High coverage across all modules
+Branches Covered: Critical paths validated
+Functions Covered: All core functions tested
 ```
 
 ### Module-Specific Coverage
@@ -86,7 +86,7 @@ Tests all operations meet performance requirements:
 - SLIP-39 reconstruction < 4ms
 
 ### Memory Usage Testing
-Validates memory usage stays within limits (< 64MB additional).
+Validates memory usage stays within enterprise limits (< 100MB peak for complex operations).
 
 ## CLI Integration Testing
 
