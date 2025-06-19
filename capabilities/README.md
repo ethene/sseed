@@ -4,7 +4,7 @@ This directory contains comprehensive documentation of all sseed capabilities, o
 
 ## Overview
 
-SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency seed management. It provides three core capabilities with exceptional security and performance characteristics.
+SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency seed management. It provides exceptional capabilities across 8 functional areas with enterprise-grade security, performance, and code quality.
 
 ## Capability Categories
 
@@ -43,6 +43,11 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - Comprehensive test coverage
 - Quality assurance processes
 - Security auditing
+
+### 💎 [Code Quality](./code-quality.md)
+- Professional development standards
+- Comprehensive code analysis and fixes
+- 9.89/10 quality score achievement
 
 ## Quick Reference
 
@@ -84,4 +89,19 @@ sseed
 4. **Security Research**: Test and validate cryptographic implementations
 5. **Automation**: Integrate into larger security workflows
 
-For detailed information about any capability area, see the corresponding documentation file. 
+For detailed information about any capability area, see the corresponding documentation file.
+
+## 📚 Capability Documentation
+
+This directory contains comprehensive documentation of sseed's capabilities across all functional areas:
+
+| Capability Area | File | Size | Key Metrics |
+|----------------|------|------|-------------|
+| **Core Operations** | [cryptographic-operations.md](./cryptographic-operations.md) | 7.4KB | <1ms generation, <5ms sharding |
+| **User Interface** | [cli-interface.md](./cli-interface.md) | 10.8KB | 3 commands, full automation |
+| **File Handling** | [file-operations.md](./file-operations.md) | 16.4KB | UTF-8, cross-platform |
+| **Security** | [security-features.md](./security-features.md) | 13.7KB | 100% offline, secure memory |
+| **Performance** | [performance.md](./performance.md) | 10.9KB | Exceeds requirements 5-75x |
+| **Integration** | [integration.md](./integration.md) | 20.3KB | Enterprise deployment ready |
+| **Testing & QA** | [testing-quality.md](./testing-quality.md) | 4.1KB | 114 tests, 98.5% coverage |
+| **Code Quality** | [code-quality.md](./code-quality.md) | 8.5KB | 9.89/10 score, zero violations | 
