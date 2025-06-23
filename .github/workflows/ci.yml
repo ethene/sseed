@@ -68,8 +68,8 @@ jobs:
     - name: Security analysis (Bandit)
       run: |
         echo "::group::Security analysis"
-        bandit -r sseed/ -f json -o bandit-report.json
-        bandit -r sseed/ -f txt
+        bandit -r sseed/ -f json -o bandit-report.json --configfile pyproject.toml
+        bandit -r sseed/ -f txt --configfile pyproject.toml
         echo "::endgroup::"
     
     - name: Dependency security check

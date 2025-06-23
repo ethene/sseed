@@ -1,0 +1,8 @@
+[bandit]
+# Bandit security linter configuration for SSeed
+exclude_dirs = tests,scripts
+skips = B107
+
+# B107: Test for hardcoded password default
+# This is a false positive for our BIP-39 functions where empty string
+# is a legitimate default for "no passphrase" as per BIP-39 specification 

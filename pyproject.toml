@@ -112,8 +112,14 @@ warn_unreachable = true
 strict_equality = true
 
 [tool.bandit]
-exclude_dirs = ["tests"]
-skips = ["B101"]
+exclude_dirs = ["tests", "scripts"]
+skips = [
+    "B107",  # Test for hardcoded password default - false positive for empty passphrase default in BIP-39
+]
+
+[tool.bandit.assert_used]
+# Allow assert statements in tests
+skips = ["*test*.py"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

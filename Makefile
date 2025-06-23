@@ -18,7 +18,7 @@ help: ## Show this help message
 	@echo "  test           Run all tests with coverage"
 	@echo "  check          Run code quality checks (pylint, flake8, mypy)"
 	@echo "  format         Auto-format code (Black + isort)"
-	@echo "  ci-test        Run CI-style tests (matches GitHub Actions)"
+	@echo "  ci-test        Run CI-style tests (format, lint, security, tests)"
 	@echo "  build          Build distribution packages"
 	@echo "  install        Install package in development mode"
 	@echo "  clean          Clean build artifacts and cache files"
@@ -97,7 +97,9 @@ ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@python -m flake8 --max-line-length=210 --extend-ignore=E203,W503,F401,F841,E402,F811,F541,W293 sseed/ tests/ --statistics
 	@echo "5️⃣ Type checking (MyPy)..."
 	@python -m mypy sseed/
-	@echo "6️⃣ Running tests with coverage..."
+	@echo "6️⃣ Security analysis (Bandit)..."
+	@python -m bandit -r sseed/ -f txt --configfile pyproject.toml
+	@echo "7️⃣ Running tests with coverage..."
 	@python -m pytest --cov=sseed --cov-fail-under=85 --cov-report=term-missing -v tests/
 	@echo "✅ All CI checks passed!"
 
