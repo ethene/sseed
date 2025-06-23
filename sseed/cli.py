@@ -714,9 +714,7 @@ def handle_seed_command(args: argparse.Namespace) -> int:
                 logger.info("Generated hexadecimal master seed")
             else:
                 # Generate binary seed
-                master_seed = generate_master_seed(
-                    mnemonic, args.passphrase, args.iterations
-                )
+                master_seed = generate_master_seed(mnemonic, args.passphrase, args.iterations)
                 seed_output = master_seed.hex()  # Convert to hex for output
                 logger.info("Generated binary master seed")
 

@@ -5,7 +5,6 @@ and secure file handling for BIP39/SLIP39 operations.
 """
 
 import datetime
-import os
 import sys
 from pathlib import Path
 

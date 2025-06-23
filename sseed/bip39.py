@@ -6,7 +6,6 @@ as specified in F-2 of the PRD. Provides 24-word mnemonic generation in English.
 
 import hashlib
 import unicodedata
-from typing import Optional
 
 from bip_utils import (
     Bip39MnemonicDecoder,
@@ -224,7 +223,6 @@ def get_mnemonic_entropy(mnemonic: str) -> bytes:
         logger.error(error_msg)
         log_security_event(f"Entropy extraction failed: {error_msg}")
         raise MnemonicError(error_msg, context={"original_error": str(e)}) from e
-
 
 
 def generate_master_seed(
