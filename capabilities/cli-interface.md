@@ -451,6 +451,15 @@ verify_backup() {
 ### Purpose
 Split BIP-39 mnemonics into SLIP-39 shards using configurable threshold schemes.
 
+### SLIP-39 Implementation Details
+- **Standard**: SLIP-0039 (SatoshiLabs Improvement Proposal 39)
+- **Library**: `shamir-mnemonic` v0.3.0 (Official Trezor reference implementation)
+- **Word List**: 1024-word SLIP-39 wordlist (differs from BIP-39's 2048 words)
+- **Encoding**: 10 bits per word with unique 4-letter prefixes
+- **Algorithm**: Shamir's Secret Sharing in GF(256) finite field
+- **Security**: Information-theoretic security with perfect secrecy
+- **Specification**: https://github.com/satoshilabs/slips/blob/master/slip-0039.md
+
 ### Syntax
 ```bash
 sseed shard [options]

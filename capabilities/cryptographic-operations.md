@@ -154,12 +154,55 @@ sseed seed -i wallet_mnemonic.txt -p "$WALLET_PASSPHRASE" -o master_seed.txt --h
 ### Overview
 Implements Shamir's Secret Sharing using the SLIP-39 specification for splitting mnemonics into recoverable shards.
 
+### SLIP-39 Specification and Implementation
+
+#### Official Specification
+- **Standard**: SLIP-0039 (SatoshiLabs Improvement Proposal 39)
+- **Full Specification**: https://github.com/satoshilabs/slips/blob/master/slip-0039.md
+- **Developer**: Trezor/SatoshiLabs team
+- **Status**: Final standard, widely adopted
+
+#### Implementation Library
+- **Library**: `shamir-mnemonic` version 0.3.0
+- **Source**: Official Trezor reference implementation
+- **Repository**: https://github.com/trezor/python-shamir-mnemonic
+- **Maintainers**: matejcik, satoshilabs, stick
+- **License**: MIT License
+- **Python Support**: 3.6+ (tested on 3.12)
+
+#### SLIP-39 Word List Specification
+- **Total Words**: 1024 words (2^10)
+- **Word Length**: 4-8 characters each
+- **Language**: English (with "satoshi" included)
+- **Encoding**: 10 bits per word
+- **Prefix System**: Unique 4-letter prefixes for error prevention
+- **Checksum**: Built-in error detection per shard
+- **Standard**: Official SLIP-39 wordlist (differs from BIP-39)
+
+#### Key Differences from BIP-39
+| Feature | BIP-39 | SLIP-39 |
+|---------|--------|---------|
+| Word Count | 2048 words | 1024 words |
+| Word Length | 3-8 chars | 4-8 chars |
+| Bits per Word | 11 bits | 10 bits |
+| Primary Use | Seed generation | Secret sharing |
+| Checksum | Per mnemonic | Per shard |
+| Sharing | Not supported | Native support |
+
 ### Technical Implementation
 - **Algorithm**: Shamir's Secret Sharing Scheme
-- **Library**: `slip39` (official implementation)
-- **Field**: GF(256) finite field arithmetic
+- **Field Mathematics**: GF(256) finite field arithmetic
 - **Polynomial**: Lagrange interpolation for reconstruction
 - **Integrity**: Built-in error detection and correction
+- **Security Level**: Information-theoretic security
+- **Threshold Logic**: Configurable N-of-M schemes
+
+### Cryptographic Properties
+- **Perfect Secrecy**: Insufficient shards reveal no information about the secret
+- **Threshold Security**: Exactly N shards required for reconstruction
+- **Information Theoretic**: Security not dependent on computational assumptions
+- **Error Detection**: Built-in checksums prevent silent corruption
+- **Forward Security**: No single point of failure or weakness
 
 ### Group Configuration Support
 

@@ -188,6 +188,23 @@ make build             # Build distribution packages
 - ✅ **Standard compliance** - BIP-39 and SLIP-39 specifications
 - ✅ **Mathematical verification** - property-based testing ensures correctness
 
+### Standards Compliance
+
+**BIP-39 Implementation:**
+- Full BIP-39 specification compliance for mnemonic generation
+- 2048-word English wordlist with 11 bits per word
+- SHA-256 based checksum validation
+- PBKDF2-HMAC-SHA512 for master seed derivation (2048 iterations default)
+
+**SLIP-39 Implementation:**
+- **Standard**: SLIP-0039 (SatoshiLabs Improvement Proposal 39)
+- **Library**: `shamir-mnemonic` v0.3.0 (Official Trezor reference implementation)
+- **Word List**: 1024-word SLIP-39 wordlist (10 bits per word, 4-8 characters each)
+- **Algorithm**: Shamir's Secret Sharing in GF(256) finite field
+- **Security**: Information-theoretic security with perfect secrecy
+- **Maintainers**: Trezor/SatoshiLabs team (matejcik, satoshilabs, stick)
+- **Specification**: https://github.com/satoshilabs/slips/blob/master/slip-0039.md
+
 ## ⚡ Performance
 
 | Operation | Time | Memory | Tests |
