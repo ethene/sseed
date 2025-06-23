@@ -460,6 +460,31 @@ Split BIP-39 mnemonics into SLIP-39 shards using configurable threshold schemes.
 - **Security**: Information-theoretic security with perfect secrecy
 - **Specification**: https://github.com/satoshilabs/slips/blob/master/slip-0039.md
 
+#### Compatibility with Official Trezor CLI
+
+SSeed is fully interoperable with the official Trezor `shamir` CLI tool from [python-shamir-mnemonic](https://github.com/trezor/python-shamir-mnemonic). Both tools share the same cryptographic foundation:
+
+- **Shared Library**: `shamir-mnemonic==0.3.0`
+- **Perfect Interoperability**: SLIP-39 shards are interchangeable between tools
+- **Cross-Tool Recovery**: Create with one tool, recover with the other
+- **Standard Compliance**: Both follow SLIP-0039 specification exactly
+
+**Installation:**
+```bash
+pip install shamir-mnemonic[cli]  # Install official Trezor CLI
+```
+
+**Cross-Tool Examples:**
+```bash
+# Create with sseed, recover with official Trezor CLI
+sseed shard -i mnemonic.txt -g 2-of-3 --separate -o shards
+shamir recover  # Enter sseed-generated shards
+
+# Create with Trezor CLI, recover with sseed
+shamir create 2of3  # Save shards to files
+sseed restore shard1.txt shard2.txt
+```
+
 ### Syntax
 ```bash
 sseed shard [options]

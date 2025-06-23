@@ -205,6 +205,26 @@ make build             # Build distribution packages
 - **Maintainers**: Trezor/SatoshiLabs team (matejcik, satoshilabs, stick)
 - **Specification**: https://github.com/satoshilabs/slips/blob/master/slip-0039.md
 
+### Cross-Tool Compatibility
+
+SSeed is fully compatible with the official Trezor `shamir` CLI tool from [python-shamir-mnemonic](https://github.com/trezor/python-shamir-mnemonic):
+
+- **Perfect Interoperability**: Both use `shamir-mnemonic==0.3.0`
+- **Interchangeable Shards**: SLIP-39 shards work between both tools
+- **No Vendor Lock-in**: Migrate freely between implementations
+
+```bash
+# Install official Trezor CLI alongside sseed
+pip install shamir-mnemonic[cli]
+
+# Full cross-tool compatibility
+sseed shard -i mnemonic.txt -g 2-of-3 --separate -o shards
+shamir recover  # Works with sseed-generated shards
+
+shamir create 2of3  # Create with official Trezor tool
+sseed restore shard1.txt shard2.txt  # Recover with sseed
+```
+
 ## ⚡ Performance
 
 | Operation | Time | Memory | Tests |

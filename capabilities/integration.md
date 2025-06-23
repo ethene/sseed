@@ -95,6 +95,66 @@ RUN pip install sseed
 
 ## Command-Line Integration
 
+### Official Trezor CLI Compatibility
+
+SSeed is fully compatible with the official Trezor `shamir` CLI tool from the [python-shamir-mnemonic](https://github.com/trezor/python-shamir-mnemonic) repository. Both tools use the same `shamir-mnemonic==0.3.0` library, ensuring perfect interoperability.
+
+#### Compatibility Matrix
+| **Create With** | **Recover With** | **Result** | **Output Format** |
+|-----------------|------------------|------------|-------------------|
+| `sseed shard` | `shamir recover` | ✅ **Works** | Raw entropy/master secret |
+| `shamir create` | `sseed restore` | ✅ **Works** | BIP-39 mnemonic |
+| `sseed shard` | `sseed restore` | ✅ **Works** | BIP-39 mnemonic |
+| `shamir create` | `shamir recover` | ✅ **Works** | Raw entropy/master secret |
+
+#### Installing the Official Trezor CLI
+```bash
+# Install official Trezor shamir CLI tool
+pip install shamir-mnemonic[cli]
+
+# Verify installation
+shamir --help
+```
+
+#### Cross-Tool Usage Examples
+
+**Create shards with sseed, recover with official Trezor CLI:**
+```bash
+# Generate BIP-39 mnemonic and create SLIP-39 shards
+sseed gen -o mnemonic.txt
+sseed shard -i mnemonic.txt -g 2-of-3 --separate -o shards
+
+# Recover using official Trezor shamir tool (returns raw entropy)
+shamir recover
+# Enter shards interactively
+# Output: Your master secret is: a1b2c3d4e5f6...
+```
+
+**Create shards with official Trezor CLI, recover with sseed:**
+```bash
+# Create SLIP-39 shards with official Trezor tool
+shamir create 2of3
+# Save the displayed shards to files: shard1.txt, shard2.txt
+
+# Recover BIP-39 mnemonic using sseed
+sseed restore shard1.txt shard2.txt
+# Output: word1 word2 word3 ... (BIP-39 mnemonic)
+```
+
+#### Key Differences in Output
+
+- **`shamir recover`**: Returns the raw entropy (master secret) as hexadecimal
+  ```
+  Your master secret is: d1f40a3284c9f822fcff899819ca1dd2
+  ```
+
+- **`sseed restore`**: Returns the reconstructed BIP-39 mnemonic phrase
+  ```
+  spin park million another panel badge view van object soft manual picture
+  ```
+
+Both outputs represent the same cryptographic material in different formats, ensuring full compatibility while serving different use cases.
+
 ### System Integration
 SSeed integrates seamlessly with system command-line tools and shells.
 

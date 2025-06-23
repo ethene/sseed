@@ -170,6 +170,43 @@ Implements Shamir's Secret Sharing using the SLIP-39 specification for splitting
 - **License**: MIT License
 - **Python Support**: 3.6+ (tested on 3.12)
 
+#### Cross-Tool Compatibility
+
+SSeed is fully interoperable with the official Trezor `shamir` CLI tool from [python-shamir-mnemonic](https://github.com/trezor/python-shamir-mnemonic), ensuring perfect ecosystem compatibility:
+
+**Shared Foundation:**
+- **Library**: Both use `shamir-mnemonic==0.3.0`
+- **Standard**: SLIP-0039 specification compliance
+- **Algorithm**: Identical Shamir's Secret Sharing implementation
+- **Format**: Interchangeable SLIP-39 shard format
+
+**Compatibility Matrix:**
+| **Create Tool** | **Recover Tool** | **Status** | **Output Format** |
+|-----------------|------------------|------------|-------------------|
+| `sseed shard` | `shamir recover` | ✅ **Full** | Raw entropy (hex) |
+| `shamir create` | `sseed restore` | ✅ **Full** | BIP-39 mnemonic |
+| `sseed shard` | `sseed restore` | ✅ **Full** | BIP-39 mnemonic |
+| `shamir create` | `shamir recover` | ✅ **Full** | Raw entropy (hex) |
+
+**Installation and Usage:**
+```bash
+# Install official Trezor CLI alongside sseed
+pip install shamir-mnemonic[cli]
+
+# Cross-tool examples
+sseed shard -i mnemonic.txt -g 2-of-3 --separate -o shards
+shamir recover  # Enter sseed-generated shards
+
+shamir create 2of3  # Create with official tool
+sseed restore shard1.txt shard2.txt  # Recover with sseed
+```
+
+**Key Benefits:**
+- **No Vendor Lock-in**: Migrate freely between implementations
+- **Backup Redundancy**: Shards work across different tools
+- **Ecosystem Integration**: Compatible with broader SLIP-39 ecosystem
+- **Trust Verification**: Both use the same trusted Trezor implementation
+
 #### SLIP-39 Word List Specification
 - **Total Words**: 1024 words (2^10)
 - **Word Length**: 4-8 characters each
