@@ -298,6 +298,154 @@ sseed gen >> multiple_seeds.txt
 - **Memory**: < 1KB additional memory usage
 - **CPU**: Minimal single-core usage
 
+## Master Seed Command (`seed`)
+
+### Purpose
+Generate 512-bit master seeds from BIP-39 mnemonics using PBKDF2-HMAC-SHA512 for hierarchical deterministic (HD) wallet systems. This command bridges BIP-39 mnemonics to BIP-32 key derivation.
+
+### Syntax
+```bash
+sseed seed [options]
+```
+
+### Options
+- `-i, --input FILE` - Input mnemonic file (default: stdin)
+- `-p, --passphrase TEXT` - Optional passphrase for additional security (default: "")
+- `-o, --output FILE` - Output file for master seed (default: stdout)
+- `--hex` - Output seed in hexadecimal format (default: true)
+- `--iterations COUNT` - PBKDF2 iteration count (default: 2048)
+- `-h, --help` - Show command help
+
+### Technical Details
+- **Algorithm**: PBKDF2-HMAC-SHA512 (BIP-39 standard)
+- **Output Size**: 512 bits (64 bytes) = 128 hex characters
+- **Salt Format**: "mnemonic" + passphrase (UTF-8 encoded)
+- **Normalization**: Unicode NFKD for mnemonic and passphrase
+- **Compliance**: Full BIP-39 specification adherence
+
+### Usage Examples
+
+#### Basic Master Seed Generation
+```bash
+# Generate master seed from file
+sseed seed -i mnemonic.txt --hex
+
+# Example output (128 hex characters)
+a8b4c2d1e3f4567890abcdef1234567890abcdef1234567890abcdef12345678
+90abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345678
+
+# Generate from stdin
+cat mnemonic.txt | sseed seed --hex
+
+# Generate and pipe to next operation
+sseed gen | sseed seed --hex
+```
+
+#### Passphrase Protection (25th Word)
+```bash
+# Generate with passphrase for additional security
+sseed seed -i mnemonic.txt -p "my_secure_passphrase" --hex
+
+# Interactive passphrase (not echoed to terminal)
+sseed seed -i mnemonic.txt -p "$(read -s -p 'Passphrase: '; echo $REPLY)" --hex
+
+# Environment variable passphrase
+sseed seed -i mnemonic.txt -p "$WALLET_PASSPHRASE" --hex
+```
+
+#### Security Hardening
+```bash
+# Higher iteration count for increased security
+sseed seed -i mnemonic.txt --iterations 4096 --hex
+
+# Maximum security with passphrase and high iterations
+sseed seed -i mnemonic.txt -p "$SECURE_PASSPHRASE" --iterations 8192 --hex
+
+# Enterprise-grade security
+sseed seed -i mnemonic.txt -p "$ENTERPRISE_PASSPHRASE" --iterations 16384 --hex
+```
+
+#### File Output and Integration
+```bash
+# Save master seed to file
+sseed seed -i mnemonic.txt -o master_seed.txt --hex
+
+# Generate master seed with timestamp
+sseed seed -i mnemonic.txt -o "master_seed_$(date +%Y%m%d_%H%M%S).txt" --hex
+
+# Secure file permissions
+sseed seed -i mnemonic.txt -o master_seed.txt --hex && chmod 600 master_seed.txt
+```
+
+#### HD Wallet Integration Workflows
+```bash
+# Complete wallet setup workflow
+sseed gen -o wallet_mnemonic.txt                                    # Generate mnemonic
+sseed seed -i wallet_mnemonic.txt -p "$PASSPHRASE" -o master_seed.txt --hex  # Generate master seed
+sseed shard -i wallet_mnemonic.txt -g 3-of-5 --separate -o backup/   # Create backup shards
+
+# Verification workflow
+ORIGINAL_SEED=$(sseed seed -i mnemonic.txt --hex)
+RESTORED_MNEMONIC=$(sseed restore shard*.txt)
+RESTORED_SEED=$(echo "$RESTORED_MNEMONIC" | sseed seed --hex)
+[ "$ORIGINAL_SEED" = "$RESTORED_SEED" ] && echo "Backup verified" || echo "Backup failed"
+
+# Multi-account master seed generation
+for account in personal business trading; do
+    sseed seed -i "${account}_mnemonic.txt" -p "${account}_passphrase" \
+        -o "${account}_master_seed.txt" --hex
+done
+```
+
+### Security Features
+- **Standard Compliance**: Follows BIP-39 specification exactly
+- **Key Stretching**: PBKDF2 with configurable iterations (default 2048)
+- **Unicode Support**: Proper NFKD normalization for international characters
+- **Memory Security**: Automatic cleanup of sensitive variables
+- **Deterministic**: Same mnemonic + passphrase always produces identical seed
+- **Offline Operation**: No network calls, suitable for air-gapped systems
+
+### HD Wallet Compatibility
+The generated master seed serves as the foundation for BIP-32 hierarchical deterministic wallet systems:
+
+- **Master Private Key**: Derived from the 512-bit master seed
+- **Extended Keys**: Used to generate extended public/private key pairs
+- **Derivation Paths**: Supports standard paths like m/44'/0'/0'/0/0
+- **Multi-Account**: Enables multiple wallet accounts from single seed
+- **Cross-Platform**: Compatible with all BIP-32 wallet implementations
+
+### Performance
+- **Speed**: < 5ms average (2048 iterations), scales linearly with iteration count
+- **Memory**: < 1KB additional memory usage during generation
+- **CPU**: Single-threaded, computationally intensive (by design for security)
+
+### Integration Examples
+```bash
+# Integration with hardware security modules
+sseed seed -i mnemonic.txt --hex | hsm_import_master_seed
+
+# Integration with wallet software
+MASTER_SEED=$(sseed seed -i wallet_mnemonic.txt -p "$PASSPHRASE" --hex)
+wallet_software --import-master-seed "$MASTER_SEED"
+
+# Backup verification script
+verify_backup() {
+    local mnemonic_file="$1"
+    local shard_pattern="$2"
+    
+    original=$(sseed seed -i "$mnemonic_file" --hex)
+    restored=$(sseed restore $shard_pattern | sseed seed --hex)
+    
+    if [ "$original" = "$restored" ]; then
+        echo "✅ Backup verification successful"
+        return 0
+    else
+        echo "❌ Backup verification failed"
+        return 1
+    fi
+}
+```
+
 ## Sharding Command (`shard`)
 
 ### Purpose

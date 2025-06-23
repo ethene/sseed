@@ -51,6 +51,29 @@ account accuse achieve acid acoustic acquire across act action actor actress act
 ### Overview
 Generates 512-bit master seeds from BIP-39 mnemonics using PBKDF2-HMAC-SHA512 as specified in the BIP-39 standard. Master seeds serve as the root for hierarchical deterministic (HD) wallet key derivation per BIP-32.
 
+### What is a Master Seed?
+A master seed is the cryptographic foundation of hierarchical deterministic (HD) wallets. It's a 512-bit (64-byte) value derived from your BIP-39 mnemonic phrase that serves as the single source of entropy for generating all private keys in an HD wallet system.
+
+**Key Concepts:**
+- **Bridge Function**: Converts human-readable mnemonic phrases into cryptographic material
+- **Deterministic**: Same mnemonic + passphrase always produces identical master seed
+- **Root Source**: All wallet addresses and private keys derive from this single seed
+- **Standard Compliance**: Follows BIP-39 → BIP-32 specification chain
+
+**Why Master Seeds Matter:**
+- **HD Wallet Foundation**: Required for BIP-32 hierarchical deterministic wallet systems
+- **Key Derivation**: Enables generation of unlimited addresses from single backup
+- **Wallet Recovery**: Allows complete wallet restoration from mnemonic + passphrase
+- **Multi-Account Support**: Supports multiple accounts/purposes from one seed
+- **Cross-Platform**: Compatible with all major wallet software and hardware devices
+
+**Common Use Cases:**
+- **Wallet Initialization**: Setting up new HD wallets (hardware/software)
+- **Key Derivation**: Generating master private keys for BIP-32 systems
+- **Backup Verification**: Ensuring mnemonic backups produce correct seeds
+- **Multi-Wallet**: Creating seeds for different purposes (personal, business, etc.)
+- **Integration**: Feeding seeds into wallet software or hardware security modules
+
 ### Technical Implementation
 - **Algorithm**: PBKDF2-HMAC-SHA512
 - **Output Size**: 512 bits (64 bytes)

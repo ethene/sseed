@@ -40,7 +40,7 @@ pip install sseed
 $ sseed gen
 abandon ability able about above absent absorb abstract absurd abuse access accident
 
-# Generate master seed from mnemonic
+# Generate master seed from mnemonic (BIP-39 → BIP-32 HD wallet seed)
 $ sseed gen | sseed seed --hex
 7adb1efaf1659636ca22a200c4e688a2041972ebb8d1d49a71c4cb40b4a283fc51d4cfe31d45c0f90eb08a246008f8707f961b674246b016aa303041ceccb848
 
@@ -88,13 +88,13 @@ $ sseed version --json
 # Generate to file with timestamp
 sseed gen -o "backup-$(date +%Y%m%d).txt"
 
-# Generate master seed from mnemonic
+# Generate 512-bit master seed from mnemonic (for HD wallets)
 sseed seed -i mnemonic.txt --hex
 
-# Generate master seed with passphrase
+# Generate master seed with passphrase (25th word protection)
 sseed seed -i mnemonic.txt -p "my_passphrase" --hex
 
-# Generate master seed with custom iterations
+# Generate master seed with higher security (more PBKDF2 iterations)
 sseed seed -i mnemonic.txt --iterations 4096 --hex
 
 # Multi-group configuration (enterprise setup)
@@ -164,7 +164,7 @@ make build             # Build distribution packages
 |---------|---------|---------|
 | `sseed version` | Show version and system info | `sseed version --json` |
 | `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -o backup.txt` |
-| `sseed seed` | Generate master seed from mnemonic | `sseed seed -i mnemonic.txt --hex` |
+| `sseed seed` | Generate BIP-32 master seed from BIP-39 mnemonic | `sseed seed -i mnemonic.txt --hex` |
 | `sseed shard` | Split into SLIP-39 shards | `sseed shard -g 3-of-5 -i seed.txt` |
 | `sseed restore` | Reconstruct from shards | `sseed restore shard*.txt` |
 
