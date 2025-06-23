@@ -44,14 +44,22 @@ class TestEntropyEdgeCases:
 
     def test_generate_entropy_bytes_system_random_failure(self):
         """Test entropy generation when SystemRandom fails."""
-        with patch("secrets.token_bytes", side_effect=OSError("System entropy unavailable")):
-            with pytest.raises(EntropyError, match="Failed to generate .* bytes of entropy"):
+        with patch(
+            "secrets.token_bytes", side_effect=OSError("System entropy unavailable")
+        ):
+            with pytest.raises(
+                EntropyError, match="Failed to generate .* bytes of entropy"
+            ):
                 generate_entropy_bytes(32)
 
     def test_generate_entropy_bytes_memory_error(self):
         """Test entropy generation with memory allocation failure."""
-        with patch("secrets.token_bytes", side_effect=MemoryError("Insufficient memory")):
-            with pytest.raises(EntropyError, match="Failed to generate .* bytes of entropy"):
+        with patch(
+            "secrets.token_bytes", side_effect=MemoryError("Insufficient memory")
+        ):
+            with pytest.raises(
+                EntropyError, match="Failed to generate .* bytes of entropy"
+            ):
                 generate_entropy_bytes(32)
 
     def test_generate_entropy_bits_invalid_bits_zero(self):
@@ -72,7 +80,9 @@ class TestEntropyEdgeCases:
     def test_generate_entropy_bits_system_random_failure(self):
         """Test entropy bits generation when SystemRandom fails."""
         with patch("secrets.SystemRandom") as mock_random:
-            mock_random.return_value.getrandbits.side_effect = OSError("System entropy unavailable")
+            mock_random.return_value.getrandbits.side_effect = OSError(
+                "System entropy unavailable"
+            )
             with pytest.raises(EntropyError, match="Failed to generate"):
                 generate_entropy_bits(256)
 
@@ -224,7 +234,9 @@ class TestEntropyEdgeCases:
         # Test when primary entropy source fails
         with patch("secrets.token_bytes", side_effect=OSError("Primary source failed")):
             with patch("os.urandom", side_effect=OSError("Fallback also failed")):
-                with pytest.raises(EntropyError, match="Failed to generate .* bytes of entropy"):
+                with pytest.raises(
+                    EntropyError, match="Failed to generate .* bytes of entropy"
+                ):
                     generate_entropy_bytes(32)
 
     def test_entropy_generation_edge_cases(self):
@@ -241,7 +253,9 @@ class TestEntropyEdgeCases:
             # Mock to return wrong length
             mock_token_bytes.return_value = b"wrong_length"  # 12 bytes instead of 32
 
-            with pytest.raises(EntropyError, match="Generated entropy length .* != requested"):
+            with pytest.raises(
+                EntropyError, match="Generated entropy length .* != requested"
+            ):
                 generate_entropy_bytes(32)
 
     def test_generate_entropy_bits_range_validation_edge_case(self):

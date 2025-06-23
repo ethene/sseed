@@ -115,7 +115,11 @@ class TestSlip39Properties:
     """Property-based tests for SLIP-39 cryptographic properties."""
 
     @given(mnemonic=valid_mnemonics(), groups=valid_group_configs())
-    @settings(max_examples=30, deadline=5000, suppress_health_check=[HealthCheck.filter_too_much])
+    @settings(
+        max_examples=30,
+        deadline=5000,
+        suppress_health_check=[HealthCheck.filter_too_much],
+    )
     def test_property_perfect_reconstruction(
         self, mnemonic: str, groups: List[Tuple[int, int]]
     ) -> None:
@@ -133,14 +137,18 @@ class TestSlip39Properties:
         threshold = groups[0][0]
 
         # Ensure we have enough shards (should always be true with our strategy)
-        assert len(shards) >= threshold, f"Not enough shards: {len(shards)} < {threshold}"
+        assert (
+            len(shards) >= threshold
+        ), f"Not enough shards: {len(shards)} < {threshold}"
 
         # Test with exactly threshold shards (test a few combinations)
         import itertools
         from random import sample
 
         # Test up to 3 random combinations for performance
-        num_tests = min(3, len(list(itertools.combinations(range(len(shards)), threshold))))
+        num_tests = min(
+            3, len(list(itertools.combinations(range(len(shards)), threshold)))
+        )
         for _ in range(num_tests):
             subset_indices = sample(range(len(shards)), threshold)
             test_shards = [shards[i] for i in subset_indices]
@@ -265,7 +273,11 @@ class TestSlip39Properties:
             assume(False)
 
     @given(mnemonic=valid_mnemonics(), groups=valid_group_configs())
-    @settings(max_examples=20, deadline=4000, suppress_health_check=[HealthCheck.filter_too_much])
+    @settings(
+        max_examples=20,
+        deadline=4000,
+        suppress_health_check=[HealthCheck.filter_too_much],
+    )
     def test_property_multiple_threshold_combinations_work(
         self, mnemonic: str, groups: List[Tuple[int, int]]
     ) -> None:
@@ -288,7 +300,9 @@ class TestSlip39Properties:
             test_combinations = sample(all_combinations, min(3, len(all_combinations)))
 
             for shard_combination in test_combinations:
-                reconstructed = reconstruct_mnemonic_from_shards(list(shard_combination))
+                reconstructed = reconstruct_mnemonic_from_shards(
+                    list(shard_combination)
+                )
 
                 # Property: Each combination should reconstruct to original
                 assert (
@@ -354,7 +368,9 @@ class TestSlip39AdvancedProperties:
 
             reconstructions = []
             for groups in configs:
-                shards = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
+                shards = create_slip39_shards(
+                    mnemonic, group_threshold=1, groups=groups
+                )
 
                 # Use exactly 3 shards from each configuration
                 test_shards = shards[:3]
@@ -385,10 +401,14 @@ class TestSlip39AdvancedProperties:
             )
 
             # Create shards with no passphrase parameter (default)
-            shards_none = create_slip39_shards(mnemonic, group_threshold=1, groups=groups)
+            shards_none = create_slip39_shards(
+                mnemonic, group_threshold=1, groups=groups
+            )
 
             # Test reconstruction consistency
-            reconstructed_empty = reconstruct_mnemonic_from_shards(shards_empty[:3], passphrase="")
+            reconstructed_empty = reconstruct_mnemonic_from_shards(
+                shards_empty[:3], passphrase=""
+            )
             reconstructed_none = reconstruct_mnemonic_from_shards(shards_none[:3])
 
             # Property: Both should reconstruct to original

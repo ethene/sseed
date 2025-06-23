@@ -161,8 +161,12 @@ class TestPerformanceAndSecurity(unittest.TestCase):
         print(f"SLIP-39 Sharding - Avg: {avg_time:.2f}ms, Max: {max_time:.2f}ms")
 
         # Sharding should be reasonable (preferably under 500ms)
-        self.assertLess(avg_time, 500, f"Average sharding time {avg_time:.2f}ms is too slow")
-        self.assertLess(max_time, 1000, f"Maximum sharding time {max_time:.2f}ms is too slow")
+        self.assertLess(
+            avg_time, 500, f"Average sharding time {avg_time:.2f}ms is too slow"
+        )
+        self.assertLess(
+            max_time, 1000, f"Maximum sharding time {max_time:.2f}ms is too slow"
+        )
 
     def test_38_slip39_reconstruction_performance(self) -> None:
         """Test 38: Verify SLIP-39 reconstruction execution time is reasonable."""
@@ -188,8 +192,12 @@ class TestPerformanceAndSecurity(unittest.TestCase):
         print(f"SLIP-39 Reconstruction - Avg: {avg_time:.2f}ms, Max: {max_time:.2f}ms")
 
         # Reconstruction should be reasonable (preferably under 500ms)
-        self.assertLess(avg_time, 500, f"Average reconstruction time {avg_time:.2f}ms is too slow")
-        self.assertLess(max_time, 1000, f"Maximum reconstruction time {max_time:.2f}ms is too slow")
+        self.assertLess(
+            avg_time, 500, f"Average reconstruction time {avg_time:.2f}ms is too slow"
+        )
+        self.assertLess(
+            max_time, 1000, f"Maximum reconstruction time {max_time:.2f}ms is too slow"
+        )
 
     def test_38_cli_operations_performance(self) -> None:
         """Test 38: Verify CLI operations execution time is reasonable."""
@@ -216,7 +224,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
             )
             gen_time = (time.perf_counter() - start_time) * 1000
 
-            self.assertEqual(result.returncode, 0, f"Gen command failed: {result.stderr}")
+            self.assertEqual(
+                result.returncode, 0, f"Gen command failed: {result.stderr}"
+            )
             print(f"CLI gen command: {gen_time:.2f}ms")
 
             # Find the actual created file (may have sanitized filename)
@@ -245,12 +255,18 @@ class TestPerformanceAndSecurity(unittest.TestCase):
             )
             shard_time = (time.perf_counter() - start_time) * 1000
 
-            self.assertEqual(result.returncode, 0, f"Shard command failed: {result.stderr}")
+            self.assertEqual(
+                result.returncode, 0, f"Shard command failed: {result.stderr}"
+            )
             print(f"CLI shard command: {shard_time:.2f}ms")
 
             # Performance should be reasonable for CLI operations (under 2 seconds including Python startup)
-            self.assertLess(gen_time, 2000, f"CLI gen time {gen_time:.2f}ms is too slow")
-            self.assertLess(shard_time, 2000, f"CLI shard time {shard_time:.2f}ms is too slow")
+            self.assertLess(
+                gen_time, 2000, f"CLI gen time {gen_time:.2f}ms is too slow"
+            )
+            self.assertLess(
+                shard_time, 2000, f"CLI shard time {shard_time:.2f}ms is too slow"
+            )
 
         finally:
             # Clean up created files
@@ -308,7 +324,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
             200,
             f"Peak memory usage {max_memory:.2f}MB exceeds reasonable limit",
         )
-        self.assertLess(memory_used, 50, f"Additional memory usage {memory_used:.2f}MB is too high")
+        self.assertLess(
+            memory_used, 50, f"Additional memory usage {memory_used:.2f}MB is too high"
+        )
 
     def test_40_secure_memory_handling(self) -> None:
         """Test 40: Verify secure memory handling is implemented."""
@@ -359,7 +377,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
         network_calls = []
 
         def mock_socket(*args, **kwargs):
-            network_calls.append(f"socket.socket called with args: {args}, kwargs: {kwargs}")
+            network_calls.append(
+                f"socket.socket called with args: {args}, kwargs: {kwargs}"
+            )
             return original_socket(*args, **kwargs)
 
         # Mock urllib and requests if they exist
@@ -415,7 +435,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
         print("\n=== Testing CLI Offline Operation ===")
 
         # Test CLI commands work without network
-        test_file = "offline_test.txt"  # Use simple filename to avoid path sanitization issues
+        test_file = (
+            "offline_test.txt"  # Use simple filename to avoid path sanitization issues
+        )
         shards_file = "offline_shards.txt"
 
         # Clean up any existing files
@@ -434,7 +456,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
                 timeout=10,
             )
 
-            self.assertEqual(result.returncode, 0, f"Gen command failed: {result.stderr}")
+            self.assertEqual(
+                result.returncode, 0, f"Gen command failed: {result.stderr}"
+            )
 
             # Check if file was created (may have sanitized filename)
             created_files = list(Path(".").glob("*offline_test*"))
@@ -455,7 +479,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
                     for line in content.split("\n")
                     if line.strip() and not line.strip().startswith("#")
                 ]
-                self.assertTrue(len(mnemonic_lines) > 0, "No mnemonic found in output file")
+                self.assertTrue(
+                    len(mnemonic_lines) > 0, "No mnemonic found in output file"
+                )
                 mnemonic = mnemonic_lines[0].strip()
                 self.assertEqual(len(mnemonic.split()), 24, "Invalid mnemonic length")
 
@@ -479,7 +505,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
                 timeout=10,
             )
 
-            self.assertEqual(result.returncode, 0, f"Shard command failed: {result.stderr}")
+            self.assertEqual(
+                result.returncode, 0, f"Shard command failed: {result.stderr}"
+            )
 
             # Check if shards file was created (may have sanitized filename)
             shard_files = list(Path(".").glob("*offline_shards*"))
@@ -531,7 +559,9 @@ class TestPerformanceAndSecurity(unittest.TestCase):
         total_time = gen_time + shard_time + restore_time
         print(f"  - Total round-trip time: {total_time:.2f}ms")
 
-        self.assertLess(total_time, 1000, f"Total round-trip time {total_time:.2f}ms is too slow")
+        self.assertLess(
+            total_time, 1000, f"Total round-trip time {total_time:.2f}ms is too slow"
+        )
 
 
 if __name__ == "__main__":

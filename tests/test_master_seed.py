@@ -186,7 +186,10 @@ class TestMasterSeedEdgeCases:
         """Test hex seed generation when cleanup fails."""
         mnemonic = generate_mnemonic()
 
-        with patch("sseed.bip39.secure_delete_variable", side_effect=Exception("Cleanup failed")):
+        with patch(
+            "sseed.bip39.secure_delete_variable",
+            side_effect=Exception("Cleanup failed"),
+        ):
             # Should raise MnemonicError when cleanup fails in generate_master_seed
             with pytest.raises(MnemonicError, match="Failed to generate master seed"):
                 mnemonic_to_hex_seed(mnemonic)

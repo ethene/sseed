@@ -66,7 +66,7 @@ format: ## Auto-format code (Black + isort)
 	@echo "Running Black..."
 	@python -m black sseed/ tests/
 	@echo "Running isort..."
-	@python -m isort --profile black --line-length 100 --force-grid-wrap 2 sseed/ tests/
+	@python -m isort --profile black --line-length 88 --force-grid-wrap 2 sseed/ tests/
 	@echo "✅ Code formatted!"
 
 install: ## Install package in development mode
@@ -90,7 +90,7 @@ ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@echo "1️⃣ Code formatting check (Black)..."
 	@python -m black --check --diff sseed/ tests/
 	@echo "2️⃣ Import sorting check (isort)..."
-	@python -m isort --check-only --diff --profile black --line-length 100 --force-grid-wrap 2 sseed/ tests/
+	@python -m isort --check-only --diff --profile black --line-length 88 --force-grid-wrap 2 sseed/ tests/
 	@echo "3️⃣ Linting (Pylint)..."
 	@python -m pylint sseed/ --fail-under=9.5
 	@echo "4️⃣ Style check (flake8)..."

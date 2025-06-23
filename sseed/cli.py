@@ -310,7 +310,8 @@ https://github.com/yourusername/sseed/blob/main/docs/security.md
         "gen",
         help="Generate a 24-word BIP-39 mnemonic using secure entropy",
         description=(
-            "Generate a cryptographically secure 24-word BIP-39 mnemonic " "using system entropy."
+            "Generate a cryptographically secure 24-word BIP-39 mnemonic "
+            "using system entropy."
         ),
         epilog="Example: sseed gen -o my-wallet-backup.txt",
     )
@@ -327,7 +328,8 @@ https://github.com/yourusername/sseed/blob/main/docs/security.md
         "shard",
         help="Split mnemonic into SLIP-39 shards with group/threshold configuration",
         description=(
-            "Split a BIP-39 mnemonic into SLIP-39 threshold shards " "for secure distribution."
+            "Split a BIP-39 mnemonic into SLIP-39 threshold shards "
+            "for secure distribution."
         ),
         epilog="""
 Examples:
@@ -364,7 +366,10 @@ Examples:
     shard_parser.add_argument(
         "--separate",
         action="store_true",
-        help=("Write each shard to a separate file " "(e.g., shards_01.txt, shards_02.txt)"),
+        help=(
+            "Write each shard to a separate file "
+            "(e.g., shards_01.txt, shards_02.txt)"
+        ),
     )
 
     # Restore command
@@ -714,7 +719,9 @@ def handle_seed_command(args: argparse.Namespace) -> int:
                 logger.info("Generated hexadecimal master seed")
             else:
                 # Generate binary seed
-                master_seed = generate_master_seed(mnemonic, args.passphrase, args.iterations)
+                master_seed = generate_master_seed(
+                    mnemonic, args.passphrase, args.iterations
+                )
                 seed_output = master_seed.hex()  # Convert to hex for output
                 logger.info("Generated binary master seed")
 

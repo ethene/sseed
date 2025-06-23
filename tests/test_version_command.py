@@ -78,7 +78,10 @@ class TestVersionCommand(unittest.TestCase):
     def test_version_command_subprocess(self):
         """Test version command via subprocess."""
         result = subprocess.run(
-            [sys.executable, "-m", "sseed", "version"], capture_output=True, text=True, timeout=10
+            [sys.executable, "-m", "sseed", "version"],
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
 
         self.assertEqual(result.returncode, 0)
@@ -134,12 +137,17 @@ class TestVersionCommand(unittest.TestCase):
             self.assertIn("slip39", dependencies)
 
         except json.JSONDecodeError as e:
-            self.fail(f"Version command did not produce valid JSON: {e}\nOutput: {json_output}")
+            self.fail(
+                f"Version command did not produce valid JSON: {e}\nOutput: {json_output}"
+            )
 
     def test_version_in_help_listing(self):
         """Test that version command appears in main help."""
         result = subprocess.run(
-            [sys.executable, "-m", "sseed", "--help"], capture_output=True, text=True, timeout=10
+            [sys.executable, "-m", "sseed", "--help"],
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
 
         self.assertEqual(result.returncode, 0)

@@ -36,7 +36,9 @@ class TestSlip39Operations:
         # Should create 5 shards
         assert len(shards) == 5
         assert all(isinstance(shard, str) for shard in shards)
-        assert all(len(shard.split()) in [20, 33] for shard in shards)  # SLIP-39 word counts
+        assert all(
+            len(shard.split()) in [20, 33] for shard in shards
+        )  # SLIP-39 word counts
 
     def test_create_slip39_shards_custom(self) -> None:
         """Test creating SLIP-39 shards with custom configuration."""
@@ -136,7 +138,9 @@ class TestSlip39Operations:
         shards_with_duplicates = shards[:3] + [shards[0]]  # Add duplicate
 
         # Should still work (duplicates are filtered)
-        reconstructed_mnemonic = reconstruct_mnemonic_from_shards(shards_with_duplicates)
+        reconstructed_mnemonic = reconstruct_mnemonic_from_shards(
+            shards_with_duplicates
+        )
         assert reconstructed_mnemonic == original_mnemonic
 
     def test_reconstruction_empty_shards(self) -> None:

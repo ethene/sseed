@@ -167,14 +167,18 @@ def parse_group_config(group_config: str) -> tuple[int, list[tuple[int, int]]]:
                 context={"group_threshold": group_threshold, "num_groups": len(groups)},
             )
 
-        logger.info("Parsed group config: threshold=%d, groups=%s", group_threshold, groups)
+        logger.info(
+            "Parsed group config: threshold=%d, groups=%s", group_threshold, groups
+        )
 
         return group_threshold, groups
 
     except Exception as e:
         error_msg = f"Failed to parse group configuration '{group_config}': {e}"
         logger.error(error_msg)
-        raise ValidationError(error_msg, context={"config": group_config, "error": str(e)}) from e
+        raise ValidationError(
+            error_msg, context={"config": group_config, "error": str(e)}
+        ) from e
 
 
 def reconstruct_mnemonic_from_shards(
@@ -248,7 +252,9 @@ def reconstruct_mnemonic_from_shards(
                     context={"mnemonic_valid": False},
                 )
 
-            logger.info("Successfully reconstructed BIP-39 mnemonic from SLIP-39 shards")
+            logger.info(
+                "Successfully reconstructed BIP-39 mnemonic from SLIP-39 shards"
+            )
             log_security_event("SLIP-39 reconstruction completed successfully")
 
             return mnemonic_str

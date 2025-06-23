@@ -189,7 +189,9 @@ class TestValidationEdgeCases:
 
     def test_validate_group_threshold_threshold_exceeds_total(self):
         """Test group threshold validation with threshold > total."""
-        with pytest.raises(ValidationError, match="cannot be greater than total shares"):
+        with pytest.raises(
+            ValidationError, match="cannot be greater than total shares"
+        ):
             validate_group_threshold("5-of-3")
 
     def test_validate_group_threshold_very_large_numbers(self):
@@ -223,13 +225,17 @@ class TestValidationEdgeCases:
     def test_validate_mnemonic_checksum_invalid_words(self):
         """Test mnemonic checksum validation with invalid words."""
         invalid_mnemonic = "invalid words that are not in bip39 wordlist"
-        with pytest.raises(ValidationError, match="Error during mnemonic checksum validation"):
+        with pytest.raises(
+            ValidationError, match="Error during mnemonic checksum validation"
+        ):
             validate_mnemonic_checksum(invalid_mnemonic)
 
     def test_validate_mnemonic_checksum_wrong_length(self):
         """Test mnemonic checksum validation with wrong word count."""
         wrong_length = "abandon about"  # Only 2 words
-        with pytest.raises(ValidationError, match="Error during mnemonic checksum validation"):
+        with pytest.raises(
+            ValidationError, match="Error during mnemonic checksum validation"
+        ):
             validate_mnemonic_checksum(wrong_length)
 
     def test_validate_mnemonic_checksum_invalid_checksum(self):
@@ -241,8 +247,12 @@ class TestValidationEdgeCases:
 
     def test_validate_mnemonic_checksum_exception_handling(self):
         """Test mnemonic checksum validation exception handling."""
-        with patch("sseed.validation.Bip39MnemonicValidator", side_effect=Exception("Error")):
-            with pytest.raises(ValidationError, match="Error during mnemonic checksum validation"):
+        with patch(
+            "sseed.validation.Bip39MnemonicValidator", side_effect=Exception("Error")
+        ):
+            with pytest.raises(
+                ValidationError, match="Error during mnemonic checksum validation"
+            ):
                 validate_mnemonic_checksum(
                     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
                 )
