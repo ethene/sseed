@@ -4,8 +4,8 @@
 [![CI Status](https://github.com/ethene/sseed/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/ethene/sseed/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/sseed.svg)](https://pypi.org/project/sseed/)
-[![Test Coverage](https://img.shields.io/badge/coverage-87.8%25-brightgreen.svg)](https://github.com/ethene/sseed)
-[![Code Quality](https://img.shields.io/badge/pylint-9.5%2B%2F10-brightgreen.svg)](https://github.com/ethene/sseed)
+[![Test Coverage](https://img.shields.io/badge/coverage-87.0%25-brightgreen.svg)](https://github.com/ethene/sseed)
+[![Code Quality](https://img.shields.io/badge/pylint-9.86%2F10-brightgreen.svg)](https://github.com/ethene/sseed)
 
 **Secure, offline BIP39/SLIP39 cryptocurrency seed management with mathematical verification**
 
@@ -40,6 +40,10 @@ pip install sseed
 $ sseed gen
 abandon ability able about above absent absorb abstract absurd abuse access accident
 
+# Generate master seed from mnemonic
+$ sseed gen | sseed seed --hex
+7adb1efaf1659636ca22a200c4e688a2041972ebb8d1d49a71c4cb40b4a283fc51d4cfe31d45c0f90eb08a246008f8707f961b674246b016aa303041ceccb848
+
 # Split into 3-of-5 threshold shards  
 $ sseed gen | sseed shard -g 3-of-5
 # Group 1 of 1 - Share 1 of 5: academic acid acrobat...
@@ -58,11 +62,11 @@ abandon ability able about above absent absorb abstract absurd abuse access acci
 ```bash
 # Show comprehensive version information
 $ sseed version
-🔐 SSeed v1.4.0
+🔐 SSeed v1.5.0
 ========================================
 
 📋 Core Information:
-   Version: 1.4.0
+   Version: 1.5.0
    Python:  3.12.2 (CPython)
 
 🖥️  System Information:
@@ -75,7 +79,7 @@ $ sseed version
 
 # JSON format for automation
 $ sseed version --json
-{"sseed": "1.4.0", "python": "3.12.2", "platform": {...}}
+{"sseed": "1.5.0", "python": "3.12.2", "platform": {...}}
 ```
 
 ### Advanced Usage
@@ -89,6 +93,9 @@ sseed seed -i mnemonic.txt --hex
 
 # Generate master seed with passphrase
 sseed seed -i mnemonic.txt -p "my_passphrase" --hex
+
+# Generate master seed with custom iterations
+sseed seed -i mnemonic.txt --iterations 4096 --hex
 
 # Multi-group configuration (enterprise setup)
 sseed shard -g "2:(2-of-3,3-of-5)" -i seed.txt --separate -o shards/
@@ -193,9 +200,9 @@ make build             # Build distribution packages
 
 ## 🧪 Quality Assurance
 
-- **87.8% test coverage** with 290+ comprehensive tests
+- **87.0% test coverage** with 300+ comprehensive tests
 - **Property-based testing** using Hypothesis framework
-- **9.89/10 code quality** score (Pylint)
+- **9.86/10 code quality** score (Pylint)
 - **Zero security vulnerabilities** (Bandit audit)
 - **Mathematical verification** of cryptographic properties
 

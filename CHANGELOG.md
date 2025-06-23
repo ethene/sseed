@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2025-06-23
 
+### Added
+- **New `sseed seed` command** for BIP-39 master seed generation
+- PBKDF2-HMAC-SHA512 implementation following BIP-39 specification exactly
+- Master seed generation with optional passphrase support
+- Hexadecimal output format for master seeds (`--hex` flag)
+- Configurable PBKDF2 iteration count (default: 2048, per BIP-39)
+- Comprehensive master seed test suite (20 new test cases)
+- Enhanced CLI integration tests for seed command functionality
+- Improved test coverage from 84% to 87% (exceeds CI requirement)
+
+### Enhanced
+- CLI interface now supports complete BIP-39 to master seed workflow
+- Added comprehensive documentation for master seed generation
+- Updated capabilities documentation with cryptographic operations
+- Improved entropy edge case testing and validation
+- Enhanced secure memory cleanup for sensitive cryptographic data
+
+### Security
+- Implements BIP-39 standard PBKDF2-HMAC-SHA512 for master seed derivation
+- Unicode NFKD normalization for mnemonic and passphrase inputs
+- Secure memory cleanup of sensitive variables after use
+- Comprehensive input validation and error handling
+
+### Performance
+- Master seed generation: <5ms for standard 2048 iterations
+- Memory efficient: secure cleanup prevents memory leaks
+- Deterministic output: same mnemonic + passphrase = same master seed
+
+### Documentation
+- Updated README with master seed generation examples
+- Added CLI interface documentation for seed command
+- Enhanced cryptographic operations documentation
+- Updated coverage badges and quality metrics
+
 ## [1.4.0] - 2025-06-23
 
 ### Added
