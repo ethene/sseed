@@ -69,10 +69,11 @@ def handle_version_command(args: argparse.Namespace) -> int:
     import platform
     import sys
     from importlib import metadata
+    from typing import Dict, Any
 
     try:
         # Core version information
-        version_info = {
+        version_info: Dict[str, Any] = {
             "sseed": __version__,
             "python": sys.version.split()[0],
             "platform": {
@@ -84,7 +85,7 @@ def handle_version_command(args: argparse.Namespace) -> int:
         }
 
         # Dependency versions
-        dependencies = {}
+        dependencies: Dict[str, str] = {}
         try:
             dependencies["bip-utils"] = metadata.version("bip-utils")
         except metadata.PackageNotFoundError:
