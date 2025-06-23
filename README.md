@@ -20,7 +20,7 @@
 - ⚡ **Lightning fast** - sub-millisecond operations, <100MB memory usage
 - 🛡️ **Secure memory handling** - automatic cleanup of sensitive data
 - 🧪 **Mathematical verification** - property-based testing with Hypothesis
-- 🎯 **Simple CLI interface** - intuitive commands, scriptable automation
+- 🎯 **Simple CLI interface** - intuitive commands, version info, scriptable automation
 - 📦 **Zero dependencies** - self-contained, easy deployment
 - 🌍 **Cross-platform** - macOS, Linux, Windows compatibility
 
@@ -50,6 +50,31 @@ $ sseed gen | sseed shard -g 3-of-5
 # Restore from any 3 shards
 $ sseed restore shard1.txt shard2.txt shard3.txt
 abandon ability able about above absent absorb abstract absurd abuse access accident
+```
+
+### System Information
+
+```bash
+# Show comprehensive version information
+$ sseed version
+🔐 SSeed v1.4.0
+========================================
+
+📋 Core Information:
+   Version: 1.4.0
+   Python:  3.12.2 (CPython)
+
+🖥️  System Information:
+   OS:           Darwin 23.6.0
+   Architecture: arm64 (64bit)
+
+📦 Dependencies:
+   ✅ bip-utils: 2.9.3
+   ✅ slip39: 13.1.0
+
+# JSON format for automation
+$ sseed version --json
+{"sseed": "1.4.0", "python": "3.12.2", "platform": {...}}
 ```
 
 ### Advanced Usage
@@ -123,6 +148,7 @@ make build             # Build distribution packages
 
 | Command | Purpose | Example |
 |---------|---------|---------|
+| `sseed version` | Show version and system info | `sseed version --json` |
 | `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -o backup.txt` |
 | `sseed shard` | Split into SLIP-39 shards | `sseed shard -g 3-of-5 -i seed.txt` |
 | `sseed restore` | Reconstruct from shards | `sseed restore shard*.txt` |

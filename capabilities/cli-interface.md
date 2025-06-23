@@ -110,6 +110,133 @@ Security Best Practices:
 - **Best Practices**: Incorporates security and operational recommendations
 - **Real-World**: Practical examples for common deployment scenarios
 
+## Version Command (`version`)
+
+### Purpose
+Display comprehensive version and system information for debugging, support, and automation.
+
+### Syntax
+```bash
+sseed version [options]
+```
+
+### Options
+- `--json` - Output in JSON format for automation
+- `-h, --help` - Show command help
+
+### Usage Examples
+
+#### Human-Readable Output
+```bash
+# Show detailed version information
+sseed version
+
+# Example output
+🔐 SSeed v1.4.0
+========================================
+
+📋 Core Information:
+   Version: 1.4.0
+   Python:  3.12.2 (CPython)
+
+🖥️  System Information:
+   OS:           Darwin 23.6.0
+   Architecture: arm64 (64bit)
+
+📦 Dependencies:
+   ✅ bip-utils: 2.9.3
+   ✅ slip39: 13.1.0
+
+🔗 Links:
+   Repository: https://github.com/ethene/sseed
+   PyPI:       https://pypi.org/project/sseed/
+   Issues:     https://github.com/ethene/sseed/issues
+```
+
+#### JSON Output for Automation
+```bash
+# Machine-readable format
+sseed version --json
+
+# Example output
+{
+  "sseed": "1.4.0",
+  "python": "3.12.2",
+  "platform": {
+    "system": "Darwin",
+    "release": "23.6.0",
+    "machine": "arm64",
+    "architecture": "64bit"
+  },
+  "dependencies": {
+    "bip-utils": "2.9.3",
+    "slip39": "13.1.0"
+  },
+  "build": {
+    "python_implementation": "CPython",
+    "python_compiler": "Clang 16.0.6"
+  }
+}
+```
+
+#### Integration Examples
+```bash
+# Extract version for scripts
+VERSION=$(sseed version --json | jq -r '.sseed')
+echo "Running SSeed version: $VERSION"
+
+# Check dependency availability
+sseed version --json | jq '.dependencies["bip-utils"]'
+
+# System compatibility check
+ARCH=$(sseed version --json | jq -r '.platform.machine')
+if [ "$ARCH" = "arm64" ]; then
+    echo "Running on Apple Silicon"
+fi
+
+# CI/CD verification
+sseed version --json | jq -e '.sseed == "1.4.0"' && echo "Version verified"
+```
+
+### Information Provided
+
+#### Core Information
+- **SSeed Version**: Current application version (semantic versioning)
+- **Python Version**: Runtime Python version and implementation
+- **Platform Details**: Operating system, release, architecture
+
+#### Dependencies
+- **bip-utils**: BIP-39 mnemonic operations library version
+- **slip39**: SLIP-39 secret sharing library version
+- **Status Indicators**: ✅ Available / ❌ Missing
+
+#### Build Information
+- **Python Implementation**: CPython, PyPy, etc.
+- **Compiler**: Build toolchain information
+- **Architecture**: Platform-specific build details
+
+#### Helpful Links
+- **Repository**: Source code and documentation
+- **PyPI**: Package installation and release history
+- **Issues**: Bug reports and feature requests
+
+### Use Cases
+
+#### Development and Debugging
+- **Environment Verification**: Confirm correct versions and dependencies
+- **Bug Reports**: Provide comprehensive system information
+- **Compatibility Testing**: Verify platform and dependency compatibility
+
+#### Automation and CI/CD
+- **Version Verification**: Ensure correct version deployment
+- **Dependency Auditing**: Monitor library versions
+- **Environment Documentation**: Record deployment configurations
+
+#### Support and Troubleshooting
+- **System Information**: Quick environment assessment
+- **Dependency Status**: Identify missing or outdated libraries
+- **Platform Details**: Architecture and OS-specific debugging
+
 ## Generation Command (`gen`)
 
 ### Purpose
