@@ -7,7 +7,14 @@ Provides command-line interface for BIP39/SLIP39 operations:
 """
 
 import argparse
+import json
+import platform
 import sys
+from importlib import metadata
+from typing import (
+    Any,
+    Dict,
+)
 
 from sseed import __version__
 from sseed.bip39 import generate_mnemonic
@@ -39,7 +46,6 @@ from sseed.slip39_operations import (
     reconstruct_mnemonic_from_shards,
 )
 from sseed.validation import (
-    sanitize_filename,
     validate_group_threshold,
     validate_mnemonic_checksum,
     validate_shard_integrity,
@@ -57,7 +63,7 @@ logger = get_logger(__name__)
 
 
 def handle_version_command(args: argparse.Namespace) -> int:
-    """Handle the version command with detailed system information.
+    """Handle the version command.
 
     Args:
         args: Parsed command line arguments.
@@ -65,12 +71,6 @@ def handle_version_command(args: argparse.Namespace) -> int:
     Returns:
         Exit code (always 0 for success).
     """
-    import json
-    import platform
-    import sys
-    from importlib import metadata
-    from typing import Dict, Any
-
     try:
         # Core version information
         version_info: Dict[str, Any] = {
@@ -114,17 +114,16 @@ def handle_version_command(args: argparse.Namespace) -> int:
             print()
             print("📋 Core Information:")
             print(f"   Version: {version_info['sseed']}")
-            print(
-                f"   Python:  {version_info['python']} ({version_info['build']['python_implementation']})"
-            )
+            python_impl = version_info["build"]["python_implementation"]
+            print(f"   Python:  {version_info['python']} ({python_impl})")
             print()
             print("🖥️  System Information:")
-            print(
-                f"   OS:           {version_info['platform']['system']} {version_info['platform']['release']}"
-            )
-            print(
-                f"   Architecture: {version_info['platform']['machine']} ({version_info['platform']['architecture']})"
-            )
+            os_name = version_info["platform"]["system"]
+            os_release = version_info["platform"]["release"]
+            print(f"   OS:           {os_name} {os_release}")
+            machine = version_info["platform"]["machine"]
+            arch = version_info["platform"]["architecture"]
+            print(f"   Architecture: {machine} ({arch})")
             print()
             print("📦 Dependencies:")
             for dep, ver in version_info["dependencies"].items():
@@ -225,7 +224,10 @@ def create_parser() -> argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(
         prog="sseed",
-        description="Secure, offline BIP39/SLIP39 cryptocurrency seed management with mathematical verification",
+        description=(
+            "Secure, offline BIP39/SLIP39 cryptocurrency seed management "
+            "with mathematical verification"
+        ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 QUICK EXAMPLES:
@@ -249,7 +251,8 @@ EXIT CODES:
   130 Interrupted by user (Ctrl+C)
 
 Use 'sseed --examples' for comprehensive usage examples and best practices.
-For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/security.md
+For security guidelines: 
+https://github.com/yourusername/sseed/blob/main/docs/security.md
         """,
     )
 
@@ -287,7 +290,10 @@ For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/se
     version_parser = subparsers.add_parser(
         "version",
         help="Show detailed version and system information",
-        description="Display comprehensive version information including dependencies, system details, and build information",
+        description=(
+            "Display comprehensive version information including dependencies, "
+            "system details, and build information"
+        ),
     )
     version_parser.add_argument(
         "--json",
@@ -299,7 +305,9 @@ For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/se
     gen_parser = subparsers.add_parser(
         "gen",
         help="Generate a 24-word BIP-39 mnemonic using secure entropy",
-        description="Generate a cryptographically secure 24-word BIP-39 mnemonic using system entropy.",
+        description=(
+            "Generate a cryptographically secure 24-word BIP-39 mnemonic " "using system entropy."
+        ),
         epilog="Example: sseed gen -o my-wallet-backup.txt",
     )
     gen_parser.add_argument(
@@ -314,7 +322,9 @@ For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/se
     shard_parser = subparsers.add_parser(
         "shard",
         help="Split mnemonic into SLIP-39 shards with group/threshold configuration",
-        description="Split a BIP-39 mnemonic into SLIP-39 threshold shards for secure distribution.",
+        description=(
+            "Split a BIP-39 mnemonic into SLIP-39 threshold shards " "for secure distribution."
+        ),
         epilog="""
 Examples:
   sseed shard -i seed.txt -g 3-of-5                    Simple threshold
@@ -335,7 +345,10 @@ Examples:
         type=str,
         default="3-of-5",
         metavar="CONFIG",
-        help="Group threshold configuration (default: 3-of-5). Examples: '3-of-5', '2:(2-of-3,3-of-5)'",
+        help=(
+            "Group threshold configuration (default: 3-of-5). "
+            "Examples: '3-of-5', '2:(2-of-3,3-of-5)'"
+        ),
     )
     shard_parser.add_argument(
         "-o",
@@ -347,14 +360,17 @@ Examples:
     shard_parser.add_argument(
         "--separate",
         action="store_true",
-        help="Write each shard to a separate file (e.g., shards_01.txt, shards_02.txt)",
+        help=("Write each shard to a separate file " "(e.g., shards_01.txt, shards_02.txt)"),
     )
 
     # Restore command
     restore_parser = subparsers.add_parser(
         "restore",
         help="Reconstruct mnemonic from a valid set of SLIP-39 shards",
-        description="Reconstruct the original mnemonic from SLIP-39 shards using Shamir's Secret Sharing.",
+        description=(
+            "Reconstruct the original mnemonic from SLIP-39 shards "
+            "using Shamir's Secret Sharing."
+        ),
         epilog="""
 Examples:
   sseed restore shard1.txt shard2.txt shard3.txt       From specific files
@@ -615,7 +631,8 @@ def main(argv: list[str] | None = None) -> int:
         argv: Command-line arguments (default: sys.argv[1:]).
 
     Returns:
-        Exit code (0=success, 1=usage error, 2=crypto error, 3=file error, 4=validation error, 130=interrupted).
+        Exit code (0=success, 1=usage error, 2=crypto error, 3=file error,
+        4=validation error, 130=interrupted).
     """
     parser = create_parser()
 
