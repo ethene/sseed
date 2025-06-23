@@ -64,7 +64,7 @@ check: ## Run code quality checks
 format: ## Auto-format code (Black + isort)
 	@echo "🎨 Auto-formatting code..."
 	@echo "Running Black..."
-	@python -m black sseed/ tests/
+	@python -m black --line-length 88 sseed/ tests/
 	@echo "Running isort..."
 	@python -m isort --profile black --line-length 88 --force-grid-wrap 2 sseed/ tests/
 	@echo "✅ Code formatted!"
@@ -88,7 +88,7 @@ clean: ## Clean build artifacts and cache files
 ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@echo "🧪 Running CI-style tests..."
 	@echo "1️⃣ Code formatting check (Black)..."
-	@python -m black --check --diff sseed/ tests/
+	@python -m black --check --diff --line-length 88 sseed/ tests/
 	@echo "2️⃣ Import sorting check (isort)..."
 	@python -m isort --check-only --diff --profile black --line-length 88 --force-grid-wrap 2 sseed/ tests/
 	@echo "3️⃣ Linting (Pylint)..."
