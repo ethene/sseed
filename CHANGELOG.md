@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2025-06-23
 
+### Added
+- New `sseed version` command with comprehensive system information
+- Rich human-readable version display with emojis and formatted sections
+- JSON output format for automation and CI/CD integration (`--json` flag)
+- Detailed dependency version reporting with status indicators
+- Platform and build information display
+- Comprehensive test suite for version command functionality (9 new tests)
+
+### Enhanced
+- CLI help system now includes version command in main listing
+- Professional version information display for debugging and support
+- Improved user experience with visually appealing version output
+
 ## [1.3.0] - 2025-06-19
 
 ### Added
