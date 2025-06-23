@@ -240,7 +240,7 @@ class TestEntropyEdgeCases:
         with patch("secrets.token_bytes") as mock_token_bytes:
             # Mock to return wrong length
             mock_token_bytes.return_value = b"wrong_length"  # 12 bytes instead of 32
-            
+
             with pytest.raises(EntropyError, match="Generated entropy length .* != requested"):
                 generate_entropy_bytes(32)
 
@@ -252,8 +252,10 @@ class TestEntropyEdgeCases:
             mock_instance = MagicMock()
             mock_instance.getrandbits.return_value = -1  # Invalid negative value
             mock_random.return_value = mock_instance
-            
-            with pytest.raises(EntropyError, match="Generated entropy value .* outside expected range"):
+
+            with pytest.raises(
+                EntropyError, match="Generated entropy value .* outside expected range"
+            ):
                 generate_entropy_bits(8)
 
     def test_secure_delete_variable_dict_like_object(self):

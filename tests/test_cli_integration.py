@@ -246,9 +246,9 @@ class TestCLIIntegration:
             text=True,
             check=True,
         )
-        
+
         # Extract mnemonic from output (should be 24 words)
-        lines = result.stdout.strip().split('\n')
+        lines = result.stdout.strip().split("\n")
         mnemonic = None
         for line in lines:
             clean_line = line.strip()
@@ -257,7 +257,7 @@ class TestCLIIntegration:
             if len(words) == 24 and all(word.isalpha() for word in words):
                 mnemonic = clean_line
                 break
-        
+
         assert mnemonic is not None, "Could not find mnemonic in output"
 
         # Test with different file extensions
@@ -288,7 +288,7 @@ class TestCLIIntegration:
         """Test the seed command integration with file I/O."""
         temp_mnemonic = "test_seed_mnemonic.txt"
         temp_seed = "test_master_seed.txt"
-        
+
         try:
             # Generate a mnemonic first
             result = subprocess.run(
@@ -297,7 +297,7 @@ class TestCLIIntegration:
                 text=True,
                 check=True,
             )
-            
+
             # Generate master seed from mnemonic file
             result = subprocess.run(
                 ["python", "-m", "sseed", "seed", "-i", temp_mnemonic, "--hex"],
@@ -305,20 +305,22 @@ class TestCLIIntegration:
                 text=True,
                 check=True,
             )
-            
+
             # Extract hex seed from output (last line that's all hex)
-            lines = result.stdout.strip().split('\n')
+            lines = result.stdout.strip().split("\n")
             hex_seed = None
             for line in lines:
                 # Look for a line that's exactly 128 hex characters
                 clean_line = line.strip()
-                if len(clean_line) == 128 and all(c in "0123456789abcdef" for c in clean_line.lower()):
+                if len(clean_line) == 128 and all(
+                    c in "0123456789abcdef" for c in clean_line.lower()
+                ):
                     hex_seed = clean_line
                     break
-            
+
             assert hex_seed is not None, "Could not find hex seed in output"
             assert len(hex_seed) == 128  # 64 bytes = 128 hex chars
-            
+
             # Test with output file
             result = subprocess.run(
                 ["python", "-m", "sseed", "seed", "-i", temp_mnemonic, "-o", temp_seed],
@@ -326,31 +328,43 @@ class TestCLIIntegration:
                 text=True,
                 check=True,
             )
-            
+
             # Check that seed file was created
             assert os.path.exists(temp_seed)
-            
+
             # Test with passphrase
             result = subprocess.run(
-                ["python", "-m", "sseed", "seed", "-i", temp_mnemonic, "-p", "test_passphrase", "--hex"],
+                [
+                    "python",
+                    "-m",
+                    "sseed",
+                    "seed",
+                    "-i",
+                    temp_mnemonic,
+                    "-p",
+                    "test_passphrase",
+                    "--hex",
+                ],
                 capture_output=True,
                 text=True,
                 check=True,
             )
-            
+
             # Extract hex seed with passphrase
-            lines = result.stdout.strip().split('\n')
+            lines = result.stdout.strip().split("\n")
             hex_seed_with_passphrase = None
             for line in lines:
                 clean_line = line.strip()
-                if len(clean_line) == 128 and all(c in "0123456789abcdef" for c in clean_line.lower()):
+                if len(clean_line) == 128 and all(
+                    c in "0123456789abcdef" for c in clean_line.lower()
+                ):
                     hex_seed_with_passphrase = clean_line
                     break
-            
+
             assert hex_seed_with_passphrase is not None
             assert len(hex_seed_with_passphrase) == 128
             assert hex_seed_with_passphrase != hex_seed  # Different due to passphrase
-            
+
         finally:
             # Cleanup
             for filename in [temp_mnemonic, temp_seed]:
