@@ -49,7 +49,7 @@ def create_slip39_shards(
     mnemonic: str,
     group_threshold: int = 1,
     groups: list[tuple[int, int]] | None = None,
-    passphrase: str = "",  # nosec B107 - Empty passphrase is valid default
+    passphrase: str = "",  # nosec B107
 ) -> list[str]:
     """Create SLIP-39 shards from a BIP-39 mnemonic.
 
@@ -179,7 +179,7 @@ def parse_group_config(group_config: str) -> tuple[int, list[tuple[int, int]]]:
 
 def reconstruct_mnemonic_from_shards(
     shards: list[str],
-    passphrase: str = "",  # nosec B107 - Empty passphrase is valid default
+    passphrase: str = "",  # nosec B107
 ) -> str:
     """Reconstruct BIP-39 mnemonic from SLIP-39 shards.
 
