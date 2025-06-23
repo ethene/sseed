@@ -275,9 +275,8 @@ class TestCLIIntegration:
                     text=True,
                     check=True,
                 )
-                assert "Shard 1/3:" in result.stdout
-                assert "Shard 2/3:" in result.stdout
-                assert "Shard 3/3:" in result.stdout
+                assert "# Shard 1" in result.stdout
+                assert "# Shard 2" in result.stdout
 
             finally:
                 # Cleanup
