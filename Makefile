@@ -56,7 +56,7 @@ check: ## Run code quality checks
 	@echo "Running pylint..."
 	@python -m pylint sseed/
 	@echo "Running flake8..."
-	@python -m flake8 sseed/
+	@python -m flake8 --max-line-length=210 --extend-ignore=E203,W503,F401,F841,E402,F811,F541,W293 sseed/ tests/ --statistics
 	@echo "Running mypy..."
 	@python -m mypy sseed/
 

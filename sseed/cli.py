@@ -151,13 +151,13 @@ SSEED USAGE EXAMPLES
 Basic Operations:
   # Generate a new mnemonic
   sseed gen
-  
+
   # Generate and save to file
   sseed gen -o my-wallet-backup.txt
 
   # Split mnemonic into 3-of-5 shards
   sseed shard -i my-wallet-backup.txt -g 3-of-5
-  
+
   # Split and save to separate files
   sseed shard -i seed.txt -g 3-of-5 --separate -o shards
 
@@ -167,10 +167,10 @@ Basic Operations:
 Advanced Workflows:
   # Generate and immediately shard (one-liner)
   sseed gen | sseed shard -g 2-of-3
-  
+
   # Multi-group enterprise setup
   sseed shard -g "2:(2-of-3,3-of-5)" -i seed.txt --separate -o enterprise-shards
-  
+
   # Complex multi-group with geographic distribution
   sseed shard -g "3:(3-of-5,4-of-7,2-of-3)" -i master-seed.txt --separate -o geo-dist
 
@@ -180,7 +180,7 @@ Advanced Workflows:
 File Management:
   # Generate with timestamp
   sseed gen -o "backup-$(date +%Y%m%d-%H%M%S).txt"
-  
+
   # Restore from pattern
   sseed restore /secure/location/shard_*.txt
 
@@ -188,7 +188,7 @@ Group Configuration Examples:
   Simple Threshold:
     3-of-5    Any 3 of 5 shards required
     2-of-3    Any 2 of 3 shards required
-    
+
   Multi-Group Security:
     2:(2-of-3,3-of-5)         Need 2 groups: 2-of-3 AND 3-of-5
     3:(3-of-5,4-of-7,2-of-3)  Need all 3 groups with different thresholds
@@ -196,18 +196,18 @@ Group Configuration Examples:
 Security Best Practices:
   # Always verify generated mnemonics
   sseed gen -o backup.txt && cat backup.txt
-  
+
   # Store shards in separate secure locations
   sseed shard -i seed.txt -g 3-of-5 --separate -o /secure/location1/
   cp shard_*.txt /secure/location2/ && rm shard_*.txt
-  
+
   # Test restoration before relying on shards
   sseed restore /test/shard*.txt
 
 Integration Examples:
   # Backup existing wallet
   echo "your existing mnemonic words here" | sseed shard -g 3-of-5 --separate -o backup
-  
+
   # Automated backup with verification
   sseed gen -o master.txt && sseed shard -i master.txt -g 3-of-5 --separate -o shards
 
@@ -251,7 +251,7 @@ EXIT CODES:
   130 Interrupted by user (Ctrl+C)
 
 Use 'sseed --examples' for comprehensive usage examples and best practices.
-For security guidelines: 
+For security guidelines:
 https://github.com/yourusername/sseed/blob/main/docs/security.md
         """,
     )
