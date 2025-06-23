@@ -38,13 +38,13 @@ jobs:
     - name: Code formatting check (Black)
       run: |
         echo "::group::Black formatting check"
-        black --check --diff sseed/ tests/
+        black --check --diff --line-length 88 sseed/ tests/
         echo "::endgroup::"
     
     - name: Import sorting check (isort)
       run: |
         echo "::group::Import sorting check"
-        isort --check-only --diff --profile black --line-length 100 --force-grid-wrap 2 sseed/ tests/
+        isort --check-only --diff --profile black --line-length 88 --force-grid-wrap 2 sseed/ tests/
         echo "::endgroup::"
     
     - name: Linting (Pylint)
