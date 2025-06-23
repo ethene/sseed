@@ -95,7 +95,11 @@ class BumpVersion:
         if not base_match:
             raise VersionError(f"Invalid version format: {version}")
 
-        return (int(base_match.group(1)), int(base_match.group(2)), int(base_match.group(3)))
+        return (
+            int(base_match.group(1)),
+            int(base_match.group(2)),
+            int(base_match.group(3)),
+        )
 
     def bump_version(self, current: str, bump_type: str) -> str:
         """Bump version based on type (major, minor, patch)."""
@@ -114,7 +118,9 @@ class BumpVersion:
         """Update version in __init__.py."""
         content = self.init_file.read_text()
         new_content = re.sub(
-            r'(__version__\s*=\s*["\'])[^"\']+(["\'])', rf"\g<1>{new_version}\g<2>", content
+            r'(__version__\s*=\s*["\'])[^"\']+(["\'])',
+            rf"\g<1>{new_version}\g<2>",
+            content,
         )
 
         if dry_run:
@@ -201,7 +207,9 @@ class BumpVersion:
             subprocess.run(["git", "add", "."], check=True, cwd=self.project_root)
 
             # Commit
-            subprocess.run(["git", "commit", "-m", message], check=True, cwd=self.project_root)
+            subprocess.run(
+                ["git", "commit", "-m", message], check=True, cwd=self.project_root
+            )
 
             # Tag
             subprocess.run(["git", "tag", tag_name], check=True, cwd=self.project_root)
@@ -281,16 +289,22 @@ Examples:
     )
 
     parser.add_argument(
-        "version", help="Version bump type (major/minor/patch) or specific version (e.g., 1.2.3)"
+        "version",
+        help="Version bump type (major/minor/patch) or specific version (e.g., 1.2.3)",
     )
     parser.add_argument(
-        "--dry-run", action="store_true", help="Show what would be changed without making changes"
+        "--dry-run",
+        action="store_true",
+        help="Show what would be changed without making changes",
     )
     parser.add_argument(
-        "--no-commit", action="store_true", help="Update files but skip git commit and tag"
+        "--no-commit",
+        action="store_true",
+        help="Update files but skip git commit and tag",
     )
     parser.add_argument(
-        "--message", help="Custom commit message (default: 'chore: bump version to X.Y.Z')"
+        "--message",
+        help="Custom commit message (default: 'chore: bump version to X.Y.Z')",
     )
 
     args = parser.parse_args()
