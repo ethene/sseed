@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2025-06-23
 
+### Fixed
+- **GitHub CI/CD Configuration Synchronization**: Fixed Black and isort parameter mismatches between local Makefile and GitHub Actions
+- Black formatting now uses consistent `--line-length 88` in both environments
+- isort configuration synchronized to use `--line-length 88` instead of mixed 88/100 values
+- Eliminated CI/CD pipeline failures caused by environment configuration drift
+- Ensured perfect parity between `make ci-test` and GitHub Actions workflows
+
+### Infrastructure
+- Complete CI/CD environment synchronization between local and remote pipelines
+- All 7 quality checks now pass consistently in both environments
+- Enhanced reliability of automated quality assurance processes
+
 ## [1.5.0] - 2025-06-23
 
 ### Added
