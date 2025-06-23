@@ -18,8 +18,8 @@ from typing import (
 
 from sseed import __version__
 from sseed.bip39 import (
-    generate_mnemonic,
     generate_master_seed,
+    generate_mnemonic,
     mnemonic_to_hex_seed,
 )
 from sseed.entropy import secure_delete_variable

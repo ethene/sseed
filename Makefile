@@ -17,7 +17,8 @@ help: ## Show this help message
 	@echo "Development:"
 	@echo "  test           Run all tests with coverage"
 	@echo "  check          Run code quality checks (pylint, flake8, mypy)"
-	@echo "  ci-test        Run CI-style tests (lint + mypy + pytest)"
+	@echo "  format         Auto-format code (Black + isort)"
+	@echo "  ci-test        Run CI-style tests (matches GitHub Actions)"
 	@echo "  build          Build distribution packages"
 	@echo "  install        Install package in development mode"
 	@echo "  clean          Clean build artifacts and cache files"
@@ -60,6 +61,14 @@ check: ## Run code quality checks
 	@echo "Running mypy..."
 	@python -m mypy sseed/
 
+format: ## Auto-format code (Black + isort)
+	@echo "🎨 Auto-formatting code..."
+	@echo "Running Black..."
+	@python -m black sseed/ tests/
+	@echo "Running isort..."
+	@python -m isort --profile black --line-length 100 --force-grid-wrap 2 sseed/ tests/
+	@echo "✅ Code formatted!"
+
 install: ## Install package in development mode
 	@echo "📦 Installing sseed in development mode..."
 	@python -m pip install -e .
@@ -78,13 +87,17 @@ clean: ## Clean build artifacts and cache files
 # CI/CD targets
 ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@echo "🧪 Running CI-style tests..."
-	@echo "1️⃣ Linting (Pylint)..."
+	@echo "1️⃣ Code formatting check (Black)..."
+	@python -m black --check --diff sseed/ tests/
+	@echo "2️⃣ Import sorting check (isort)..."
+	@python -m isort --check-only --diff --profile black --line-length 100 --force-grid-wrap 2 sseed/ tests/
+	@echo "3️⃣ Linting (Pylint)..."
 	@python -m pylint sseed/ --fail-under=9.5
-	@echo "2️⃣ Type checking (MyPy)..."
+	@echo "4️⃣ Style check (flake8)..."
+	@python -m flake8 --max-line-length=210 --extend-ignore=E203,W503,F401,F841,E402,F811,F541,W293 sseed/ tests/ --statistics
+	@echo "5️⃣ Type checking (MyPy)..."
 	@python -m mypy sseed/
-	@echo "3️⃣ Style check (Black)..."
-	@python -m black --check sseed/ tests/
-	@echo "4️⃣ Running tests with coverage..."
+	@echo "6️⃣ Running tests with coverage..."
 	@python -m pytest --cov=sseed --cov-fail-under=85 --cov-report=term-missing -v tests/
 	@echo "✅ All CI checks passed!"
 
