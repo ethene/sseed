@@ -724,4 +724,284 @@ done
 
 # Parallel processing
 seq 1 10 | xargs -P 4 -I {} sseed gen -o "seed_{}.txt"
-``` 
+```
+
+## Seed Command (`seed`)
+
+### Purpose
+Generate 512-bit master seeds from BIP-39 mnemonics using PBKDF2-HMAC-SHA512 as specified in BIP-39. Master seeds can be used for cryptographic key derivation according to BIP-32 hierarchical deterministic (HD) wallet specification.
+
+### Syntax
+```bash
+sseed seed [options]
+```
+
+### Options
+- `-i, --input FILE` - Input file containing mnemonic (default: stdin)
+- `-p, --passphrase PASSPHRASE` - Optional passphrase for additional security (default: none)
+- `-o, --output FILE` - Output file for master seed (default: stdout)
+- `--hex` - Output seed as hexadecimal string (default: binary)
+- `--iterations COUNT` - PBKDF2 iteration count (default: 2048)
+- `-h, --help` - Show command help
+
+### Usage Examples
+
+#### Basic Master Seed Generation
+```bash
+# Generate from file to stdout (hex format)
+sseed seed -i mnemonic.txt --hex
+
+# Example output (128 hex characters = 512 bits)
+a8b4c2d1e3f4567890abcdef1234567890abcdef1234567890abcdef12345678
+90abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345678
+```
+
+#### With Passphrase
+```bash
+# Generate with passphrase protection
+sseed seed -i mnemonic.txt -p "my_secure_passphrase" --hex
+
+# Interactive passphrase entry
+sseed seed -i mnemonic.txt -p "" --hex
+# Prompts for passphrase securely
+```
+
+#### File Input/Output
+```bash
+# Read from file, write to file
+sseed seed -i wallet_mnemonic.txt -o master_seed.txt
+
+# Read from stdin, write to file
+echo "abandon ability able about..." | sseed seed -o seed.txt --hex
+
+# Read from file, output to stdout
+sseed seed -i mnemonic.txt --hex > seed_backup.txt
+```
+
+#### Custom Iterations
+```bash
+# Higher security with more iterations
+sseed seed -i mnemonic.txt --iterations 4096 --hex
+
+# Enterprise-grade security
+sseed seed -i mnemonic.txt --iterations 10000 --hex
+```
+
+### Security Features
+- **BIP-39 Compliance**: Follows Bitcoin Improvement Proposal 39 specification exactly
+- **PBKDF2-HMAC-SHA512**: Industry-standard key derivation function
+- **Unicode Normalization**: Proper NFKD normalization for international characters
+- **Memory Security**: Automatic cleanup of sensitive variables
+- **Input Validation**: Comprehensive mnemonic checksum verification
+
+### Performance
+- **Speed**: < 5ms average generation time (2048 iterations)
+- **Memory Usage**: < 1KB additional during generation
+- **Scalability**: Linear scaling with iteration count
+
+### Integration Examples
+
+#### Wallet Generation Workflow
+```bash
+#!/bin/bash
+# Complete wallet setup workflow
+
+# Generate mnemonic
+sseed gen -o wallet_mnemonic.txt
+
+# Generate master seed
+sseed seed -i wallet_mnemonic.txt -p "wallet_passphrase" -o master_seed.txt --hex
+
+# Create backup shards
+sseed shard -i wallet_mnemonic.txt -g 3-of-5 --separate -o backup_shards
+
+# Verify master seed can be regenerated
+sseed seed -i wallet_mnemonic.txt -p "wallet_passphrase" --hex | \
+    cmp - master_seed.txt && echo "Master seed verified"
+```
+
+#### Automated Key Derivation
+```bash
+# Generate master seed for key derivation
+MASTER_SEED=$(sseed seed -i mnemonic.txt -p "$PASSPHRASE" --hex)
+
+# Use in other cryptographic operations
+echo "Master seed: $MASTER_SEED"
+# ... derive child keys using BIP-32 ...
+```
+
+#### Batch Processing
+```bash
+# Process multiple mnemonics
+for mnemonic_file in mnemonics/*.txt; do
+    seed_file="seeds/$(basename "$mnemonic_file" .txt)_seed.txt"
+    sseed seed -i "$mnemonic_file" --hex -o "$seed_file"
+done
+```
+
+### Error Handling
+- **Invalid Mnemonic**: Clear error message with validation details
+- **File I/O Errors**: Descriptive error messages with file paths
+- **Memory Errors**: Graceful handling with cleanup
+- **Interruption**: Secure cleanup on Ctrl+C
+
+### Exit Codes
+- `0` - Success
+- `1` - Usage/argument error
+- `2` - Cryptographic error (invalid mnemonic, PBKDF2 failure)
+- `3` - File I/O error
+- `4` - Validation error (checksum failure)
+- `130` - Interrupted by user (Ctrl+C)
+
+### Technical Specifications
+- **Output Size**: 512 bits (64 bytes)
+- **Algorithm**: PBKDF2-HMAC-SHA512
+- **Default Iterations**: 2048 (BIP-39 standard)
+- **Salt Format**: "mnemonic" + passphrase (UTF-8 encoded)
+- **Normalization**: Unicode NFKD for mnemonic and passphrase
+
+## Error Handling and Exit Codes
+
+### Comprehensive Exit Code System
+SSeed provides granular exit codes for precise error handling in automation and scripting:
+
+- `0` - **Success** - Operation completed successfully
+- `1` - **Usage/Argument Error** - Invalid command syntax or missing arguments
+- `2` - **Cryptographic Error** - Entropy, validation, or reconstruction failures
+- `3` - **File I/O Error** - File system access, permission, or storage issues
+- `4` - **Validation Error** - Checksum failures, format errors, or data integrity issues
+- `130` - **Interrupted by User** - Operation cancelled with Ctrl+C (SIGINT)
+
+### Error Categories and Examples
+
+#### Usage Errors (Exit Code 1)
+```bash
+# Invalid command
+sseed invalid_command
+# Output: error: argument command: invalid choice: 'invalid_command'
+# Exit code: 1
+
+# Missing required arguments
+sseed restore
+# Output: error: the following arguments are required: shards
+# Exit code: 1
+
+# Invalid group configuration
+sseed shard -g "5-of-3"
+# Output: Invalid group configuration: threshold cannot exceed total
+# Exit code: 1
+```
+
+#### Cryptographic Errors (Exit Code 2)
+```bash
+# Entropy generation failure
+sseed gen  # When system entropy is exhausted
+# Output: Cryptographic error: Failed to generate secure entropy
+# Exit code: 2
+
+# Invalid mnemonic checksum
+echo "invalid mnemonic words here that dont have valid checksum" | sseed shard
+# Output: Cryptographic error: Mnemonic checksum validation failed
+# Exit code: 2
+
+# Insufficient shards for reconstruction
+sseed restore shard1.txt shard2.txt  # When 3 required
+# Output: Cryptographic error: Insufficient shards for reconstruction
+# Exit code: 2
+```
+
+#### File I/O Errors (Exit Code 3)
+```bash
+# File not found
+sseed shard -i nonexistent.txt
+# Output: File error: Failed to read mnemonic from file 'nonexistent.txt'
+# Exit code: 3
+
+# Permission denied
+sseed gen -o /root/restricted.txt
+# Output: File error: Permission denied: '/root/restricted.txt'
+# Exit code: 3
+
+# Disk full
+sseed gen -o /full-disk/file.txt
+# Output: File error: No space left on device
+# Exit code: 3
+```
+
+#### Validation Errors (Exit Code 4)
+```bash
+# Invalid mnemonic format
+echo "not enough words" | sseed shard
+# Output: Validation error: Invalid mnemonic length: 3. Must be 24 words
+# Exit code: 4
+
+# Duplicate shards
+sseed restore shard1.txt shard1.txt shard2.txt
+# Output: Validation error: Duplicate shard detected
+# Exit code: 4
+
+# Invalid file format
+echo "corrupted data" > bad.txt && sseed shard -i bad.txt
+# Output: Validation error: Invalid mnemonic format
+# Exit code: 4
+```
+
+#### User Interruption (Exit Code 130)
+```bash
+# User presses Ctrl+C during operation
+sseed gen -o large_file.txt
+^C
+# Output: Operation cancelled by user
+# Exit code: 130
+```
+
+### Advanced Error Handling and Recovery
+```bash
+# Check if operation succeeded
+if sseed gen -o seed.txt; then
+    echo "Seed generated successfully"
+else
+    echo "Failed to generate seed (exit code: $?)"
+fi
+
+# Handle specific error types
+sseed shard -i input.txt -g 3-of-5 -o output.txt
+case $? in
+    0) echo "Sharding successful" ;;
+    1) echo "Usage error - check command syntax" ;;
+    2) echo "Cryptographic error - check input validity" ;;
+    3) echo "File I/O error - check permissions and disk space" ;;
+    4) echo "Validation error - check data integrity" ;;
+    130) echo "Operation cancelled by user" ;;
+    *) echo "Unexpected error" ;;
+esac
+
+# Conditional execution with error awareness
+sseed restore shard*.txt && echo "Recovery successful" || echo "Recovery failed (exit code: $?)"
+
+# Robust backup script with error handling
+backup_seed() {
+    local seed_file="$1"
+    local backup_dir="$2"
+    
+    # Generate with error checking
+    if ! sseed gen -o "$seed_file"; then
+        echo "Failed to generate seed" >&2
+        return 1
+    fi
+    
+    # Shard with error checking  
+    if ! sseed shard -i "$seed_file" -g 3-of-5 --separate -o "$backup_dir/shard"; then
+        echo "Failed to create shards" >&2
+        return 1
+    fi
+    
+    # Verify reconstruction
+    if ! sseed restore "$backup_dir"/shard_*.txt >/dev/null; then
+        echo "Failed to verify shards" >&2
+        return 1
+    fi
+    
+    echo "Backup completed successfully"
+    return 0
+} 

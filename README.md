@@ -14,6 +14,7 @@
 ## ✨ Features
 
 - 🔐 **Generate secure 24-word BIP-39 mnemonics** with cryptographically secure entropy
+- 🌱 **Generate master seeds from mnemonics** using PBKDF2-HMAC-SHA512 per BIP-39 specification
 - 🔄 **Split secrets using SLIP-39** with flexible group/threshold configurations
 - 🔧 **Reconstruct mnemonics from shards** with integrity validation
 - 🚫 **100% offline operation** - zero network calls, air-gapped security
@@ -83,6 +84,12 @@ $ sseed version --json
 # Generate to file with timestamp
 sseed gen -o "backup-$(date +%Y%m%d).txt"
 
+# Generate master seed from mnemonic
+sseed seed -i mnemonic.txt --hex
+
+# Generate master seed with passphrase
+sseed seed -i mnemonic.txt -p "my_passphrase" --hex
+
 # Multi-group configuration (enterprise setup)
 sseed shard -g "2:(2-of-3,3-of-5)" -i seed.txt --separate -o shards/
 
@@ -150,6 +157,7 @@ make build             # Build distribution packages
 |---------|---------|---------|
 | `sseed version` | Show version and system info | `sseed version --json` |
 | `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -o backup.txt` |
+| `sseed seed` | Generate master seed from mnemonic | `sseed seed -i mnemonic.txt --hex` |
 | `sseed shard` | Split into SLIP-39 shards | `sseed shard -g 3-of-5 -i seed.txt` |
 | `sseed restore` | Reconstruct from shards | `sseed restore shard*.txt` |
 
