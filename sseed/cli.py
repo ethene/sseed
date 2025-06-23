@@ -56,6 +56,93 @@ EXIT_INTERRUPTED = 130  # Standard exit code for SIGINT
 logger = get_logger(__name__)
 
 
+def handle_version_command(args: argparse.Namespace) -> int:
+    """Handle the version command with detailed system information.
+
+    Args:
+        args: Parsed command line arguments.
+
+    Returns:
+        Exit code (always 0 for success).
+    """
+    import json
+    import platform
+    import sys
+    from importlib import metadata
+
+    try:
+        # Core version information
+        version_info = {
+            "sseed": __version__,
+            "python": sys.version.split()[0],
+            "platform": {
+                "system": platform.system(),
+                "release": platform.release(),
+                "machine": platform.machine(),
+                "architecture": platform.architecture()[0],
+            },
+        }
+
+        # Dependency versions
+        dependencies = {}
+        try:
+            dependencies["bip-utils"] = metadata.version("bip-utils")
+        except metadata.PackageNotFoundError:
+            dependencies["bip-utils"] = "not installed"
+
+        try:
+            dependencies["slip39"] = metadata.version("slip39")
+        except metadata.PackageNotFoundError:
+            dependencies["slip39"] = "not installed"
+
+        version_info["dependencies"] = dependencies
+
+        # Build and environment information
+        version_info["build"] = {
+            "python_implementation": platform.python_implementation(),
+            "python_compiler": platform.python_compiler(),
+        }
+
+        if args.json:
+            # JSON output for scripting
+            print(json.dumps(version_info, indent=2))
+        else:
+            # Human-readable output
+            print(f"🔐 SSeed v{version_info['sseed']}")
+            print("=" * 40)
+            print()
+            print("📋 Core Information:")
+            print(f"   Version: {version_info['sseed']}")
+            print(
+                f"   Python:  {version_info['python']} ({version_info['build']['python_implementation']})"
+            )
+            print()
+            print("🖥️  System Information:")
+            print(
+                f"   OS:           {version_info['platform']['system']} {version_info['platform']['release']}"
+            )
+            print(
+                f"   Architecture: {version_info['platform']['machine']} ({version_info['platform']['architecture']})"
+            )
+            print()
+            print("📦 Dependencies:")
+            for dep, ver in version_info["dependencies"].items():
+                status = "✅" if ver != "not installed" else "❌"
+                print(f"   {status} {dep}: {ver}")
+            print()
+            print("🔗 Links:")
+            print("   Repository: https://github.com/ethene/sseed")
+            print("   PyPI:       https://pypi.org/project/sseed/")
+            print("   Issues:     https://github.com/ethene/sseed/issues")
+
+    except Exception as e:
+        logger.error("Error displaying version information: %s", e)
+        print(f"Error: Failed to gather version information: {e}", file=sys.stderr)
+        return EXIT_USAGE_ERROR
+
+    return EXIT_SUCCESS
+
+
 def show_examples() -> None:
     """Display comprehensive usage examples."""
     examples = """
@@ -194,6 +281,18 @@ For security guidelines: https://github.com/yourusername/sseed/blob/main/docs/se
 
     # Add subcommands
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Version command
+    version_parser = subparsers.add_parser(
+        "version",
+        help="Show detailed version and system information",
+        description="Display comprehensive version information including dependencies, system details, and build information",
+    )
+    version_parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output version information in JSON format",
+    )
 
     # Generate command
     gen_parser = subparsers.add_parser(
@@ -538,6 +637,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         # Route to appropriate command handler
+        if args.command == "version":
+            return handle_version_command(args)
         if args.command == "gen":
             return handle_gen_command(args)
         if args.command == "shard":
