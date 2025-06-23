@@ -319,8 +319,8 @@ jobs:
         echo "::group::Comprehensive security audit"
         
         echo "🔒 Running Bandit security analysis..."
-        bandit -r sseed/ -f json -o bandit-detailed.json
-        bandit -r sseed/ -ll
+        bandit -r sseed/ -f json -o bandit-detailed.json --configfile pyproject.toml
+        bandit -r sseed/ -ll --configfile pyproject.toml
         
         echo "🔒 Running Safety dependency check..."
         safety check -r requirements.txt --save-json safety-detailed.json 2>/dev/null || true
