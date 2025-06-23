@@ -17,7 +17,11 @@ from typing import (
 )
 
 from sseed import __version__
-from sseed.bip39 import generate_mnemonic
+from sseed.bip39 import (
+    generate_mnemonic,
+    generate_master_seed,
+    mnemonic_to_hex_seed,
+)
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import (
     EntropyError,
@@ -392,6 +396,57 @@ Examples:
         help="Output file for reconstructed mnemonic (default: stdout)",
     )
 
+    # Seed command
+    seed_parser = subparsers.add_parser(
+        "seed",
+        help="Generate master seed from BIP-39 mnemonic with optional passphrase",
+        description=(
+            "Generate a 512-bit master seed from a BIP-39 mnemonic using PBKDF2-HMAC-SHA512. "
+            "This seed can be used for cryptographic key derivation."
+        ),
+        epilog="""
+Examples:
+  sseed seed -i mnemonic.txt                           From file
+  sseed seed -i mnemonic.txt -p "my_passphrase"       With passphrase
+  echo "mnemonic words..." | sseed seed               From stdin
+  sseed seed -i mnemonic.txt --hex                    Output as hex
+        """,
+    )
+    seed_parser.add_argument(
+        "-i",
+        "--input",
+        type=str,
+        metavar="FILE",
+        help="Input file containing mnemonic (default: stdin)",
+    )
+    seed_parser.add_argument(
+        "-p",
+        "--passphrase",
+        type=str,
+        default="",
+        metavar="PASSPHRASE",
+        help="Optional passphrase for additional security (default: none)",
+    )
+    seed_parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        metavar="FILE",
+        help="Output file for master seed (default: stdout)",
+    )
+    seed_parser.add_argument(
+        "--hex",
+        action="store_true",
+        help="Output seed as hexadecimal string (default: binary)",
+    )
+    seed_parser.add_argument(
+        "--iterations",
+        type=int,
+        default=2048,
+        metavar="COUNT",
+        help="PBKDF2 iteration count (default: 2048)",
+    )
+
     return parser
 
 
@@ -624,6 +679,87 @@ def handle_restore_command(args: argparse.Namespace) -> int:
         return EXIT_CRYPTO_ERROR
 
 
+def handle_seed_command(args: argparse.Namespace) -> int:
+    """Handle the 'seed' command.
+
+    Args:
+        args: Parsed command-line arguments.
+
+    Returns:
+        Exit code.
+    """
+    logger.info("Starting master seed generation from BIP-39 mnemonic")
+
+    try:
+        # Read mnemonic from input source
+        if args.input:
+            mnemonic = read_mnemonic_from_file(args.input)
+            logger.info("Read mnemonic from file: %s", args.input)
+        else:
+            mnemonic = read_from_stdin()
+            logger.info("Read mnemonic from stdin")
+
+        # Validate mnemonic checksum (Phase 5 requirement)
+        if not validate_mnemonic_checksum(mnemonic):
+            raise MnemonicError(
+                "Input mnemonic failed checksum validation",
+                context={"validation_type": "checksum"},
+            )
+
+        try:
+            # Generate master seed
+            if args.hex:
+                # Generate hexadecimal seed
+                seed_output = mnemonic_to_hex_seed(mnemonic, args.passphrase)
+                logger.info("Generated hexadecimal master seed")
+            else:
+                # Generate binary seed
+                master_seed = generate_master_seed(
+                    mnemonic, args.passphrase, args.iterations
+                )
+                seed_output = master_seed.hex()  # Convert to hex for output
+                logger.info("Generated binary master seed")
+
+            # Output seed
+            if args.output:
+                # Write to file
+                with open(args.output, "w", encoding="utf-8") as f:
+                    f.write(seed_output + "\n")
+                logger.info("Master seed written to file: %s", args.output)
+                print(f"Master seed written to: {args.output}")
+            else:
+                # Output to stdout
+                print(seed_output)
+                logger.info("Master seed written to stdout")
+
+            return EXIT_SUCCESS
+
+        finally:
+            # Securely delete mnemonic and seed from memory
+            secure_delete_variable(mnemonic)
+            if "master_seed" in locals():
+                secure_delete_variable(master_seed)
+            if "seed_output" in locals():
+                secure_delete_variable(seed_output)
+
+    except (MnemonicError, SecurityError) as e:
+        logger.error("Cryptographic error during seed generation: %s", e)
+        print(f"Cryptographic error: {e}", file=sys.stderr)
+        return EXIT_CRYPTO_ERROR
+    except FileError as e:
+        logger.error("File I/O error during seed generation: %s", e)
+        print(f"File error: {e}", file=sys.stderr)
+        return EXIT_FILE_ERROR
+    except ValidationError as e:
+        logger.error("Validation error during seed generation: %s", e)
+        print(f"Validation error: {e}", file=sys.stderr)
+        return EXIT_VALIDATION_ERROR
+    except Exception as e:
+        logger.error("Unexpected error during seed generation: %s", e)
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        return EXIT_CRYPTO_ERROR
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the CLI application.
 
@@ -663,6 +799,8 @@ def main(argv: list[str] | None = None) -> int:
             return handle_shard_command(args)
         if args.command == "restore":
             return handle_restore_command(args)
+        if args.command == "seed":
+            return handle_seed_command(args)
 
         # No command specified - show help
         parser.print_help()

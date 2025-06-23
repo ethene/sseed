@@ -4,6 +4,10 @@ Implements BIP-39 mnemonic operations using bip_utils.Bip39MnemonicGenerator
 as specified in F-2 of the PRD. Provides 24-word mnemonic generation in English.
 """
 
+import hashlib
+import unicodedata
+from typing import Optional
+
 from bip_utils import (
     Bip39MnemonicDecoder,
     Bip39MnemonicGenerator,
@@ -220,3 +224,121 @@ def get_mnemonic_entropy(mnemonic: str) -> bytes:
         logger.error(error_msg)
         log_security_event(f"Entropy extraction failed: {error_msg}")
         raise MnemonicError(error_msg, context={"original_error": str(e)}) from e
+
+
+
+def generate_master_seed(
+    mnemonic: str,
+    passphrase: str = "",
+    iterations: int = 2048,
+) -> bytes:
+    """Generate master seed from BIP-39 mnemonic using PBKDF2.
+
+    Derives a 512-bit (64-byte) master seed from a BIP-39 mnemonic and optional
+    passphrase using PBKDF2-HMAC-SHA512 as specified in BIP-39.
+
+    This master seed can be used to derive cryptographic keys according to
+    BIP-32 hierarchical deterministic (HD) wallet specification.
+
+    Args:
+        mnemonic: Valid BIP-39 mnemonic string.
+        passphrase: Optional passphrase for additional security (default: "").
+        iterations: PBKDF2 iteration count (default: 2048 per BIP-39).
+
+    Returns:
+        512-bit (64-byte) master seed.
+
+    Raises:
+        MnemonicError: If mnemonic is invalid or seed generation fails.
+
+    Example:
+        >>> mnemonic = generate_mnemonic()
+        >>> seed = generate_master_seed(mnemonic)
+        >>> len(seed)
+        64
+        >>> seed_with_passphrase = generate_master_seed(mnemonic, "my_passphrase")
+    """
+    try:
+        logger.info("Starting master seed generation from BIP-39 mnemonic")
+        log_security_event("Master seed generation initiated")
+
+        # Validate mnemonic first
+        if not validate_mnemonic(mnemonic):
+            raise MnemonicError(
+                "Cannot generate master seed from invalid mnemonic",
+                context={"mnemonic_valid": False},
+            )
+
+        # Normalize mnemonic and passphrase according to BIP-39
+        normalized_mnemonic = unicodedata.normalize("NFKD", mnemonic.strip())
+        normalized_passphrase = unicodedata.normalize("NFKD", passphrase)
+
+        # BIP-39 specifies: password = mnemonic, salt = "mnemonic" + passphrase
+        password = normalized_mnemonic.encode("utf-8")
+        salt = ("mnemonic" + normalized_passphrase).encode("utf-8")
+
+        try:
+            # Generate 512-bit (64-byte) seed using PBKDF2-HMAC-SHA512
+            master_seed = hashlib.pbkdf2_hmac(
+                "sha512",
+                password,
+                salt,
+                iterations,
+                dklen=64,  # 512 bits = 64 bytes
+            )
+
+            logger.info("Successfully generated 512-bit master seed")
+            log_security_event("Master seed generation completed successfully")
+
+            return master_seed
+
+        finally:
+            # Securely delete sensitive variables from memory
+            secure_delete_variable(password)
+            secure_delete_variable(salt)
+
+    except Exception as e:
+        error_msg = f"Failed to generate master seed: {e}"
+        logger.error(error_msg)
+        log_security_event(f"Master seed generation failed: {error_msg}")
+        raise MnemonicError(error_msg, context={"original_error": str(e)}) from e
+
+
+def mnemonic_to_hex_seed(
+    mnemonic: str,
+    passphrase: str = "",
+) -> str:
+    """Convert BIP-39 mnemonic to hexadecimal master seed string.
+
+    Convenience function that generates the master seed and returns it as
+    a hexadecimal string for easy display and storage.
+
+    Args:
+        mnemonic: Valid BIP-39 mnemonic string.
+        passphrase: Optional passphrase for additional security (default: "").
+
+    Returns:
+        128-character hexadecimal string representing the 512-bit master seed.
+
+    Raises:
+        MnemonicError: If mnemonic is invalid or seed generation fails.
+
+    Example:
+        >>> mnemonic = generate_mnemonic()
+        >>> hex_seed = mnemonic_to_hex_seed(mnemonic)
+        >>> len(hex_seed)
+        128
+    """
+    master_seed = None
+    try:
+        master_seed = generate_master_seed(mnemonic, passphrase)
+        hex_seed = master_seed.hex()
+
+        logger.debug("Converted master seed to hexadecimal format")
+
+        return hex_seed
+
+    finally:
+        # Securely delete master seed from memory
+        if master_seed is not None:
+            secure_delete_variable(master_seed)
