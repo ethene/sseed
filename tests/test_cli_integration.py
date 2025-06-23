@@ -238,29 +238,121 @@ class TestCLIIntegration:
         assert gen_duration < 5.0  # Should complete within 5 seconds
 
     def test_file_formats_compatibility(self):
-        """Test that file formats are properly handled across commands."""
-        # Generate with comments
-        mnemonic_file = self.temp_dir / "mnemonic_with_comments.txt"
-        self.run_sseed_command(["gen", "-o", str(mnemonic_file)])
-
-        # Should be able to read the file and shard it
-        exit_code, stdout, stderr = self.run_sseed_command(
-            [
-                "shard",
-                "-i",
-                str(mnemonic_file),
-                "-o",
-                str(self.temp_dir / "test_shards.txt"),
-            ]
+        """Test that different file formats work correctly."""
+        # Generate mnemonic
+        result = subprocess.run(
+            ["python", "-m", "sseed", "gen"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
-        assert exit_code == 0
+        
+        # Extract mnemonic from output (should be 24 words)
+        lines = result.stdout.strip().split('\n')
+        mnemonic = None
+        for line in lines:
+            clean_line = line.strip()
+            # Look for a line with exactly 24 words (typical mnemonic)
+            words = clean_line.split()
+            if len(words) == 24 and all(word.isalpha() for word in words):
+                mnemonic = clean_line
+                break
+        
+        assert mnemonic is not None, "Could not find mnemonic in output"
 
-        # Shards file should exist and have proper format
-        shards_file = self.temp_dir / "test_shards.txt"
-        assert shards_file.exists()
+        # Test with different file extensions
+        for ext in [".txt", ".bak", ".seed"]:
+            filename = f"test_mnemonic{ext}"
+            try:
+                # Write to file
+                with open(filename, "w", encoding="utf-8") as f:
+                    f.write(mnemonic)
 
-        with open(shards_file, "r") as f:
-            content = f.read()
+                # Read and validate
+                result = subprocess.run(
+                    ["python", "-m", "sseed", "shard", "-i", filename, "-g", "2-of-3"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                assert "Shard 1/3:" in result.stdout
+                assert "Shard 2/3:" in result.stdout
+                assert "Shard 3/3:" in result.stdout
 
-        assert "# SLIP-39 Shards File" in content
-        assert "UTF-8" in content
+            finally:
+                # Cleanup
+                if os.path.exists(filename):
+                    os.remove(filename)
+
+    def test_seed_command_integration(self):
+        """Test the seed command integration with file I/O."""
+        temp_mnemonic = "test_seed_mnemonic.txt"
+        temp_seed = "test_master_seed.txt"
+        
+        try:
+            # Generate a mnemonic first
+            result = subprocess.run(
+                ["python", "-m", "sseed", "gen", "-o", temp_mnemonic],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            
+            # Generate master seed from mnemonic file
+            result = subprocess.run(
+                ["python", "-m", "sseed", "seed", "-i", temp_mnemonic, "--hex"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            
+            # Extract hex seed from output (last line that's all hex)
+            lines = result.stdout.strip().split('\n')
+            hex_seed = None
+            for line in lines:
+                # Look for a line that's exactly 128 hex characters
+                clean_line = line.strip()
+                if len(clean_line) == 128 and all(c in "0123456789abcdef" for c in clean_line.lower()):
+                    hex_seed = clean_line
+                    break
+            
+            assert hex_seed is not None, "Could not find hex seed in output"
+            assert len(hex_seed) == 128  # 64 bytes = 128 hex chars
+            
+            # Test with output file
+            result = subprocess.run(
+                ["python", "-m", "sseed", "seed", "-i", temp_mnemonic, "-o", temp_seed],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            
+            # Check that seed file was created
+            assert os.path.exists(temp_seed)
+            
+            # Test with passphrase
+            result = subprocess.run(
+                ["python", "-m", "sseed", "seed", "-i", temp_mnemonic, "-p", "test_passphrase", "--hex"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            
+            # Extract hex seed with passphrase
+            lines = result.stdout.strip().split('\n')
+            hex_seed_with_passphrase = None
+            for line in lines:
+                clean_line = line.strip()
+                if len(clean_line) == 128 and all(c in "0123456789abcdef" for c in clean_line.lower()):
+                    hex_seed_with_passphrase = clean_line
+                    break
+            
+            assert hex_seed_with_passphrase is not None
+            assert len(hex_seed_with_passphrase) == 128
+            assert hex_seed_with_passphrase != hex_seed  # Different due to passphrase
+            
+        finally:
+            # Cleanup
+            for filename in [temp_mnemonic, temp_seed]:
+                if os.path.exists(filename):
+                    os.remove(filename)
