@@ -1,4 +1,4 @@
-# Core dependencies for sseed - Offline BIP39/SLIP39 CLI Tool
+expla# Core dependencies for sseed - Offline BIP39/SLIP39 CLI Tool
 bip-utils==2.9.3
 shamir-mnemonic==0.3.0
 

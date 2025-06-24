@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sseed"
-version = "1.5.1"
+version = "1.6.0"
 description = "Offline BIP39/SLIP39 CLI Tool for secure cryptocurrency seed management"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -63,6 +63,9 @@ dev = [
     # Performance monitoring
     "psutil>=5.9.0",
     "memory-profiler>=0.61.0",
+    
+    # Cross-tool compatibility testing (optional)
+    "shamir-mnemonic[cli]>=0.3.0",
 ]
 
 [project.scripts]
@@ -87,7 +90,7 @@ extend-ignore = ["E203", "W503", "F401", "F841", "E402", "F811", "F541", "W293"]
 
 [tool.ruff]
 line-length = 100
-target-version = "1.5.1"
+target-version = "1.6.0"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "D", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
@@ -97,7 +100,7 @@ ignore = ["D100", "D104", "D107", "EM101", "EM102", "TRY003", "TRY300", "TRY400"
 convention = "google"
 
 [tool.mypy]
-python_version = "1.5.1"
+python_version = "1.6.0"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

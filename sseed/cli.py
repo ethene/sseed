@@ -20,6 +20,7 @@ from sseed import __version__
 from sseed.bip39 import (
     generate_master_seed,
     generate_mnemonic,
+    get_mnemonic_entropy,
     mnemonic_to_hex_seed,
 )
 from sseed.entropy import secure_delete_variable
@@ -322,6 +323,11 @@ https://github.com/yourusername/sseed/blob/main/docs/security.md
         metavar="FILE",
         help="Output file (default: stdout)",
     )
+    gen_parser.add_argument(
+        "--show-entropy",
+        action="store_true",
+        help="Display the underlying entropy (hex) alongside the mnemonic",
+    )
 
     # Shard command
     shard_parser = subparsers.add_parser(
@@ -400,6 +406,11 @@ Examples:
         metavar="FILE",
         help="Output file for reconstructed mnemonic (default: stdout)",
     )
+    restore_parser.add_argument(
+        "--show-entropy",
+        action="store_true",
+        help="Display the underlying entropy (hex) alongside the reconstructed mnemonic",
+    )
 
     # Seed command
     seed_parser = subparsers.add_parser(
@@ -477,23 +488,55 @@ def handle_gen_command(args: argparse.Namespace) -> int:
                 context={"validation_type": "checksum"},
             )
 
+        # Extract entropy if requested
+        entropy_info = ""
+        if args.show_entropy:
+            try:
+                entropy_bytes = get_mnemonic_entropy(mnemonic)
+                entropy_hex = entropy_bytes.hex()
+                entropy_info = f"# Entropy: {entropy_hex} ({len(entropy_bytes)} bytes)"
+                logger.info(
+                    "Extracted entropy for display: %d bytes", len(entropy_bytes)
+                )
+            except Exception as e:
+                logger.warning("Failed to extract entropy for display: %s", e)
+                entropy_info = "# Entropy: <extraction failed>"
+
         try:
             # Output to file or stdout
             if args.output:
                 # Use the proper file writing function with path sanitization
                 write_mnemonic_to_file(mnemonic, args.output, include_comments=True)
+
+                # If showing entropy, append it to the file
+                if args.show_entropy and entropy_info:
+                    try:
+                        with open(args.output, "a", encoding="utf-8") as f:
+                            f.write("\n" + entropy_info + "\n")
+                    except Exception as e:
+                        logger.warning("Failed to write entropy to file: %s", e)
+
                 logger.info("Mnemonic written to file: %s", args.output)
-                print(f"Mnemonic written to: {args.output}")
+                if args.show_entropy:
+                    print(f"Mnemonic and entropy written to: {args.output}")
+                else:
+                    print(f"Mnemonic written to: {args.output}")
             else:
                 # Output to stdout
                 print(mnemonic)
+                if args.show_entropy and entropy_info:
+                    print(entropy_info)
                 logger.info("Mnemonic written to stdout")
 
             return EXIT_SUCCESS
 
         finally:
-            # Securely delete mnemonic from memory
+            # Securely delete mnemonic and entropy from memory
             secure_delete_variable(mnemonic)
+            if "entropy_bytes" in locals():
+                secure_delete_variable(entropy_bytes)
+            if "entropy_hex" in locals():
+                secure_delete_variable(entropy_hex)
 
     except (EntropyError, MnemonicError, SecurityError) as e:
         logger.error("Cryptographic error during generation: %s", e)
@@ -647,24 +690,60 @@ def handle_restore_command(args: argparse.Namespace) -> int:
                     context={"validation_type": "checksum"},
                 )
 
+            # Extract entropy if requested
+            entropy_info = ""
+            if args.show_entropy:
+                try:
+                    entropy_bytes = get_mnemonic_entropy(reconstructed_mnemonic)
+                    entropy_hex = entropy_bytes.hex()
+                    entropy_info = (
+                        f"# Entropy: {entropy_hex} ({len(entropy_bytes)} bytes)"
+                    )
+                    logger.info(
+                        "Extracted entropy for display: %d bytes", len(entropy_bytes)
+                    )
+                except Exception as e:
+                    logger.warning("Failed to extract entropy for display: %s", e)
+                    entropy_info = "# Entropy: <extraction failed>"
+
             # Output reconstructed mnemonic
             if args.output:
                 write_mnemonic_to_file(reconstructed_mnemonic, args.output)
+
+                # If showing entropy, append it to the file
+                if args.show_entropy and entropy_info:
+                    try:
+                        with open(args.output, "a", encoding="utf-8") as f:
+                            f.write("\n" + entropy_info + "\n")
+                    except Exception as e:
+                        logger.warning("Failed to write entropy to file: %s", e)
+
                 logger.info("Reconstructed mnemonic written to file: %s", args.output)
-                print(f"Mnemonic reconstructed and written to: {args.output}")
+                if args.show_entropy:
+                    print(
+                        f"Mnemonic and entropy reconstructed and written to: {args.output}"
+                    )
+                else:
+                    print(f"Mnemonic reconstructed and written to: {args.output}")
             else:
                 # Output to stdout
                 print(reconstructed_mnemonic)
+                if args.show_entropy and entropy_info:
+                    print(entropy_info)
                 logger.info("Reconstructed mnemonic written to stdout")
 
             return EXIT_SUCCESS
 
         finally:
-            # Securely delete shards and mnemonic from memory
+            # Securely delete shards, mnemonic, and entropy from memory
             secure_delete_variable(
                 shards,
                 reconstructed_mnemonic if "reconstructed_mnemonic" in locals() else "",
             )
+            if "entropy_bytes" in locals():
+                secure_delete_variable(entropy_bytes)
+            if "entropy_hex" in locals():
+                secure_delete_variable(entropy_hex)
 
     except (MnemonicError, ShardError, SecurityError) as e:
         logger.error("Cryptographic error during restoration: %s", e)

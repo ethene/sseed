@@ -6,7 +6,7 @@ A minimalistic Python command-line tool that works fully offline to:
 3. Reconstruct the mnemonic from a valid set of shards.
 """
 
-__version__ = "1.5.1"
+__version__ = "1.6.0"
 __author__ = "sseed"
 __email__ = "sseed@example.com"
 

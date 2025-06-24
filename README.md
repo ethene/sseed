@@ -25,6 +25,18 @@
 - 📦 **Zero dependencies** - self-contained, easy deployment
 - 🌍 **Cross-platform** - macOS, Linux, Windows compatibility
 
+## ✨ Key Features
+
+- **🔐 Secure Generation**: 24-word BIP-39 mnemonics using cryptographic entropy
+- **🧩 SLIP-39 Sharding**: Split mnemonics into threshold-based secret shares
+- **🔄 Perfect Recovery**: Reconstruct original mnemonics from sufficient shards
+- **🌱 Master Seed Generation**: BIP-39 compliant PBKDF2-HMAC-SHA512 seed derivation
+- **🔍 Entropy Display**: View underlying entropy alongside mnemonics for verification
+- **⚡ Cross-Tool Compatibility**: Full interoperability with official Trezor SLIP-39 CLI
+- **🛡️ Security First**: Memory cleanup, input validation, and comprehensive error handling
+- **📁 Flexible I/O**: File operations, stdin/stdout, and batch processing support
+- **🧪 Battle Tested**: 331 comprehensive tests with 87% code coverage
+
 ## 🚀 Quick Install
 
 ```bash
@@ -102,6 +114,16 @@ sseed shard -g "2:(2-of-3,3-of-5)" -i seed.txt --separate -o shards/
 
 # Restore with passphrase protection
 sseed restore -p "my-secure-passphrase" shard*.txt
+
+# Generate with entropy display (for verification)
+sseed gen --show-entropy
+
+# Restore with entropy verification
+sseed restore --show-entropy shard1.txt shard2.txt shard3.txt
+
+# Entropy consistency verification workflow
+ORIGINAL_ENTROPY=$(sseed gen --show-entropy | grep "# Entropy:" | cut -d' ' -f3)
+echo "$ORIGINAL_ENTROPY" > entropy_backup.txt
 ```
 
 ## 📚 API Documentation

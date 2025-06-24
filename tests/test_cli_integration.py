@@ -72,6 +72,62 @@ class TestCLIIntegration:
         assert len(mnemonic_lines) == 1
         assert len(mnemonic_lines[0].split()) == 24
 
+    def test_gen_command_with_show_entropy_stdout(self):
+        """Test gen command with --show-entropy flag to stdout."""
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["--log-level", "ERROR", "gen", "--show-entropy"]
+        )
+
+        assert exit_code == 0
+        assert stderr == ""
+
+        lines = stdout.strip().split("\n")
+        assert len(lines) == 2
+
+        # First line should be the mnemonic (24 words)
+        mnemonic_line = lines[0].strip()
+        assert len(mnemonic_line.split()) == 24
+
+        # Second line should be entropy comment
+        entropy_line = lines[1].strip()
+        assert entropy_line.startswith("# Entropy: ")
+        assert "32 bytes" in entropy_line
+
+        # Extract and validate entropy hex
+        entropy_hex = entropy_line.split("# Entropy: ")[1].split(" (")[0]
+        assert len(entropy_hex) == 64  # 32 bytes = 64 hex chars
+        assert all(c in "0123456789abcdef" for c in entropy_hex.lower())
+
+    def test_gen_command_with_show_entropy_file(self):
+        """Test gen command with --show-entropy flag to file."""
+        output_file = self.temp_dir / "test_mnemonic_entropy.txt"
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["--log-level", "ERROR", "gen", "--show-entropy", "-o", str(output_file)]
+        )
+
+        assert exit_code == 0
+        assert "Mnemonic and entropy written to:" in stdout
+        assert output_file.exists()
+
+        # Read and verify file content
+        with open(output_file, "r") as f:
+            content = f.read()
+
+        lines = content.strip().split("\n")
+
+        # Should have mnemonic lines (with comments) plus entropy line
+        mnemonic_lines = [
+            line.strip() for line in lines if line.strip() and not line.startswith("#")
+        ]
+        entropy_lines = [
+            line.strip() for line in lines if line.strip().startswith("# Entropy:")
+        ]
+
+        assert len(mnemonic_lines) == 1
+        assert len(mnemonic_lines[0].split()) == 24
+        assert len(entropy_lines) == 1
+        assert "32 bytes" in entropy_lines[0]
+
     def test_round_trip_integration(self):
         """Test complete round-trip: gen -> shard -> restore."""
         # Step 1: Generate mnemonic to file
@@ -377,3 +433,185 @@ class TestCLIIntegration:
             for filename in [temp_mnemonic, temp_seed]:
                 if os.path.exists(filename):
                     os.remove(filename)
+
+    def test_restore_command_with_show_entropy_stdout(self):
+        """Test restore command with --show-entropy flag to stdout."""
+        # First generate a mnemonic and create shards
+        mnemonic_file = self.temp_dir / "test_mnemonic.txt"
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["--log-level", "ERROR", "gen", "-o", str(mnemonic_file)]
+        )
+        assert exit_code == 0
+
+        # Create shards
+        exit_code, stdout, stderr = self.run_sseed_command(
+            [
+                "--log-level",
+                "ERROR",
+                "shard",
+                "-i",
+                str(mnemonic_file),
+                "-g",
+                "3-of-5",
+                "--separate",
+                "-o",
+                str(self.temp_dir / "shard"),
+            ]
+        )
+        assert exit_code == 0
+
+        # Find the actual shard files created (they have _01, _02, etc. format)
+        shard_files = list(self.temp_dir.glob("shard_*.txt"))[:3]
+        assert (
+            len(shard_files) >= 3
+        ), f"Expected at least 3 shard files, found: {shard_files}"
+
+        # Use 3 shards to restore with entropy display
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["--log-level", "ERROR", "restore", "--show-entropy"]
+            + [str(f) for f in shard_files]
+        )
+
+        assert exit_code == 0, f"Restore failed with stderr: {stderr}"
+        assert stderr == ""
+
+        lines = stdout.strip().split("\n")
+        assert len(lines) == 2
+
+        # First line should be the restored mnemonic (24 words)
+        mnemonic_line = lines[0].strip()
+        assert len(mnemonic_line.split()) == 24
+
+        # Second line should be entropy comment
+        entropy_line = lines[1].strip()
+        assert entropy_line.startswith("# Entropy: ")
+        assert "32 bytes" in entropy_line
+
+        # Extract and validate entropy hex
+        entropy_hex = entropy_line.split("# Entropy: ")[1].split(" (")[0]
+        assert len(entropy_hex) == 64  # 32 bytes = 64 hex chars
+        assert all(c in "0123456789abcdef" for c in entropy_hex.lower())
+
+    def test_restore_command_with_show_entropy_file(self):
+        """Test restore command with --show-entropy flag to file."""
+        # First generate a mnemonic and create shards
+        mnemonic_file = self.temp_dir / "test_mnemonic.txt"
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["--log-level", "ERROR", "gen", "-o", str(mnemonic_file)]
+        )
+        assert exit_code == 0
+
+        # Create shards
+        exit_code, stdout, stderr = self.run_sseed_command(
+            [
+                "--log-level",
+                "ERROR",
+                "shard",
+                "-i",
+                str(mnemonic_file),
+                "-g",
+                "3-of-5",
+                "--separate",
+                "-o",
+                str(self.temp_dir / "shard"),
+            ]
+        )
+        assert exit_code == 0
+
+        # Find the actual shard files created
+        shard_files = list(self.temp_dir.glob("shard_*.txt"))[:3]
+        assert (
+            len(shard_files) >= 3
+        ), f"Expected at least 3 shard files, found: {shard_files}"
+
+        # Use 3 shards to restore with entropy display to file
+        output_file = self.temp_dir / "restored_with_entropy.txt"
+        exit_code, stdout, stderr = self.run_sseed_command(
+            [
+                "--log-level",
+                "ERROR",
+                "restore",
+                "--show-entropy",
+                "-o",
+                str(output_file),
+            ]
+            + [str(f) for f in shard_files]
+        )
+
+        assert exit_code == 0, f"Restore failed with stderr: {stderr}"
+        assert "Mnemonic and entropy reconstructed and written to:" in stdout
+        assert output_file.exists()
+
+        # Read and verify file content
+        with open(output_file, "r") as f:
+            content = f.read()
+
+        lines = content.strip().split("\n")
+
+        # Should have mnemonic line plus entropy line
+        mnemonic_lines = [
+            line.strip() for line in lines if line.strip() and not line.startswith("#")
+        ]
+        entropy_lines = [
+            line.strip() for line in lines if line.strip().startswith("# Entropy:")
+        ]
+
+        assert len(mnemonic_lines) == 1
+        assert len(mnemonic_lines[0].split()) == 24
+        assert len(entropy_lines) == 1
+        assert "32 bytes" in entropy_lines[0]
+
+    def test_entropy_consistency_gen_restore(self):
+        """Test that entropy is consistent between gen and restore operations."""
+        # Generate mnemonic with entropy display
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["--log-level", "ERROR", "gen", "--show-entropy"]
+        )
+        assert exit_code == 0
+
+        lines = stdout.strip().split("\n")
+        original_mnemonic = lines[0].strip()
+        original_entropy = lines[1].strip().split("# Entropy: ")[1].split(" (")[0]
+
+        # Save mnemonic to file
+        mnemonic_file = self.temp_dir / "original_mnemonic.txt"
+        with open(mnemonic_file, "w") as f:
+            f.write(original_mnemonic)
+
+        # Create shards
+        exit_code, stdout, stderr = self.run_sseed_command(
+            [
+                "--log-level",
+                "ERROR",
+                "shard",
+                "-i",
+                str(mnemonic_file),
+                "-g",
+                "3-of-5",
+                "--separate",
+                "-o",
+                str(self.temp_dir / "shard"),
+            ]
+        )
+        assert exit_code == 0
+
+        # Find available shard files
+        shard_files = list(self.temp_dir.glob("shard_*.txt"))[:3]
+        assert (
+            len(shard_files) >= 3
+        ), f"Expected at least 3 shard files, found: {shard_files}"
+
+        # Restore with entropy display
+        exit_code, stdout, stderr = self.run_sseed_command(
+            ["--log-level", "ERROR", "restore", "--show-entropy"]
+            + [str(f) for f in shard_files]
+        )
+        assert exit_code == 0, f"Restore failed with stderr: {stderr}"
+
+        lines = stdout.strip().split("\n")
+        restored_mnemonic = lines[0].strip()
+        restored_entropy = lines[1].strip().split("# Entropy: ")[1].split(" (")[0]
+
+        # Verify consistency
+        assert original_mnemonic == restored_mnemonic
+        assert original_entropy == restored_entropy

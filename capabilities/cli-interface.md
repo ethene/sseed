@@ -249,6 +249,7 @@ sseed gen [options]
 
 ### Options
 - `-o, --output FILE` - Output file (default: stdout)
+- `--show-entropy` - Display the underlying entropy (hex) alongside the mnemonic
 - `-h, --help` - Show command help
 
 ### Usage Examples
@@ -261,6 +262,14 @@ sseed gen
 # Example output
 abandon ability able about above absent absorb abstract absurd abuse access accident
 account accuse achieve acid acoustic acquire across act action actor actress actual
+
+# Generate with entropy display
+sseed gen --show-entropy
+
+# Example output with entropy
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Entropy: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456 (32 bytes)
 ```
 
 #### File Output
@@ -273,6 +282,11 @@ sseed gen -o "seed_$(date +%Y%m%d_%H%M%S).txt"
 
 # Generate to secure location
 sseed gen -o /secure/vault/backup_seed.txt
+
+# Generate to file with entropy display
+sseed gen --show-entropy -o my_seed_with_entropy.txt
+
+# File will contain both mnemonic and entropy comment
 ```
 
 #### Piping and Redirection
@@ -578,6 +592,7 @@ sseed restore [options] <shard-files...>
 
 ### Options
 - `-o, --output FILE` - Output file for reconstructed mnemonic (default: stdout)
+- `--show-entropy` - Display the underlying entropy (hex) alongside the mnemonic
 - `-h, --help` - Show command help
 
 ### Usage Examples
@@ -592,6 +607,14 @@ sseed restore shards_*.txt
 
 # Restore from stdin (no file arguments)
 cat shards.txt | sseed restore
+
+# Restore with entropy display
+sseed restore --show-entropy shard1.txt shard2.txt shard3.txt
+
+# Example output with entropy
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Entropy: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456 (32 bytes)
 ```
 
 #### Output Options
@@ -601,6 +624,14 @@ sseed restore shard1.txt shard2.txt shard3.txt -o recovered.txt
 
 # Restore and verify
 sseed restore shard*.txt | sseed shard -g 3-of-5  # Round-trip test
+
+# Restore to file with entropy display
+sseed restore --show-entropy shard1.txt shard2.txt shard3.txt -o recovered_with_entropy.txt
+
+# Entropy verification workflow
+ORIGINAL_ENTROPY=$(sseed gen --show-entropy | grep "# Entropy:" | cut -d' ' -f3)
+RESTORED_ENTROPY=$(sseed restore --show-entropy shard*.txt | grep "# Entropy:" | cut -d' ' -f3)
+[ "$ORIGINAL_ENTROPY" = "$RESTORED_ENTROPY" ] && echo "Entropy verified" || echo "Entropy mismatch"
 ```
 
 #### Advanced Workflows
