@@ -2,7 +2,7 @@
 
 import sys
 
-from sseed.cli import main
+from sseed.cli.main import main
 
 if __name__ == "__main__":
     sys.exit(main())

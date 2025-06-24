@@ -16,12 +16,12 @@ from typing import (
 from sseed import __version__
 from sseed.logging_config import get_logger
 
-from .. import (
-    EXIT_SUCCESS,
-    EXIT_USAGE_ERROR,
-)
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
+
+# Define exit codes locally to avoid circular import
+EXIT_SUCCESS = 0
+EXIT_USAGE_ERROR = 1
 
 logger = get_logger(__name__)
 
@@ -29,14 +29,11 @@ logger = get_logger(__name__)
 class VersionCommand(BaseCommand):
     """Show detailed version and system information."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="version",
-            help_text="Show detailed version and system information",
-            description=(
-                "Display comprehensive version information including dependencies, "
-                "system details, and build information"
-            ),
+            help_text="Show version and system information",
+            description="Display comprehensive version and system information.",
         )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:

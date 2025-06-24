@@ -7,10 +7,7 @@ import argparse
 import sys
 
 from sseed.entropy import secure_delete_variable
-from sseed.exceptions import (
-    MnemonicError,
-    ValidationError,
-)
+from sseed.exceptions import MnemonicError
 from sseed.file_operations import (
     write_shards_to_file,
     write_shards_to_separate_files,
@@ -25,9 +22,11 @@ from sseed.validation import (
     validate_mnemonic_checksum,
 )
 
-from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
+
+# Define exit code locally to avoid circular import
+EXIT_SUCCESS = 0
 
 logger = get_logger(__name__)
 
@@ -35,7 +34,7 @@ logger = get_logger(__name__)
 class ShardCommand(BaseCommand):
     """Split mnemonic into SLIP-39 shards with group/threshold configuration."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="shard",
             help_text="Split mnemonic into SLIP-39 shards with group/threshold configuration",
@@ -103,59 +102,50 @@ Examples:
                     context={"validation_type": "checksum"},
                 )
 
-            try:
-                # Parse group configuration
-                group_threshold, groups = parse_group_config(args.group)
+            # Parse group configuration
+            group_threshold, groups = parse_group_config(args.group)
 
-                # Create SLIP-39 shards
-                shards = create_slip39_shards(
-                    mnemonic=mnemonic,
-                    group_threshold=group_threshold,
-                    groups=groups,
-                )
+            # Create SLIP-39 shards
+            shards = create_slip39_shards(
+                mnemonic=mnemonic,
+                group_threshold=group_threshold,
+                groups=groups,
+            )
 
-                # Output shards
-                if args.output:
-                    if args.separate:
-                        # Write to separate files (Phase 6 feature)
-                        file_paths = write_shards_to_separate_files(shards, args.output)
-                        logger.info(
-                            "Shards written to %d separate files", len(file_paths)
-                        )
-                        print(f"Shards written to {len(file_paths)} separate files:")
-                        for file_path in file_paths:
-                            print(f"  {file_path}")
-                    else:
-                        # Write to single file
-                        write_shards_to_file(shards, args.output)
-                        logger.info("Shards written to file: %s", args.output)
-                        print(f"Shards written to: {args.output}")
+            # Output shards
+            if args.output:
+                if args.separate:
+                    # Write to separate files (Phase 6 feature)
+                    file_paths = write_shards_to_separate_files(shards, args.output)
+                    logger.info("Shards written to %d separate files", len(file_paths))
+                    print(f"Shards written to {len(file_paths)} separate files:")
+                    for file_path in file_paths:
+                        print(f"  {file_path}")
                 else:
-                    if args.separate:
-                        logger.warning(
-                            "--separate flag ignored when outputting to stdout"
-                        )
-                        print(
-                            "Warning: --separate flag ignored when outputting to stdout",
-                            file=sys.stderr,
-                        )
+                    # Write to single file
+                    write_shards_to_file(shards, args.output)
+                    logger.info("Shards written to file: %s", args.output)
+                    print(f"Shards written to: {args.output}")
+            else:
+                if args.separate:
+                    logger.warning("--separate flag ignored when outputting to stdout")
+                    print(
+                        "Warning: --separate flag ignored when outputting to stdout",
+                        file=sys.stderr,
+                    )
 
-                    # Output to stdout
-                    for i, shard in enumerate(shards, 1):
-                        print(f"# Shard {i}")
-                        print(shard)
-                        print()  # Empty line between shards
-                    logger.info("Shards written to stdout")
+                # Output to stdout
+                for i, shard in enumerate(shards, 1):
+                    print(f"# Shard {i}")
+                    print(shard)
+                    print()  # Empty line between shards
+                logger.info("Shards written to stdout")
 
-                return EXIT_SUCCESS
+            return EXIT_SUCCESS
 
-            finally:
-                # Securely delete mnemonic and shards from memory
-                secure_delete_variable(mnemonic, shards if "shards" in locals() else [])
-
-        except ValidationError as e:
-            # Re-raise validation errors to be handled by decorator
-            raise
+        finally:
+            # Securely delete mnemonic and shards from memory
+            secure_delete_variable(mnemonic, shards if "shards" in locals() else [])
 
 
 # Backward compatibility wrapper

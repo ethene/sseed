@@ -1,19 +1,21 @@
 """Restore command implementation.
 
-Reconstructs BIP-39 mnemonics from SLIP-39 shards.
+Restores mnemonics from SLIP-39 shards.
 """
 
 import argparse
 
 from sseed.entropy import secure_delete_variable
-from sseed.file_operations import read_shards_from_files
+from sseed.exceptions import MnemonicError
 from sseed.logging_config import get_logger
 from sseed.slip39_operations import reconstruct_mnemonic_from_shards
-from sseed.validation import validate_shard_integrity
+from sseed.validation import validate_mnemonic_checksum
 
-from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
+
+# Define exit code locally to avoid circular import
+EXIT_SUCCESS = 0
 
 logger = get_logger(__name__)
 
@@ -21,7 +23,7 @@ logger = get_logger(__name__)
 class RestoreCommand(BaseCommand):
     """Reconstruct mnemonic from a valid set of SLIP-39 shards."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="restore",
             help_text="Reconstruct mnemonic from a valid set of SLIP-39 shards",
@@ -69,14 +71,36 @@ Examples:
         logger.info("Starting mnemonic restoration from %d shards", len(args.shards))
 
         try:
-            # Read shards from files (Phase 5 requirement)
-            shards = read_shards_from_files(args.shards)
+            # Read shards from files
+            shards = []
+            for shard_file in args.shards:
+                try:
+                    with open(shard_file, "r", encoding="utf-8") as f:
+                        content = f.read().strip()
+                        # Extract actual shard lines (ignore comments)
+                        shard_lines = [
+                            line.strip()
+                            for line in content.split("\n")
+                            if line.strip() and not line.strip().startswith("#")
+                        ]
+                        shards.extend(shard_lines)
+                except Exception as e:
+                    raise MnemonicError(
+                        f"Failed to read shard file {shard_file}: {e}",
+                        context={"file": shard_file, "error": str(e)},
+                    )
 
-            # Validate shard integrity (Phase 5 requirement)
-            validate_shard_integrity(shards)
+            logger.info("Read %d shards from %d files", len(shards), len(args.shards))
 
-            # Reconstruct mnemonic from shards
+            # Reconstruct mnemonic from shards using SLIP-39
             reconstructed_mnemonic = reconstruct_mnemonic_from_shards(shards)
+
+            # Validate reconstructed mnemonic checksum
+            if not validate_mnemonic_checksum(reconstructed_mnemonic):
+                raise MnemonicError(
+                    "Reconstructed mnemonic failed checksum validation",
+                    context={"validation_type": "checksum"},
+                )
 
             # Handle entropy display if requested
             entropy_info = self.handle_entropy_display(

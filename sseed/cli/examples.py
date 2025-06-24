@@ -5,14 +5,15 @@ Provides comprehensive usage examples for all sseed commands.
 
 import argparse
 
-from . import EXIT_SUCCESS
+# Define exit code locally to avoid circular import
+EXIT_SUCCESS = 0
 
 
-def show_examples(args: argparse.Namespace) -> int:
+def show_examples(_: argparse.Namespace) -> int:
     """Show comprehensive usage examples for all commands.
 
     Args:
-        args: Parsed command line arguments (unused).
+        _: Parsed command line arguments (unused).
 
     Returns:
         Always returns EXIT_SUCCESS (0).

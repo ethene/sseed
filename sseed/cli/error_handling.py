@@ -1,11 +1,14 @@
-"""Standardized error handling for CLI commands.
+"""Error handling decorators and utilities for CLI commands.
 
-Provides decorators for consistent error handling across all command implementations.
+Provides standardized error handling patterns for all CLI operations.
 """
 
-import functools
 import sys
-from typing import Callable
+from functools import wraps
+from typing import (
+    Any,
+    Callable,
+)
 
 from sseed.exceptions import (
     EntropyError,
@@ -18,18 +21,20 @@ from sseed.exceptions import (
 )
 from sseed.logging_config import get_logger
 
-from . import (
-    EXIT_CRYPTO_ERROR,
-    EXIT_FILE_ERROR,
-    EXIT_INTERRUPTED,
-    EXIT_USAGE_ERROR,
-    EXIT_VALIDATION_ERROR,
-)
+# Define exit codes locally to avoid circular imports
+EXIT_SUCCESS = 0
+EXIT_USAGE_ERROR = 1
+EXIT_CRYPTO_ERROR = 2
+EXIT_FILE_ERROR = 3
+EXIT_VALIDATION_ERROR = 4
+EXIT_INTERRUPTED = 130
 
 logger = get_logger(__name__)
 
 
-def handle_common_errors(operation_name: str) -> Callable:
+def handle_common_errors(
+    operation_name: str,
+) -> Callable[[Callable[..., int]], Callable[..., int]]:
     """Decorator for standardized error handling across all commands.
 
     Args:
@@ -39,9 +44,9 @@ def handle_common_errors(operation_name: str) -> Callable:
         Decorator function that wraps command handlers with error handling.
     """
 
-    def decorator(func: Callable) -> Callable:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs) -> int:
+    def decorator(func: Callable[..., int]) -> Callable[..., int]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> int:
             try:
                 return func(*args, **kwargs)
             except (EntropyError, MnemonicError, SecurityError, ShardError) as e:
@@ -66,14 +71,14 @@ def handle_common_errors(operation_name: str) -> Callable:
     return decorator
 
 
-def handle_top_level_errors(func: Callable) -> Callable:
+def handle_top_level_errors(func: Callable[..., int]) -> Callable[..., int]:
     """Decorator for top-level error handling in main function.
 
     Handles KeyboardInterrupt and other top-level exceptions.
     """
 
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> int:
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> int:
         try:
             return func(*args, **kwargs)
         except KeyboardInterrupt:
@@ -88,7 +93,7 @@ def handle_top_level_errors(func: Callable) -> Callable:
             logger.error("Validation error: %s", e)
             print(f"Validation error: {e}", file=sys.stderr)
             return EXIT_VALIDATION_ERROR
-        except (MnemonicError, ShardError, SecurityError, EntropyError) as e:
+        except (MnemonicError, SecurityError) as e:
             logger.error("Cryptographic error: %s", e)
             print(f"Cryptographic error: {e}", file=sys.stderr)
             return EXIT_CRYPTO_ERROR

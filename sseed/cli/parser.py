@@ -12,9 +12,11 @@ from typing import (
 
 from sseed import __version__
 
-from . import EXIT_USAGE_ERROR
 from .commands import COMMANDS
 from .examples import show_examples
+
+# Define exit code locally to avoid circular import
+EXIT_USAGE_ERROR = 1
 
 
 class SSeedArgumentParser(argparse.ArgumentParser):

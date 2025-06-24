@@ -1,6 +1,6 @@
 """Seed command implementation.
 
-Derives BIP-32 master seed from mnemonic with optional passphrase.
+Derives master seeds from mnemonics using BIP-39.
 """
 
 import argparse
@@ -13,9 +13,11 @@ from sseed.exceptions import MnemonicError
 from sseed.logging_config import get_logger
 from sseed.validation import validate_mnemonic_checksum
 
-from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
+
+# Define exit code locally to avoid circular import
+EXIT_SUCCESS = 0
 
 logger = get_logger(__name__)
 
@@ -23,7 +25,7 @@ logger = get_logger(__name__)
 class SeedCommand(BaseCommand):
     """Derive BIP-32 master seed from mnemonic with optional passphrase."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="seed",
             help_text="Derive BIP-32 master seed from mnemonic with optional passphrase",

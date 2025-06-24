@@ -1,6 +1,6 @@
 """Generate command implementation.
 
-Handles mnemonic generation with secure entropy.
+Generates secure BIP-39 mnemonics.
 """
 
 import argparse
@@ -11,9 +11,11 @@ from sseed.exceptions import MnemonicError
 from sseed.logging_config import get_logger
 from sseed.validation import validate_mnemonic_checksum
 
-from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
+
+# Define exit code locally to avoid circular import
+EXIT_SUCCESS = 0
 
 logger = get_logger(__name__)
 
@@ -21,7 +23,7 @@ logger = get_logger(__name__)
 class GenCommand(BaseCommand):
     """Generate a 24-word BIP-39 mnemonic using secure entropy."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="gen",
             help_text="Generate a 24-word BIP-39 mnemonic using secure entropy",

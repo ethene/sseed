@@ -28,10 +28,10 @@ Benefits achieved:
 
 import sys
 
-# Import everything from the new modular CLI directly from submodules
+# Import the main function from the new modular CLI
 from sseed.cli.main import main
 
-# Import exit codes directly
+# Exit codes for backward compatibility
 EXIT_SUCCESS = 0
 EXIT_USAGE_ERROR = 1
 EXIT_CRYPTO_ERROR = 2
@@ -39,43 +39,15 @@ EXIT_FILE_ERROR = 3
 EXIT_VALIDATION_ERROR = 4
 EXIT_INTERRUPTED = 130  # Standard exit code for SIGINT
 
-# Import backward compatibility command handlers
-from sseed.cli.commands import (
-    handle_gen_command,
-    handle_restore_command,
-    handle_seed_command,
-    handle_shard_command,
-    handle_version_command,
-)
-from sseed.cli.examples import show_examples
-
-# Import parser functions for backward compatibility
-from sseed.cli.parser import (
-    create_parser,
-    parse_args,
-)
-
-# Re-export everything for backward compatibility
+# Re-export only the main entry point for backward compatibility
 __all__ = [
-    # Main entry point
     "main",
-    # Exit codes
     "EXIT_SUCCESS",
     "EXIT_USAGE_ERROR",
     "EXIT_CRYPTO_ERROR",
     "EXIT_FILE_ERROR",
     "EXIT_VALIDATION_ERROR",
     "EXIT_INTERRUPTED",
-    # Command handlers (backward compatibility)
-    "handle_gen_command",
-    "handle_shard_command",
-    "handle_restore_command",
-    "handle_seed_command",
-    "handle_version_command",
-    # Parser functions (backward compatibility)
-    "create_parser",
-    "parse_args",
-    "show_examples",
 ]
 
 

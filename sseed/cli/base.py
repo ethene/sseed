@@ -10,6 +10,7 @@ from abc import (
 )
 from typing import Optional
 
+from sseed.bip39 import get_mnemonic_entropy
 from sseed.entropy import secure_delete_variable
 from sseed.file_operations import (
     read_from_stdin,
@@ -47,7 +48,6 @@ class BaseCommand(ABC):
         Args:
             parser: ArgumentParser instance for this command.
         """
-        pass
 
     @abstractmethod
     def handle(self, args: argparse.Namespace) -> int:
@@ -59,7 +59,6 @@ class BaseCommand(ABC):
         Returns:
             Exit code (0 for success, non-zero for error).
         """
-        pass
 
     def handle_input(self, args: argparse.Namespace, input_arg: str = "input") -> str:
         """Common input handling pattern (file vs stdin).
@@ -127,8 +126,6 @@ class BaseCommand(ABC):
 
         if getattr(args, "show_entropy", False):
             try:
-                from sseed.bip39 import get_mnemonic_entropy
-
                 entropy_bytes = get_mnemonic_entropy(mnemonic)
                 entropy_hex = entropy_bytes.hex()
                 entropy_info = f"# Entropy: {entropy_hex} ({len(entropy_bytes)} bytes)"

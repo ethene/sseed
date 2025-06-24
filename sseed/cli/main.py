@@ -1,55 +1,28 @@
-"""Main CLI entry point.
+"""Main entry point for the CLI application.
 
-Handles command dispatch and top-level error handling.
+Handles command-line argument parsing and command dispatch.
 """
 
-import logging
-import sys
-from typing import (
-    List,
-    Optional,
-)
-
-from sseed.logging_config import get_logger
-
-from . import EXIT_SUCCESS
 from .error_handling import handle_top_level_errors
-from .parser import parse_args
+from .parser import create_parser
 
-logger = get_logger(__name__)
+# Define exit codes locally to avoid circular import
+EXIT_SUCCESS = 0
 
 
 @handle_top_level_errors
-def main(args: Optional[List[str]] = None) -> int:
-    """Main CLI entry point.
-
-    Args:
-        args: Command line arguments (default: None uses sys.argv[1:]).
+def main() -> int:
+    """Main entry point for the CLI application.
 
     Returns:
-        Exit code.
+        Exit code (0 for success, non-zero for error).
     """
-    # Parse arguments first
-    parsed_args = parse_args(args)
+    parser = create_parser()
+    args = parser.parse_args()
 
-    # Configure logging level based on argument
-    if hasattr(parsed_args, "log_level"):
-        # Set the root logger level
-        root_logger = logging.getLogger()
-        root_logger.setLevel(getattr(logging, parsed_args.log_level))
+    # Dispatch to the appropriate command handler
+    if hasattr(args, "func"):
+        return args.func(args)
 
-        # Also set the sseed logger level specifically
-        sseed_logger = logging.getLogger("sseed")
-        sseed_logger.setLevel(getattr(logging, parsed_args.log_level))
-
-    logger.debug("CLI execution starting with command: %s", parsed_args.command)
-
-    # Dispatch to command handler
-    exit_code = parsed_args.func(parsed_args)
-
-    logger.debug("CLI execution completed with exit code: %d", exit_code)
-    return exit_code or EXIT_SUCCESS
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+    parser.print_help()
+    return EXIT_SUCCESS
