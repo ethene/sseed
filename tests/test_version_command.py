@@ -7,10 +7,8 @@ import unittest
 from unittest.mock import patch
 
 from sseed import __version__
-from sseed.cli import (
-    handle_version_command,
-    main,
-)
+from sseed.cli import handle_version_command
+from sseed.cli.main import main
 
 
 class TestVersionCommand(unittest.TestCase):
@@ -62,18 +60,22 @@ class TestVersionCommand(unittest.TestCase):
 
     def test_version_command_via_main(self):
         """Test version command through main CLI entry point."""
-        exit_code = main(["version"])
-        self.assertEqual(exit_code, 0)
+        with patch("sys.argv", ["sseed", "version"]):
+            exit_code = main()
+            self.assertEqual(exit_code, 0)
 
     def test_version_command_json_via_main(self):
         """Test version command with --json flag through main CLI."""
-        exit_code = main(["version", "--json"])
-        self.assertEqual(exit_code, 0)
+        with patch("sys.argv", ["sseed", "version", "--json"]):
+            exit_code = main()
+            self.assertEqual(exit_code, 0)
 
     def test_version_command_help(self):
         """Test version command help output."""
-        exit_code = main(["version", "--help"])
-        self.assertEqual(exit_code, 0)
+        with patch("sys.argv", ["sseed", "version", "--help"]):
+            with self.assertRaises(SystemExit) as cm:
+                main()
+            self.assertEqual(cm.exception.code, 0)
 
     def test_version_command_subprocess(self):
         """Test version command via subprocess."""
@@ -152,7 +154,7 @@ class TestVersionCommand(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0)
         self.assertIn("version", result.stdout)
-        self.assertIn("Show detailed version and system information", result.stdout)
+        self.assertIn("Show version and system information", result.stdout)
 
     @patch("importlib.metadata.version")
     def test_version_command_missing_dependency(self, mock_version):

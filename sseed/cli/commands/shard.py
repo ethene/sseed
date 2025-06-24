@@ -147,7 +147,7 @@ Examples:
             # Securely delete mnemonic and shards from memory
             secure_delete_variable(
                 mnemonic if "mnemonic" in locals() else "",
-                shards if "shards" in locals() else []
+                shards if "shards" in locals() else [],
             )
 
 

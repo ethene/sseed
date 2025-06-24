@@ -384,14 +384,24 @@ class TestFileOperations:
 
         assert "No valid input received" in str(exc_info.value)
 
-    @patch("builtins.print")
-    def test_write_to_stdout(self, mock_print) -> None:
+    def test_write_to_stdout(self) -> None:
         """Test writing to stdout."""
+        from unittest.mock import (
+            MagicMock,
+            patch,
+        )
+
         test_content = "test output content"
 
-        write_to_stdout(test_content)
+        # Create a fresh mock for this specific test
+        with patch("builtins.print") as mock_print:
+            # Reset the mock to ensure clean state
+            mock_print.reset_mock()
 
-        mock_print.assert_called_once_with(test_content)
+            write_to_stdout(test_content)
+
+            # Verify the print function was called exactly once with our content
+            mock_print.assert_called_once_with(test_content)
 
     def test_file_path_sanitization(self) -> None:
         """Test that filename sanitization works."""
