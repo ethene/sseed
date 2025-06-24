@@ -41,7 +41,7 @@ jobs:
     
     - name: Style check (Black)
       run: |
-        black --check sseed/ tests/
+        black --check --diff --line-length 88 sseed/ tests/
 
   test:
     name: Test Python ${{ matrix.python-version }}
