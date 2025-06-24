@@ -63,7 +63,7 @@ check: ## Run code quality checks
 	@echo "Running flake8..."
 	@python -m flake8 --max-line-length=210 --extend-ignore=E203,W503,F401,F841,E402,F811,F541,W293 sseed/ tests/ --statistics
 	@echo "Running mypy..."
-	@python -m mypy sseed/
+	@python -m mypy sseed/ --show-error-codes --show-error-context
 
 format: ## Auto-format code (Black + isort)
 	@echo "🎨 Auto-formatting code..."
@@ -96,11 +96,11 @@ ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@echo "2️⃣ Import sorting check (isort)..."
 	@python -m isort --check-only --diff --profile black --line-length 88 --force-grid-wrap 2 sseed/ tests/
 	@echo "3️⃣ Linting (Pylint)..."
-	@python -m pylint sseed/ --fail-under=9.4
+	@python -m pylint sseed/ --fail-under=9.5 --output-format=colorized
 	@echo "4️⃣ Style check (flake8)..."
 	@python -m flake8 --max-line-length=210 --extend-ignore=E203,W503,F401,F841,E402,F811,F541,W293 sseed/ tests/ --statistics
 	@echo "5️⃣ Type checking (MyPy)..."
-	@python -m mypy sseed/
+	@python -m mypy sseed/ --show-error-codes --show-error-context
 	@echo "6️⃣ Security analysis (Bandit)..."
 	@python -m bandit -r sseed/ -f txt --configfile pyproject.toml
 	@echo "7️⃣ Running tests with coverage..."

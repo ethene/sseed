@@ -27,10 +27,6 @@ Benefits achieved:
 """
 
 import sys
-from typing import (
-    List,
-    Optional,
-)
 
 # Import everything from the new modular CLI directly from submodules
 from sseed.cli.main import main

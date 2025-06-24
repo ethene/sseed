@@ -4,15 +4,10 @@ Provides command-line interface with modular command architecture.
 Maintains backward compatibility with the original monolithic CLI.
 """
 
-# Exit codes (moved from cli.py)
-EXIT_SUCCESS = 0
-EXIT_USAGE_ERROR = 1
-EXIT_CRYPTO_ERROR = 2
-EXIT_FILE_ERROR = 3
-EXIT_VALIDATION_ERROR = 4
-EXIT_INTERRUPTED = 130  # Standard exit code for SIGINT
+# Main entry point
+from .main import main
 
-# Core imports for backward compatibility - import at module level to avoid cycles
+# Core imports for backward compatibility
 from . import (
     commands,
     examples,
@@ -30,13 +25,18 @@ from .commands import (
 
 # Parser functions for backward compatibility
 from .examples import show_examples
-
-# Main entry point
-from .main import main
 from .parser import (
     create_parser,
     parse_args,
 )
+
+# Exit codes (moved from cli.py)
+EXIT_SUCCESS = 0
+EXIT_USAGE_ERROR = 1
+EXIT_CRYPTO_ERROR = 2
+EXIT_FILE_ERROR = 3
+EXIT_VALIDATION_ERROR = 4
+EXIT_INTERRUPTED = 130  # Standard exit code for SIGINT
 
 __all__ = [
     "main",

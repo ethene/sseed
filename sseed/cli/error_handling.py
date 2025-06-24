@@ -1,15 +1,11 @@
 """Standardized error handling for CLI commands.
 
-Provides decorators and utilities to eliminate error handling duplication
-across command handlers.
+Provides decorators for consistent error handling across all command implementations.
 """
 
 import functools
 import sys
-from typing import (
-    Any,
-    Callable,
-)
+from typing import Callable
 
 from sseed.exceptions import (
     EntropyError,
