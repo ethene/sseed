@@ -14,12 +14,16 @@ help: ## Show this help message
 	@echo "  bump-major     Bump major version (1.0.1 -> 2.0.0)"
 	@echo "  version        Show current version"
 	@echo ""
+	@echo "Release Management:"
+	@echo "  release        Create GitHub release (automatic via workflow)"
+	@echo "  release-manual Create GitHub release manually (requires gh CLI)"
+	@echo "  build          Build distribution packages"
+	@echo ""
 	@echo "Development:"
 	@echo "  test           Run all tests with coverage"
 	@echo "  check          Run code quality checks (pylint, flake8, mypy)"
 	@echo "  format         Auto-format code (Black + isort)"
 	@echo "  ci-test        Run CI-style tests (format, lint, security, tests)"
-	@echo "  build          Build distribution packages"
 	@echo "  install        Install package in development mode"
 	@echo "  clean          Clean build artifacts and cache files"
 	@echo ""
@@ -109,6 +113,46 @@ build: ## Build distribution packages
 	@python -m build
 	@python -m twine check dist/*
 	@echo "✅ Packages built successfully!"
+
+release: ## Create GitHub release for current version (requires git push first)
+	@echo "🚀 Creating GitHub Release..."
+	@CURRENT_VERSION=$$(python -c "from sseed import __version__; print(__version__)"); \
+	echo "📋 Current version: $$CURRENT_VERSION"; \
+	echo "🏷️  Creating release for v$$CURRENT_VERSION"; \
+	if git rev-parse "v$$CURRENT_VERSION" >/dev/null 2>&1; then \
+		echo "✅ Tag v$$CURRENT_VERSION exists"; \
+		echo "🔄 Pushing tag to trigger release workflow..."; \
+		git push origin "v$$CURRENT_VERSION"; \
+		echo "✅ GitHub Release workflow triggered!"; \
+		echo "🔗 Check status: https://github.com/$$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^.]*\).*/\1/')/actions"; \
+	else \
+		echo "❌ Error: Tag v$$CURRENT_VERSION not found"; \
+		echo "💡 Run 'make bump-patch' (or bump-minor/major) first to create the tag"; \
+		exit 1; \
+	fi
+
+release-manual: ## Manually create GitHub release using gh CLI (requires gh CLI)
+	@echo "🚀 Creating GitHub Release manually..."
+	@CURRENT_VERSION=$$(python -c "from sseed import __version__; print(__version__)"); \
+	echo "📋 Current version: $$CURRENT_VERSION"; \
+	if git rev-parse "v$$CURRENT_VERSION" >/dev/null 2>&1; then \
+		echo "🔨 Building packages..."; \
+		make build; \
+		echo "📝 Extracting changelog entry..."; \
+		awk -v version="$$CURRENT_VERSION" '/^## \[/ { if (found && $$0 !~ "\\[" version "\\]") exit; if ($$0 ~ "\\[" version "\\]") { found=1; next } } found && !/^## \[/ { print }' CHANGELOG.md > /tmp/release_notes.md; \
+		echo "🚀 Creating GitHub release..."; \
+		gh release create "v$$CURRENT_VERSION" \
+			--title "Release $$CURRENT_VERSION" \
+			--notes-file /tmp/release_notes.md \
+			dist/sseed-$$CURRENT_VERSION-py3-none-any.whl \
+			dist/sseed-$$CURRENT_VERSION.tar.gz; \
+		rm -f /tmp/release_notes.md; \
+		echo "✅ GitHub Release created successfully!"; \
+	else \
+		echo "❌ Error: Tag v$$CURRENT_VERSION not found"; \
+		echo "💡 Run 'make bump-patch' (or bump-minor/major) first to create the tag"; \
+		exit 1; \
+	fi
 
 # Advanced version management (specific versions)
 bump-to: ## Bump to specific version (usage: make bump-to VERSION=1.2.3)
