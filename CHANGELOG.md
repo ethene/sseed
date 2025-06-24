@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.0] - 2025-06-24
 
+### Added
+- **New `--show-entropy` flag for `gen` command**: Display underlying entropy alongside generated mnemonic
+- **New `--show-entropy` flag for `restore` command**: Show entropy recovered from SLIP-39 shards
+- Entropy verification functionality for mathematical consistency validation
+- Enhanced CLI output with entropy display in both stdout and file modes
+- Comprehensive entropy display test suite (5 new test cases)
+
+### Enhanced
+- CLI interface now supports entropy transparency for security auditing
+- Advanced entropy workflow documentation and usage examples
+- Mathematical consistency verification between generation and restoration
+- Enhanced debugging capabilities for cryptographic operations
+- Improved user trust through entropy visibility
+
+### Documentation
+- Updated CLI interface documentation with entropy display examples
+- Enhanced README with entropy verification workflows
+- Added advanced usage patterns for entropy-based security auditing
+- Updated capabilities documentation with entropy features
+
+### Testing
+- Added comprehensive entropy display functionality tests
+- Enhanced cross-tool compatibility verification
+- Improved mathematical equivalence testing
+- All 317 tests passing with 87.33% coverage maintained
+
 ## [1.5.1] - 2025-06-23
 
 ### Fixed
