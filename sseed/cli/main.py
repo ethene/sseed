@@ -3,6 +3,8 @@
 Handles command-line argument parsing and command dispatch.
 """
 
+from typing import cast
+
 from .error_handling import handle_top_level_errors
 from .parser import create_parser
 
@@ -22,7 +24,8 @@ def main() -> int:
 
     # Dispatch to the appropriate command handler
     if hasattr(args, "func"):
-        return args.func(args)
+        # All command handlers return int, so cast to satisfy MyPy
+        return cast(int, args.func(args))
 
     parser.print_help()
     return EXIT_SUCCESS

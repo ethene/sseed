@@ -7,11 +7,13 @@ import argparse
 import sys
 from typing import (
     List,
+    NoReturn,
     Optional,
 )
 
 from sseed import __version__
 
+from .base import BaseCommand
 from .commands import COMMANDS
 from .examples import show_examples
 
@@ -22,7 +24,7 @@ EXIT_USAGE_ERROR = 1
 class SSeedArgumentParser(argparse.ArgumentParser):
     """Custom ArgumentParser that uses SSeed exit codes."""
 
-    def error(self, message):
+    def error(self, message: str) -> NoReturn:
         """Override error method to use our exit code."""
         self.print_usage(sys.stderr)
         args = {"prog": self.prog, "message": message}
@@ -92,7 +94,7 @@ Repository: https://github.com/ethene/sseed
 
     # Add all registered commands
     for command_name, command_class in COMMANDS.items():
-        command_instance = command_class()
+        command_instance: BaseCommand = command_class()  # type: ignore
 
         # Create subparser for this command using our custom parser class
         cmd_parser = subparsers.add_parser(
