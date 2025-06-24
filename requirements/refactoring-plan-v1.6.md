@@ -78,6 +78,27 @@ sseed/bip39.py            342 lines  (LOW - good structure)
 **Effort**: 2-3 days
 **Risk**: Medium
 
+#### Detailed Analysis Results
+
+**Current CLI Structure (921 lines):**
+```
+Import/constants:             68 lines  (lines 1-69)
+handle_version_command:       81 lines  (lines 70-150)  
+show_examples:                73 lines  (lines 151-223)
+create_parser:               245 lines  (lines 224-468) ← LARGEST FUNCTION
+handle_gen_command:           90 lines  (lines 469-558)
+handle_shard_command:         99 lines  (lines 559-657)
+handle_restore_command:      108 lines  (lines 658-765)
+handle_seed_command:          81 lines  (lines 766-846)
+main:                         76 lines  (lines 847-922)
+```
+
+**Identified Patterns:**
+- **Error Handling Duplication**: 4 identical error handling blocks across command handlers
+- **Argument Parser Complexity**: 245-line `create_parser()` with 5 subparsers mixed together
+- **Command Dispatch**: Simple if/elif chain in `main()` - ready for registry pattern
+- **Shared Logic**: File I/O, entropy display, secure deletion patterns repeated
+
 #### Objective
 Split monolithic CLI into command-based architecture to enable future command additions.
 
@@ -86,60 +107,200 @@ Split monolithic CLI into command-based architecture to enable future command ad
 sseed/
 ├── cli/
 │   ├── __init__.py           # Public CLI interface (maintains compatibility)
-│   ├── parser.py             # Argument parser creation
-│   ├── examples.py           # Example display logic
-│   ├── error_handling.py     # Common error handling patterns
+│   ├── parser.py             # Base parser + global args (80 lines)
+│   ├── examples.py           # Example display logic (80 lines)
+│   ├── error_handling.py     # Common error handling patterns (60 lines)
 │   └── commands/
-│       ├── __init__.py       # Command registry and discovery
-│       ├── base.py           # Base command class with common patterns
-│       ├── gen.py            # Generate command handler
-│       ├── shard.py          # Shard command handler
-│       ├── restore.py        # Restore command handler
-│       ├── seed.py           # Seed command handler
-│       └── version.py        # Version command handler
+│       ├── __init__.py       # Command registry and discovery (40 lines)
+│       ├── base.py           # Base command class with common patterns (100 lines)
+│       ├── gen.py            # Generate command handler + parser (120 lines)
+│       ├── shard.py          # Shard command handler + parser (130 lines)
+│       ├── restore.py        # Restore command handler + parser (140 lines)
+│       ├── seed.py           # Seed command handler + parser (110 lines)
+│       └── version.py        # Version command handler + parser (100 lines)
 ```
 
 #### Implementation Tasks
 
-**Task 1.1: Create Base Infrastructure**
+**Task 1.1: Create Base Infrastructure (Day 1 Morning)**
 - Create `sseed/cli/` package
-- Implement `base.py` with common command patterns
-- Create `error_handling.py` with standardized error handling
-- Implement `parser.py` with argument parser creation logic
+- Extract `EXIT_*` constants to `cli/__init__.py` 
+- Create `error_handling.py` with standardized error handling patterns:
+  ```python
+  def handle_crypto_errors(func):
+      """Decorator for standardized cryptographic error handling."""
+      
+  def handle_file_errors(func):
+      """Decorator for standardized file error handling."""
+      
+  def handle_validation_errors(func):
+      """Decorator for standardized validation error handling."""
+  ```
 
-**Task 1.2: Extract Command Handlers**
-- Move `handle_gen_command()` to `commands/gen.py`
-- Move `handle_shard_command()` to `commands/shard.py`
-- Move `handle_restore_command()` to `commands/restore.py`
-- Move `handle_seed_command()` to `commands/seed.py`
-- Move `handle_version_command()` to `commands/version.py`
+**Task 1.2: Base Command Class (Day 1 Afternoon)**
+- Implement `base.py` with `BaseCommand` class:
+  ```python
+  class BaseCommand:
+      def __init__(self, name: str, help: str):
+          self.name = name
+          self.help = help
+      
+      def add_arguments(self, parser) -> None:
+          """Add command-specific arguments."""
+          
+      def handle(self, args: argparse.Namespace) -> int:
+          """Execute command logic."""
+          
+      def handle_input(self, args) -> str:
+          """Common input handling (file vs stdin)."""
+          
+      def handle_output(self, content: str, args) -> None:
+          """Common output handling (file vs stdout)."""
+  ```
 
-**Task 1.3: Command Registry System**
-- Implement command discovery in `commands/__init__.py`
-- Create command registration system
-- Update main CLI entry point
+**Task 1.3: Extract Command Handlers (Day 2)**
+- Move `handle_version_command()` to `commands/version.py` with argument parsing
+- Move `handle_gen_command()` to `commands/gen.py` with argument parsing  
+- Move `handle_shard_command()` to `commands/shard.py` with argument parsing
+- Move `handle_restore_command()` to `commands/restore.py` with argument parsing
+- Move `handle_seed_command()` to `commands/seed.py` with argument parsing
+- Each command class handles both argument setup and execution
 
-**Task 1.4: Extract Examples and Help**
+**Task 1.4: Parser Restructuring (Day 2 Afternoon)**
+- Create `parser.py` with base parser and global arguments (first 68 lines of `create_parser()`)
+- Move command-specific parser setup to respective command classes
+- Implement dynamic subparser registration system
+
+**Task 1.5: Command Registry System (Day 3 Morning)**
+- Implement command discovery in `commands/__init__.py`:
+  ```python
+  from .gen import GenCommand
+  from .shard import ShardCommand
+  from .restore import RestoreCommand
+  from .seed import SeedCommand
+  from .version import VersionCommand
+  
+  COMMANDS = {
+      'gen': GenCommand,
+      'shard': ShardCommand,
+      'restore': RestoreCommand,
+      'seed': SeedCommand,
+      'version': VersionCommand,
+  }
+  ```
+
+**Task 1.6: Main Function Refactoring (Day 3 Afternoon)**
+- Update `main()` to use command registry instead of if/elif chain
 - Move `show_examples()` to `examples.py`
-- Implement dynamic example generation
-- Update help text system
+- Implement backward compatibility layer in `cli/__init__.py`
 
 #### Success Criteria
 - All existing CLI commands work identically
 - New commands can be added by creating single file in `commands/`
-- Common error handling patterns standardized
-- CLI tests pass without modification
+- Common error handling patterns standardized (4 duplicate blocks → 1 decorator system)
+- CLI tests pass without modification  
 - Import compatibility maintained: `from sseed.cli import main`
+- Argument parser complexity reduced: 245 lines → ~80 lines base + ~25 lines per command
 
-#### Migration Path
+#### Detailed Migration Strategy
+
+**Phase 1.1: Backward Compatibility Layer**
 ```python
-# Before (current)
-from sseed.cli import handle_gen_command, main
+# sseed/cli/__init__.py - maintains all existing exports
+from .main import main
+from .commands.gen import handle_gen_command  # Compatibility wrapper
+from .commands.shard import handle_shard_command  # Compatibility wrapper
+# ... etc for all handlers
 
-# After (maintains compatibility)
-from sseed.cli import main  # Still works
-from sseed.cli.commands.gen import GenCommand  # New extensible interface
+# Exit codes (moved from cli.py)
+EXIT_SUCCESS = 0
+EXIT_USAGE_ERROR = 1
+EXIT_CRYPTO_ERROR = 2
+EXIT_FILE_ERROR = 3
+EXIT_VALIDATION_ERROR = 4
+EXIT_INTERRUPTED = 130
 ```
+
+**Phase 1.2: Command Class Template**
+```python
+# sseed/cli/commands/gen.py
+from sseed.cli.base import BaseCommand
+from sseed.cli.error_handling import handle_crypto_errors, handle_file_errors
+
+class GenCommand(BaseCommand):
+    def __init__(self):
+        super().__init__("gen", "Generate a 24-word BIP-39 mnemonic")
+    
+    def add_arguments(self, parser):
+        parser.add_argument("-o", "--output", help="Output file")
+        parser.add_argument("--show-entropy", action="store_true")
+    
+    @handle_crypto_errors
+    @handle_file_errors
+    def handle(self, args):
+        # Original handle_gen_command logic here
+        pass
+
+# Compatibility function for existing imports
+def handle_gen_command(args):
+    """Backward compatibility wrapper."""
+    return GenCommand().handle(args)
+```
+
+#### Error Pattern Standardization
+
+**Before (4 duplicate blocks × 20 lines = 80 lines):**
+```python
+# Repeated in every command handler:
+except (EntropyError, MnemonicError, SecurityError) as e:
+    logger.error("Cryptographic error during generation: %s", e)
+    print(f"Cryptographic error: {e}", file=sys.stderr)
+    return EXIT_CRYPTO_ERROR
+except FileError as e:
+    logger.error("File I/O error during generation: %s", e)
+    print(f"File error: {e}", file=sys.stderr)
+    return EXIT_FILE_ERROR
+# ... etc
+```
+
+**After (1 decorator system = 60 lines total):**
+```python
+# sseed/cli/error_handling.py
+def handle_common_errors(operation_name: str):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except (EntropyError, MnemonicError, SecurityError) as e:
+                logger.error(f"Cryptographic error during {operation_name}: %s", e)
+                print(f"Cryptographic error: {e}", file=sys.stderr)
+                return EXIT_CRYPTO_ERROR
+            except FileError as e:
+                logger.error(f"File I/O error during {operation_name}: %s", e)
+                print(f"File error: {e}", file=sys.stderr)
+                return EXIT_FILE_ERROR
+            # ... etc
+        return wrapper
+    return decorator
+
+# Usage in commands:
+@handle_common_errors("generation")
+def handle(self, args):
+    # Command logic without error handling boilerplate
+```
+
+#### Code Size Reduction
+
+**Expected Results:**
+- **Total Lines**: 921 lines → ~900 lines (distributed across modules)
+- **Largest Single File**: 245 lines (`create_parser`) → 140 lines (largest command)
+- **Error Handling**: 80 lines duplicated → 60 lines centralized
+- **Main Function**: 76 lines → 40 lines (simplified dispatch)
+- **Argument Parsing**: 245 lines → 80 base + 25 per command (modular)
+
+**New Command Addition Effort:**
+- **Before**: Modify 3 functions in 921-line file (high risk)
+- **After**: Add single 100-line file in `commands/` (low risk)
 
 ---
 
