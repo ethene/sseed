@@ -11,9 +11,9 @@ from sseed.exceptions import MnemonicError
 from sseed.logging_config import get_logger
 from sseed.validation import validate_mnemonic_checksum
 
+from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
-from .. import EXIT_SUCCESS
 
 logger = get_logger(__name__)
 
@@ -28,7 +28,7 @@ class GenCommand(BaseCommand):
             description=(
                 "Generate a cryptographically secure 24-word BIP-39 mnemonic "
                 "using system entropy."
-            )
+            ),
         )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -65,23 +65,21 @@ class GenCommand(BaseCommand):
                     context={"validation_type": "checksum"},
                 )
 
-            # Handle entropy display if requested
-            entropy_info = self.handle_entropy_display(mnemonic, args, args.output)
-
-            # Output mnemonic
+            # Output mnemonic first
             if args.output:
                 self.handle_output(
-                    mnemonic, 
-                    args, 
-                    success_message="Mnemonic written to: {file}"
+                    mnemonic, args, success_message="Mnemonic written to: {file}"
                 )
-                
-                # Display entropy info if showing entropy
+
+                # Handle entropy display after file is written
+                entropy_info = self.handle_entropy_display(mnemonic, args, args.output)
                 if entropy_info:
                     print(f"Mnemonic and entropy written to: {args.output}")
             else:
                 # Output to stdout
                 print(mnemonic)
+                # Handle entropy display for stdout
+                entropy_info = self.handle_entropy_display(mnemonic, args)
                 if entropy_info:
                     print(entropy_info)
                 logger.info("Mnemonic written to stdout")
@@ -96,4 +94,4 @@ class GenCommand(BaseCommand):
 # Backward compatibility wrapper
 def handle_gen_command(args: argparse.Namespace) -> int:
     """Backward compatibility wrapper for original handle_gen_command."""
-    return GenCommand().handle(args) 
+    return GenCommand().handle(args)

@@ -6,7 +6,10 @@ across command handlers.
 
 import functools
 import sys
-from typing import Callable, Any
+from typing import (
+    Any,
+    Callable,
+)
 
 from sseed.exceptions import (
     EntropyError,
@@ -20,11 +23,11 @@ from sseed.exceptions import (
 from sseed.logging_config import get_logger
 
 from . import (
-    EXIT_SUCCESS,
     EXIT_CRYPTO_ERROR,
     EXIT_FILE_ERROR,
-    EXIT_VALIDATION_ERROR,
+    EXIT_INTERRUPTED,
     EXIT_USAGE_ERROR,
+    EXIT_VALIDATION_ERROR,
 )
 
 logger = get_logger(__name__)
@@ -32,13 +35,14 @@ logger = get_logger(__name__)
 
 def handle_common_errors(operation_name: str) -> Callable:
     """Decorator for standardized error handling across all commands.
-    
+
     Args:
         operation_name: Name of the operation for logging (e.g., "generation", "sharding")
-        
+
     Returns:
         Decorator function that wraps command handlers with error handling.
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> int:
@@ -60,15 +64,18 @@ def handle_common_errors(operation_name: str) -> Callable:
                 logger.error("Unexpected error during %s: %s", operation_name, e)
                 print(f"Unexpected error: {e}", file=sys.stderr)
                 return EXIT_CRYPTO_ERROR
+
         return wrapper
+
     return decorator
 
 
 def handle_top_level_errors(func: Callable) -> Callable:
     """Decorator for top-level error handling in main function.
-    
+
     Handles KeyboardInterrupt and other top-level exceptions.
     """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> int:
         try:
@@ -98,4 +105,5 @@ def handle_top_level_errors(func: Callable) -> Callable:
             logger.exception("Unexpected error: %s", e)
             print(f"Unexpected error: {e}", file=sys.stderr)
             return EXIT_CRYPTO_ERROR
-    return wrapper 
+
+    return wrapper

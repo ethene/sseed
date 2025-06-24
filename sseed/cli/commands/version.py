@@ -8,14 +8,20 @@ import json
 import platform
 import sys
 from importlib import metadata
-from typing import Any, Dict
+from typing import (
+    Any,
+    Dict,
+)
 
 from sseed import __version__
 from sseed.logging_config import get_logger
 
+from .. import (
+    EXIT_SUCCESS,
+    EXIT_USAGE_ERROR,
+)
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
-from .. import EXIT_SUCCESS, EXIT_USAGE_ERROR
 
 logger = get_logger(__name__)
 
@@ -30,7 +36,7 @@ class VersionCommand(BaseCommand):
             description=(
                 "Display comprehensive version information including dependencies, "
                 "system details, and build information"
-            )
+            ),
         )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -126,4 +132,4 @@ class VersionCommand(BaseCommand):
 # Backward compatibility wrapper
 def handle_version_command(args: argparse.Namespace) -> int:
     """Backward compatibility wrapper for original handle_version_command."""
-    return VersionCommand().handle(args) 
+    return VersionCommand().handle(args)

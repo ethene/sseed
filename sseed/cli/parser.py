@@ -5,12 +5,26 @@ Creates the main argument parser and subparsers for all commands.
 
 import argparse
 import sys
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
 from sseed import __version__
 
+from . import EXIT_USAGE_ERROR
 from .commands import COMMANDS
 from .examples import show_examples
+
+
+class SSeedArgumentParser(argparse.ArgumentParser):
+    """Custom ArgumentParser that uses SSeed exit codes."""
+
+    def error(self, message):
+        """Override error method to use our exit code."""
+        self.print_usage(sys.stderr)
+        args = {"prog": self.prog, "message": message}
+        self.exit(EXIT_USAGE_ERROR, "%(prog)s: error: %(message)s\n" % args)
 
 
 def create_parser(prog: Optional[str] = None) -> argparse.ArgumentParser:
@@ -22,7 +36,7 @@ def create_parser(prog: Optional[str] = None) -> argparse.ArgumentParser:
     Returns:
         Configured ArgumentParser instance.
     """
-    parser = argparse.ArgumentParser(
+    parser = SSeedArgumentParser(
         prog=prog or "sseed",
         description=(
             "🔐 SSeed: Professional BIP-39/SLIP-39 mnemonic toolkit. "
@@ -48,6 +62,14 @@ Repository: https://github.com/ethene/sseed
         help="Show program version and exit",
     )
 
+    # Add global logging argument that tests expect
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="INFO",
+        help="Set logging level (default: INFO)",
+    )
+
     # Create subparser for commands
     subparsers = parser.add_subparsers(
         dest="command",
@@ -62,24 +84,25 @@ Repository: https://github.com/ethene/sseed
         "examples",
         help="Show comprehensive usage examples",
         description="Display detailed usage examples for all commands",
+        parents=[],  # Use SSeedArgumentParser for subparsers too
     )
     examples_parser.set_defaults(func=show_examples)
 
     # Add all registered commands
     for command_name, command_class in COMMANDS.items():
         command_instance = command_class()
-        
-        # Create subparser for this command
+
+        # Create subparser for this command using our custom parser class
         cmd_parser = subparsers.add_parser(
             command_name,
             help=command_instance.help_text,
             description=command_instance.description,
             formatter_class=argparse.RawDescriptionHelpFormatter,
         )
-        
+
         # Add command-specific arguments
         command_instance.add_arguments(cmd_parser)
-        
+
         # Set the command handler function
         cmd_parser.set_defaults(func=command_instance.handle)
 
@@ -96,16 +119,16 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         Parsed arguments namespace.
     """
     parser = create_parser()
-    
+
     # Parse arguments
     if args is None:
         args = sys.argv[1:]
-    
+
     parsed_args = parser.parse_args(args)
-    
+
     # Handle case where no command was specified
     if not hasattr(parsed_args, "func"):
         parser.print_help()
-        sys.exit(1)
-    
-    return parsed_args 
+        sys.exit(EXIT_USAGE_ERROR)
+
+    return parsed_args

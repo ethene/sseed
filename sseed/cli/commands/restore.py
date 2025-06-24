@@ -11,9 +11,9 @@ from sseed.logging_config import get_logger
 from sseed.slip39_operations import reconstruct_mnemonic_from_shards
 from sseed.validation import validate_shard_integrity
 
+from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
-from .. import EXIT_SUCCESS
 
 logger = get_logger(__name__)
 
@@ -28,7 +28,7 @@ class RestoreCommand(BaseCommand):
             description=(
                 "Reconstruct the original mnemonic from SLIP-39 shards "
                 "using Shamir's Secret Sharing."
-            )
+            ),
         )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -47,7 +47,7 @@ class RestoreCommand(BaseCommand):
             help="Output file for reconstructed mnemonic (default: stdout)",
         )
         self.add_entropy_display_argument(parser)
-        
+
         # Add epilog with examples
         parser.epilog = """
 Examples:
@@ -80,9 +80,7 @@ Examples:
 
             # Handle entropy display if requested
             entropy_info = self.handle_entropy_display(
-                reconstructed_mnemonic, 
-                args, 
-                args.output
+                reconstructed_mnemonic, args, args.output
             )
 
             # Output reconstructed mnemonic
@@ -90,12 +88,14 @@ Examples:
                 self.handle_output(
                     reconstructed_mnemonic,
                     args,
-                    success_message="Mnemonic reconstructed and written to: {file}"
+                    success_message="Mnemonic reconstructed and written to: {file}",
                 )
-                
+
                 # Display entropy info if showing entropy
                 if entropy_info:
-                    print(f"Mnemonic and entropy reconstructed and written to: {args.output}")
+                    print(
+                        f"Mnemonic and entropy reconstructed and written to: {args.output}"
+                    )
             else:
                 # Output to stdout
                 print(reconstructed_mnemonic)
@@ -116,4 +116,4 @@ Examples:
 # Backward compatibility wrapper
 def handle_restore_command(args: argparse.Namespace) -> int:
     """Backward compatibility wrapper for original handle_restore_command."""
-    return RestoreCommand().handle(args) 
+    return RestoreCommand().handle(args)

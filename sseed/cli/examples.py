@@ -76,7 +76,7 @@ def show_examples(args: argparse.Namespace) -> int:
 
     print("📚 Tips & Best Practices:")
     print("   • Use separate files (--separate) for safer shard distribution")
-    print("   • Always verify with --show-entropy for critical operations") 
+    print("   • Always verify with --show-entropy for critical operations")
     print("   • Store shards in different secure locations")
     print("   • Test recovery before relying on shards")
     print("   • Use passphrases for additional security layer")
@@ -86,4 +86,4 @@ def show_examples(args: argparse.Namespace) -> int:
     print("   sseed <command> --help")
     print()
 
-    return EXIT_SUCCESS 
+    return EXIT_SUCCESS

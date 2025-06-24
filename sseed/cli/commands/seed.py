@@ -13,9 +13,9 @@ from sseed.exceptions import MnemonicError
 from sseed.logging_config import get_logger
 from sseed.validation import validate_mnemonic_checksum
 
+from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
-from .. import EXIT_SUCCESS
 
 logger = get_logger(__name__)
 
@@ -30,13 +30,13 @@ class SeedCommand(BaseCommand):
             description=(
                 "Generate a BIP-32 master seed from a mnemonic phrase "
                 "using PBKDF2 key derivation with optional passphrase."
-            )
+            ),
         )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         """Add seed command arguments."""
         self.add_common_io_arguments(parser)
-        
+
         parser.add_argument(
             "-p",
             "--passphrase",
@@ -49,13 +49,23 @@ class SeedCommand(BaseCommand):
             default="hex",
             help="Output format (default: hex)",
         )
-        
+
+        # Backward compatibility for tests that expect --hex flag
+        parser.add_argument(
+            "--hex",
+            action="store_const",
+            dest="format",
+            const="hex",
+            help="Output in hex format (backward compatibility)",
+        )
+
         # Add epilog with examples
         parser.epilog = """
 Examples:
   sseed seed -i wallet.txt                             Basic seed derivation
   sseed seed -i wallet.txt -p                         With passphrase prompt
   sseed seed -i wallet.txt --format binary            Binary output
+  sseed seed -i wallet.txt --hex                      Hex output (legacy)
   echo "mnemonic words..." | sseed seed -p             From stdin with passphrase
         """
 
@@ -94,6 +104,9 @@ Examples:
             # Derive BIP-32 seed using the correct function
             seed = generate_master_seed(mnemonic, passphrase)
 
+            # Initialize output to avoid pylint warning
+            output = ""
+
             # Format output
             if args.format == "hex":
                 output = seed.hex()
@@ -106,19 +119,18 @@ Examples:
                     logger.info("Binary seed written to file: %s", args.output)
                     print(f"Binary seed written to: {args.output}")
                     return EXIT_SUCCESS
-                else:
-                    # Can't output binary to stdout safely, use hex instead
-                    logger.warning("Binary format not supported for stdout, using hex")
-                    output = seed.hex()
-                    print("Warning: Binary format not supported for stdout, using hex", 
-                          file=sys.stderr)
+                # Can't output binary to stdout safely, use hex instead
+                logger.warning("Binary format not supported for stdout, using hex")
+                output = seed.hex()
+                print(
+                    "Warning: Binary format not supported for stdout, using hex",
+                    file=sys.stderr,
+                )
 
-            # Output seed
-            if args.output and args.format != "binary":
+            # Output seed (only for non-binary format)
+            if args.output:
                 self.handle_output(
-                    output,
-                    args,
-                    success_message="BIP-32 seed written to: {file}"
+                    output, args, success_message="BIP-32 seed written to: {file}"
                 )
             else:
                 print(output)
@@ -139,4 +151,4 @@ Examples:
 # Backward compatibility wrapper
 def handle_seed_command(args: argparse.Namespace) -> int:
     """Backward compatibility wrapper for original handle_seed_command."""
-    return SeedCommand().handle(args) 
+    return SeedCommand().handle(args)

@@ -7,7 +7,10 @@ import argparse
 import sys
 
 from sseed.entropy import secure_delete_variable
-from sseed.exceptions import MnemonicError, ValidationError
+from sseed.exceptions import (
+    MnemonicError,
+    ValidationError,
+)
 from sseed.file_operations import (
     write_shards_to_file,
     write_shards_to_separate_files,
@@ -22,9 +25,9 @@ from sseed.validation import (
     validate_mnemonic_checksum,
 )
 
+from .. import EXIT_SUCCESS
 from ..base import BaseCommand
 from ..error_handling import handle_common_errors
-from .. import EXIT_SUCCESS
 
 logger = get_logger(__name__)
 
@@ -39,13 +42,13 @@ class ShardCommand(BaseCommand):
             description=(
                 "Split a BIP-39 mnemonic into SLIP-39 threshold shards "
                 "for secure distribution."
-            )
+            ),
         )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         """Add shard command arguments."""
         self.add_common_io_arguments(parser)
-        
+
         parser.add_argument(
             "-g",
             "--group",
@@ -65,7 +68,7 @@ class ShardCommand(BaseCommand):
                 "(e.g., shards_01.txt, shards_02.txt)"
             ),
         )
-        
+
         # Add epilog with examples
         parser.epilog = """
 Examples:
@@ -116,7 +119,9 @@ Examples:
                     if args.separate:
                         # Write to separate files (Phase 6 feature)
                         file_paths = write_shards_to_separate_files(shards, args.output)
-                        logger.info("Shards written to %d separate files", len(file_paths))
+                        logger.info(
+                            "Shards written to %d separate files", len(file_paths)
+                        )
                         print(f"Shards written to {len(file_paths)} separate files:")
                         for file_path in file_paths:
                             print(f"  {file_path}")
@@ -127,7 +132,9 @@ Examples:
                         print(f"Shards written to: {args.output}")
                 else:
                     if args.separate:
-                        logger.warning("--separate flag ignored when outputting to stdout")
+                        logger.warning(
+                            "--separate flag ignored when outputting to stdout"
+                        )
                         print(
                             "Warning: --separate flag ignored when outputting to stdout",
                             file=sys.stderr,
@@ -144,10 +151,7 @@ Examples:
 
             finally:
                 # Securely delete mnemonic and shards from memory
-                secure_delete_variable(
-                    mnemonic,
-                    shards if "shards" in locals() else []
-                )
+                secure_delete_variable(mnemonic, shards if "shards" in locals() else [])
 
         except ValidationError as e:
             # Re-raise validation errors to be handled by decorator
@@ -157,4 +161,4 @@ Examples:
 # Backward compatibility wrapper
 def handle_shard_command(args: argparse.Namespace) -> int:
     """Backward compatibility wrapper for original handle_shard_command."""
-    return ShardCommand().handle(args) 
+    return ShardCommand().handle(args)
