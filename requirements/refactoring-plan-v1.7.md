@@ -185,7 +185,7 @@ def validate_mnemonic_checksum(mnemonic: str, language: Optional[Bip39Languages]
     # ... rest of implementation
 ```
 
-### Stage 2: CLI Command Integration (v1.7.2)
+### Stage 2: CLI Integration (v1.7.1)
 **Priority**: HIGH  
 **Effort**: 2-3 days  
 **Risk**: Low  
@@ -262,7 +262,7 @@ sseed shard -i seed_zh.txt -g 3-of-5 --separate -o shards_
 """
 ```
 
-### Stage 3: Testing and Quality Assurance (v1.7.3)
+### Stage 3: Testing and Quality (v1.7.2)
 **Priority**: HIGH  
 **Effort**: 2-3 days  
 **Risk**: Low  
@@ -361,8 +361,8 @@ def test_multi_language_generation_performance(self):
 - **Add** language-specific normalization rules
 - **Maintain** backward compatibility for existing functions
 
-### Phase 2: CLI Integration (Days 5-7)
-**Status**: 📋 **DEPENDENT ON PHASE 1**
+### Phase 2: CLI Integration (v1.7.1)
+**Status**: 📋 **READY FOR IMPLEMENTATION**
 
 #### Task 2.1: Gen Command Enhancement ⭐ **HIGH**
 - **Add** `--language` option with validation
@@ -382,8 +382,8 @@ def test_multi_language_generation_performance(self):
 - **Add** language reference documentation
 - **Update** error messages with language context
 
-### Phase 3: Testing and Quality (Days 8-10)
-**Status**: 📋 **DEPENDENT ON PHASES 1-2**
+### Phase 3: Testing and Quality (v1.7.2)
+**Status**: 📋 **DEPENDENT ON STAGE 2**
 
 #### Task 3.1: Comprehensive Testing ⭐ **CRITICAL**
 - **Create** multi-language test suite (9 languages × multiple operations)
@@ -454,9 +454,9 @@ def test_multi_language_generation_performance(self):
 - **Day 5**: Final integration testing and documentation
 
 ### Release Schedule
-- **v1.7.1**: Core language infrastructure (Stage 1)
-- **v1.7.2**: CLI integration complete (Stage 2)  
-- **v1.7.3**: Testing and quality assurance (Stage 3)
+- **v1.7.0**: Core language infrastructure (Stage 1) ✅ **COMPLETED**
+- **v1.7.1**: CLI integration complete (Stage 2)
+- **v1.7.2**: Testing and quality assurance (Stage 3)
 
 ---
 
@@ -495,7 +495,7 @@ mnemonic_es = generate_mnemonic(language=LanguageCode.SPANISH)
 
 ## Implementation Progress Tracking
 
-### ✅ Stage 1: Language Infrastructure (v1.7.1) - **COMPLETED**
+### ✅ Stage 1: Language Infrastructure (v1.7.0) - **COMPLETED**
 - **Status**: ✅ **COMPLETED SUCCESSFULLY**
 - **Completion Date**: December 2024
 - **Actual Effort**: 4 days (as estimated)
@@ -663,7 +663,7 @@ is_valid = validate_mnemonic(spanish_mnemonic, Bip39Languages.ENGLISH)  # False
 
 ---
 
-### 📋 Stage 2: CLI Integration (v1.7.2)  
+### 📋 Stage 2: CLI Integration (v1.7.1)  
 - **Status**: 📋 **READY FOR IMPLEMENTATION**
 - **Estimated Effort**: 2-3 days
 - **Dependencies**: Stage 1 completion ✅
@@ -725,7 +725,7 @@ from sseed.bip39 import (
 
 ---
 
-### 📋 Stage 3: Testing and Quality (v1.7.3)
+### 📋 Stage 3: Testing and Quality (v1.7.2)
 - **Status**: 📋 **DEPENDENT ON STAGE 2**
 - **Estimated Effort**: 2-3 days  
 - **Dependencies**: Stages 1 ✅ and 2 completion
