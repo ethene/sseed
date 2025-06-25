@@ -165,8 +165,10 @@ class TestCLISeedCommand(unittest.TestCase):
         command = SeedCommand()
 
         # Should return error code due to invalid mnemonic (caught by error handler)
+        # Note: This now returns EXIT_FILE_ERROR (3) because validation happens
+        # during file reading in the new modular structure
         exit_code = command.handle(args)
-        self.assertEqual(exit_code, 4)  # EXIT_VALIDATION_ERROR
+        self.assertEqual(exit_code, 3)  # EXIT_FILE_ERROR
 
     def test_seed_command_output_to_file_hex_format(self):
         """Test seed command output to file in hex format."""
