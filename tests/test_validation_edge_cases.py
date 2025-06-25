@@ -248,7 +248,8 @@ class TestValidationEdgeCases:
     def test_validate_mnemonic_checksum_exception_handling(self):
         """Test mnemonic checksum validation exception handling."""
         with patch(
-            "sseed.validation.Bip39MnemonicValidator", side_effect=Exception("Error")
+            "sseed.validation.crypto.Bip39MnemonicValidator",
+            side_effect=Exception("Error"),
         ):
             with pytest.raises(
                 ValidationError, match="Error during mnemonic checksum validation"
