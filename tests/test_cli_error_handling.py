@@ -60,7 +60,7 @@ class TestCLIErrorHandling:
         args.output = None
         # Ensure all expected attributes are present for cross-version compatibility
         args.show_entropy = False
-        
+
         # Use more specific patching to ensure it works across Python versions
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
@@ -155,7 +155,9 @@ class TestCLIErrorHandling:
             ) as mock_validate:
                 result = handle_gen_command(args)
                 assert mock_gen.called, "generate_mnemonic mock should have been called"
-                assert mock_validate.called, "validate_mnemonic_checksum mock should have been called"
+                assert (
+                    mock_validate.called
+                ), "validate_mnemonic_checksum mock should have been called"
                 assert result == EXIT_CRYPTO_ERROR
 
     def test_gen_file_write_error(self):
@@ -175,9 +177,15 @@ class TestCLIErrorHandling:
                     side_effect=FileError("Write failed"),
                 ) as mock_write:
                     result = handle_gen_command(args)
-                    assert mock_gen.called, "generate_mnemonic mock should have been called"
-                    assert mock_validate.called, "validate_mnemonic_checksum mock should have been called"
-                    assert mock_write.called, "write_mnemonic_to_file mock should have been called"
+                    assert (
+                        mock_gen.called
+                    ), "generate_mnemonic mock should have been called"
+                    assert (
+                        mock_validate.called
+                    ), "validate_mnemonic_checksum mock should have been called"
+                    assert (
+                        mock_write.called
+                    ), "write_mnemonic_to_file mock should have been called"
                     assert result == EXIT_FILE_ERROR
 
     # ===== SHARD COMMAND ERROR TESTS =====
