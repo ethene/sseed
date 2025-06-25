@@ -58,104 +58,126 @@ class TestCLIErrorHandling:
         """Test gen command handling EntropyError."""
         args = mock.MagicMock()
         args.output = None
-
+        # Ensure all expected attributes are present for cross-version compatibility
+        args.show_entropy = False
+        
+        # Use more specific patching to ensure it works across Python versions
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
             side_effect=EntropyError("Entropy failure"),
-        ):
+        ) as mock_gen:
             result = handle_gen_command(args)
+            # Verify the mock was actually called
+            assert mock_gen.called, "Mock should have been called"
             assert result == EXIT_CRYPTO_ERROR
 
     def test_gen_mnemonic_error_handling(self):
         """Test gen command handling MnemonicError."""
         args = mock.MagicMock()
         args.output = None
+        args.show_entropy = False
 
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
             side_effect=MnemonicError("Mnemonic failure"),
-        ):
+        ) as mock_gen:
             result = handle_gen_command(args)
+            assert mock_gen.called, "Mock should have been called"
             assert result == EXIT_CRYPTO_ERROR
 
     def test_gen_security_error_handling(self):
         """Test gen command handling SecurityError."""
         args = mock.MagicMock()
         args.output = None
+        args.show_entropy = False
 
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
             side_effect=SecurityError("Security failure"),
-        ):
+        ) as mock_gen:
             result = handle_gen_command(args)
+            assert mock_gen.called, "Mock should have been called"
             assert result == EXIT_CRYPTO_ERROR
 
     def test_gen_validation_error_handling(self):
         """Test gen command handling ValidationError."""
         args = mock.MagicMock()
         args.output = None
+        args.show_entropy = False
 
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
             side_effect=ValidationError("Validation failure"),
-        ):
+        ) as mock_gen:
             result = handle_gen_command(args)
+            assert mock_gen.called, "Mock should have been called"
             assert result == EXIT_VALIDATION_ERROR
 
     def test_gen_file_error_handling(self):
         """Test gen command handling FileError."""
         args = mock.MagicMock()
         args.output = None
+        args.show_entropy = False
 
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
             side_effect=FileError("File failure"),
-        ):
+        ) as mock_gen:
             result = handle_gen_command(args)
+            assert mock_gen.called, "Mock should have been called"
             assert result == EXIT_FILE_ERROR
 
     def test_gen_unexpected_error_handling(self):
         """Test gen command handling unexpected exceptions."""
         args = mock.MagicMock()
         args.output = None
+        args.show_entropy = False
 
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
             side_effect=RuntimeError("Unexpected error"),
-        ):
+        ) as mock_gen:
             result = handle_gen_command(args)
+            assert mock_gen.called, "Mock should have been called"
             assert result == EXIT_CRYPTO_ERROR
 
     def test_gen_checksum_validation_failure(self):
         """Test gen command when generated mnemonic fails checksum validation."""
         args = mock.MagicMock()
         args.output = None
+        args.show_entropy = False
 
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic", return_value="invalid mnemonic"
-        ):
+        ) as mock_gen:
             with patch(
                 "sseed.cli.commands.gen.validate_mnemonic_checksum", return_value=False
-            ):
+            ) as mock_validate:
                 result = handle_gen_command(args)
+                assert mock_gen.called, "generate_mnemonic mock should have been called"
+                assert mock_validate.called, "validate_mnemonic_checksum mock should have been called"
                 assert result == EXIT_CRYPTO_ERROR
 
     def test_gen_file_write_error(self):
         """Test gen command when file writing fails."""
         args = mock.MagicMock()
         args.output = "/invalid/path/file.txt"
+        args.show_entropy = False
 
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic", return_value="valid mnemonic"
-        ):
+        ) as mock_gen:
             with patch(
                 "sseed.cli.commands.gen.validate_mnemonic_checksum", return_value=True
-            ):
+            ) as mock_validate:
                 with patch(
                     "sseed.file_operations.write_mnemonic_to_file",
                     side_effect=FileError("Write failed"),
-                ):
+                ) as mock_write:
                     result = handle_gen_command(args)
+                    assert mock_gen.called, "generate_mnemonic mock should have been called"
+                    assert mock_validate.called, "validate_mnemonic_checksum mock should have been called"
+                    assert mock_write.called, "write_mnemonic_to_file mock should have been called"
                     assert result == EXIT_FILE_ERROR
 
     # ===== SHARD COMMAND ERROR TESTS =====
