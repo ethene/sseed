@@ -1,12 +1,13 @@
 """Restore command implementation.
 
-Restores mnemonics from SLIP-39 shards.
+Restores mnemonics from SLIP-39 shards with automatic language detection.
 """
 
 import argparse
 
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import MnemonicError
+from sseed.languages import detect_mnemonic_language
 from sseed.logging_config import get_logger
 from sseed.slip39_operations import reconstruct_mnemonic_from_shards
 from sseed.validation import validate_mnemonic_checksum
@@ -21,7 +22,7 @@ logger = get_logger(__name__)
 
 
 class RestoreCommand(BaseCommand):
-    """Reconstruct mnemonic from a valid set of SLIP-39 shards."""
+    """Reconstruct mnemonic from a valid set of SLIP-39 shards with automatic language detection."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -29,7 +30,8 @@ class RestoreCommand(BaseCommand):
             help_text="Reconstruct mnemonic from a valid set of SLIP-39 shards",
             description=(
                 "Reconstruct the original mnemonic from SLIP-39 shards "
-                "using Shamir's Secret Sharing."
+                "using Shamir's Secret Sharing. Automatically detects "
+                "the mnemonic language."
             ),
         )
 
@@ -60,7 +62,7 @@ Examples:
 
     @handle_common_errors("restoration")
     def handle(self, args: argparse.Namespace) -> int:
-        """Handle the 'restore' command.
+        """Handle the 'restore' command with automatic language detection.
 
         Args:
             args: Parsed command-line arguments.
@@ -95,22 +97,53 @@ Examples:
             # Reconstruct mnemonic from shards using SLIP-39
             reconstructed_mnemonic = reconstruct_mnemonic_from_shards(shards)
 
-            # Validate reconstructed mnemonic checksum
-            if not validate_mnemonic_checksum(reconstructed_mnemonic):
-                raise MnemonicError(
-                    "Reconstructed mnemonic failed checksum validation",
-                    context={"validation_type": "checksum"},
+            # Auto-detect language of reconstructed mnemonic
+            detected_lang = detect_mnemonic_language(reconstructed_mnemonic)
+            if detected_lang:
+                logger.info(
+                    f"Detected mnemonic language: {detected_lang.name} ({detected_lang.code})"
                 )
+                language_display = (
+                    f"Language: {detected_lang.name} ({detected_lang.code})"
+                )
+
+                # Validate with detected language
+                if not validate_mnemonic_checksum(
+                    reconstructed_mnemonic, detected_lang.bip_enum
+                ):
+                    logger.warning(
+                        f"Checksum validation failed for detected language {detected_lang.name}"
+                    )
+                    # Fall back to general validation
+                    if not validate_mnemonic_checksum(reconstructed_mnemonic):
+                        raise MnemonicError(
+                            "Reconstructed mnemonic failed checksum validation",
+                            context={"validation_type": "checksum"},
+                        )
+                else:
+                    logger.info(f"Checksum validation passed for {detected_lang.name}")
+            else:
+                logger.warning("Could not detect mnemonic language, assuming English")
+                language_display = "Language: English (en) - assumed"
+
+                # Validate with default (English) validation
+                if not validate_mnemonic_checksum(reconstructed_mnemonic):
+                    raise MnemonicError(
+                        "Reconstructed mnemonic failed checksum validation",
+                        context={"validation_type": "checksum"},
+                    )
 
             # Handle entropy display if requested
             entropy_info = self.handle_entropy_display(
                 reconstructed_mnemonic, args, args.output
             )
 
-            # Output reconstructed mnemonic
+            # Output reconstructed mnemonic with language information
             if args.output:
+                # Include language info in file output
+                output_content = f"# {language_display}\n{reconstructed_mnemonic}"
                 self.handle_output(
-                    reconstructed_mnemonic,
+                    output_content,
                     args,
                     success_message="Mnemonic reconstructed and written to: {file}",
                 )
@@ -118,14 +151,21 @@ Examples:
                 # Display entropy info if showing entropy
                 if entropy_info:
                     print(
-                        f"Mnemonic and entropy reconstructed and written to: {args.output}"
+                        f"Mnemonic with language info and entropy reconstructed and written to: {args.output}"
+                    )
+                else:
+                    print(
+                        f"Mnemonic with language info reconstructed and written to: {args.output}"
                     )
             else:
                 # Output to stdout
                 print(reconstructed_mnemonic)
+                print(f"# {language_display}")
                 if entropy_info:
                     print(entropy_info)
-                logger.info("Reconstructed mnemonic written to stdout")
+                logger.info(
+                    f"Reconstructed mnemonic written to stdout with language info"
+                )
 
             return EXIT_SUCCESS
 

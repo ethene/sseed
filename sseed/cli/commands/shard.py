@@ -1,6 +1,6 @@
 """Shard command implementation.
 
-Splits BIP-39 mnemonics into SLIP-39 threshold shards.
+Splits BIP-39 mnemonics into SLIP-39 threshold shards with automatic language detection.
 """
 
 import argparse
@@ -12,6 +12,7 @@ from sseed.file_operations import (
     write_shards_to_file,
     write_shards_to_separate_files,
 )
+from sseed.languages import detect_mnemonic_language
 from sseed.logging_config import get_logger
 from sseed.slip39_operations import (
     create_slip39_shards,
@@ -32,7 +33,7 @@ logger = get_logger(__name__)
 
 
 class ShardCommand(BaseCommand):
-    """Split mnemonic into SLIP-39 shards with group/threshold configuration."""
+    """Split mnemonic into SLIP-39 shards with group/threshold configuration and automatic language detection."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -40,7 +41,8 @@ class ShardCommand(BaseCommand):
             help_text="Split mnemonic into SLIP-39 shards with group/threshold configuration",
             description=(
                 "Split a BIP-39 mnemonic into SLIP-39 threshold shards "
-                "for secure distribution."
+                "for secure distribution. Automatically detects and "
+                "preserves the mnemonic language."
             ),
         )
 
@@ -78,7 +80,7 @@ Examples:
 
     @handle_common_errors("sharding")
     def handle(self, args: argparse.Namespace) -> int:
-        """Handle the 'shard' command.
+        """Handle the 'shard' command with automatic language detection.
 
         Args:
             args: Parsed command-line arguments.
@@ -95,12 +97,39 @@ Examples:
             # Read mnemonic from input source
             mnemonic = self.handle_input(args)
 
-            # Validate mnemonic checksum (Phase 5 requirement)
-            if not validate_mnemonic_checksum(mnemonic):
-                raise MnemonicError(
-                    "Input mnemonic failed checksum validation",
-                    context={"validation_type": "checksum"},
+            # Auto-detect language of input mnemonic
+            detected_lang = detect_mnemonic_language(mnemonic)
+            if detected_lang:
+                logger.info(
+                    f"Detected mnemonic language: {detected_lang.name} ({detected_lang.code})"
                 )
+                language_display = (
+                    f"Language: {detected_lang.name} ({detected_lang.code})"
+                )
+
+                # Validate with detected language
+                if not validate_mnemonic_checksum(mnemonic, detected_lang.bip_enum):
+                    logger.warning(
+                        f"Checksum validation failed for detected language {detected_lang.name}"
+                    )
+                    # Fall back to general validation
+                    if not validate_mnemonic_checksum(mnemonic):
+                        raise MnemonicError(
+                            "Input mnemonic failed checksum validation",
+                            context={"validation_type": "checksum"},
+                        )
+                else:
+                    logger.info(f"Checksum validation passed for {detected_lang.name}")
+            else:
+                logger.warning("Could not detect mnemonic language, assuming English")
+                language_display = "Language: English (en) - assumed"
+
+                # Validate with default (English) validation
+                if not validate_mnemonic_checksum(mnemonic):
+                    raise MnemonicError(
+                        "Input mnemonic failed checksum validation",
+                        context={"validation_type": "checksum"},
+                    )
 
             # Parse group configuration
             group_threshold, groups = parse_group_config(args.group)
@@ -112,20 +141,31 @@ Examples:
                 groups=groups,
             )
 
-            # Output shards
+            # Output shards with language information
             if args.output:
                 if args.separate:
-                    # Write to separate files (Phase 6 feature)
-                    file_paths = write_shards_to_separate_files(shards, args.output)
-                    logger.info("Shards written to %d separate files", len(file_paths))
-                    print(f"Shards written to {len(file_paths)} separate files:")
+                    # Write to separate files (Phase 6 feature) with language info
+                    shards_with_header = [
+                        f"# {language_display}\n{shard}" for shard in shards
+                    ]
+                    file_paths = write_shards_to_separate_files(
+                        shards_with_header, args.output
+                    )
+                    logger.info(
+                        "Shards written to %d separate files with language info",
+                        len(file_paths),
+                    )
+                    print(
+                        f"Shards with language info written to {len(file_paths)} separate files:"
+                    )
                     for file_path in file_paths:
                         print(f"  {file_path}")
                 else:
-                    # Write to single file
-                    write_shards_to_file(shards, args.output)
+                    # Write to single file with language info
+                    shards_with_header = [f"# {language_display}"] + shards
+                    write_shards_to_file(shards_with_header, args.output)
                     logger.info("Shards written to file: %s", args.output)
-                    print(f"Shards written to: {args.output}")
+                    print(f"Shards with language info written to: {args.output}")
             else:
                 if args.separate:
                     logger.warning("--separate flag ignored when outputting to stdout")
@@ -134,12 +174,13 @@ Examples:
                         file=sys.stderr,
                     )
 
-                # Output to stdout
+                # Output to stdout with language info
+                print(f"# {language_display}")
                 for i, shard in enumerate(shards, 1):
                     print(f"# Shard {i}")
                     print(shard)
                     print()  # Empty line between shards
-                logger.info("Shards written to stdout")
+                logger.info("Shards written to stdout with language info")
 
             return EXIT_SUCCESS
 

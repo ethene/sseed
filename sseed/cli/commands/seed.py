@@ -1,6 +1,6 @@
 """Seed command implementation.
 
-Derives master seeds from mnemonics using BIP-39.
+Derives master seeds from mnemonics using BIP-39 with automatic language detection.
 """
 
 import argparse
@@ -10,6 +10,7 @@ import sys
 from sseed.bip39 import generate_master_seed
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import MnemonicError
+from sseed.languages import detect_mnemonic_language
 from sseed.logging_config import get_logger
 from sseed.validation import validate_mnemonic_checksum
 
@@ -23,7 +24,7 @@ logger = get_logger(__name__)
 
 
 class SeedCommand(BaseCommand):
-    """Derive BIP-32 master seed from mnemonic with optional passphrase."""
+    """Derive BIP-32 master seed from mnemonic with optional passphrase and automatic language detection."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -31,7 +32,8 @@ class SeedCommand(BaseCommand):
             help_text="Derive BIP-32 master seed from mnemonic with optional passphrase",
             description=(
                 "Generate a BIP-32 master seed from a mnemonic phrase "
-                "using PBKDF2 key derivation with optional passphrase."
+                "using PBKDF2 key derivation with optional passphrase. "
+                "Automatically detects the mnemonic language."
             ),
         )
 
@@ -73,7 +75,7 @@ Examples:
 
     @handle_common_errors("seed derivation")
     def handle(self, args: argparse.Namespace) -> int:
-        """Handle the 'seed' command.
+        """Handle the 'seed' command with automatic language detection.
 
         Args:
             args: Parsed command-line arguments.
@@ -88,12 +90,39 @@ Examples:
             # Read mnemonic from input source
             mnemonic = self.handle_input(args)
 
-            # Validate mnemonic checksum (Phase 5 requirement)
-            if not validate_mnemonic_checksum(mnemonic):
-                raise MnemonicError(
-                    "Input mnemonic failed checksum validation",
-                    context={"validation_type": "checksum"},
+            # Auto-detect language of input mnemonic
+            detected_lang = detect_mnemonic_language(mnemonic)
+            if detected_lang:
+                logger.info(
+                    f"Detected mnemonic language: {detected_lang.name} ({detected_lang.code})"
                 )
+                language_display = (
+                    f"Language: {detected_lang.name} ({detected_lang.code})"
+                )
+
+                # Validate with detected language
+                if not validate_mnemonic_checksum(mnemonic, detected_lang.bip_enum):
+                    logger.warning(
+                        f"Checksum validation failed for detected language {detected_lang.name}"
+                    )
+                    # Fall back to general validation
+                    if not validate_mnemonic_checksum(mnemonic):
+                        raise MnemonicError(
+                            "Input mnemonic failed checksum validation",
+                            context={"validation_type": "checksum"},
+                        )
+                else:
+                    logger.info(f"Checksum validation passed for {detected_lang.name}")
+            else:
+                logger.warning("Could not detect mnemonic language, assuming English")
+                language_display = "Language: English (en) - assumed"
+
+                # Validate with default (English) validation
+                if not validate_mnemonic_checksum(mnemonic):
+                    raise MnemonicError(
+                        "Input mnemonic failed checksum validation",
+                        context={"validation_type": "checksum"},
+                    )
 
             # Handle passphrase
             if args.passphrase:
@@ -115,11 +144,13 @@ Examples:
             elif args.format == "binary":
                 # Output binary data directly (for piping to other tools)
                 if args.output:
-                    # Write binary to file
+                    # Write binary to file with language info comment
                     with open(args.output, "wb") as f:
+                        # Add language info as comment at the beginning for binary files
+                        f.write(f"# {language_display}\n".encode("utf-8"))
                         f.write(seed)
                     logger.info("Binary seed written to file: %s", args.output)
-                    print(f"Binary seed written to: {args.output}")
+                    print(f"Binary seed with language info written to: {args.output}")
                     return EXIT_SUCCESS
                 # Can't output binary to stdout safely, use hex instead
                 logger.warning("Binary format not supported for stdout, using hex")
@@ -129,14 +160,19 @@ Examples:
                     file=sys.stderr,
                 )
 
-            # Output seed (only for non-binary format)
+            # Output seed (only for non-binary format) with language info
             if args.output:
+                # Include language info in file output
+                output_content = f"# {language_display}\n{output}"
                 self.handle_output(
-                    output, args, success_message="BIP-32 seed written to: {file}"
+                    output_content,
+                    args,
+                    success_message="BIP-32 seed written to: {file}",
                 )
             else:
                 print(output)
-                logger.info("BIP-32 seed written to stdout")
+                print(f"# {language_display}")
+                logger.info("BIP-32 seed written to stdout with language info")
 
             return EXIT_SUCCESS
 
