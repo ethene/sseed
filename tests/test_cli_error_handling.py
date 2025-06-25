@@ -56,12 +56,21 @@ class TestCLIErrorHandling:
 
     def test_gen_entropy_error_handling(self):
         """Test gen command handling EntropyError."""
+        # Force the lazy loading to happen first by triggering import
+        # This ensures the module is loaded before we try to patch it
+        dummy_args = mock.MagicMock()
+        dummy_args.output = None
+        dummy_args.show_entropy = False
+
+        # Import the gen command to force module loading
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = None
         # Ensure all expected attributes are present for cross-version compatibility
         args.show_entropy = False
 
-        # Use more specific patching to ensure it works across Python versions
+        # Patch the function where it's actually used in the gen command module
         with patch(
             "sseed.cli.commands.gen.generate_mnemonic",
             side_effect=EntropyError("Entropy failure"),
@@ -73,6 +82,9 @@ class TestCLIErrorHandling:
 
     def test_gen_mnemonic_error_handling(self):
         """Test gen command handling MnemonicError."""
+        # Force the lazy loading to happen first
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = None
         args.show_entropy = False
@@ -87,6 +99,9 @@ class TestCLIErrorHandling:
 
     def test_gen_security_error_handling(self):
         """Test gen command handling SecurityError."""
+        # Force the lazy loading to happen first
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = None
         args.show_entropy = False
@@ -101,6 +116,9 @@ class TestCLIErrorHandling:
 
     def test_gen_validation_error_handling(self):
         """Test gen command handling ValidationError."""
+        # Force the lazy loading to happen first
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = None
         args.show_entropy = False
@@ -115,6 +133,9 @@ class TestCLIErrorHandling:
 
     def test_gen_file_error_handling(self):
         """Test gen command handling FileError."""
+        # Force the lazy loading to happen first
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = None
         args.show_entropy = False
@@ -129,6 +150,9 @@ class TestCLIErrorHandling:
 
     def test_gen_unexpected_error_handling(self):
         """Test gen command handling unexpected exceptions."""
+        # Force the lazy loading to happen first
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = None
         args.show_entropy = False
@@ -143,6 +167,9 @@ class TestCLIErrorHandling:
 
     def test_gen_checksum_validation_failure(self):
         """Test gen command when generated mnemonic fails checksum validation."""
+        # Force the lazy loading to happen first
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = None
         args.show_entropy = False
@@ -162,6 +189,9 @@ class TestCLIErrorHandling:
 
     def test_gen_file_write_error(self):
         """Test gen command when file writing fails."""
+        # Force the lazy loading to happen first
+        from sseed.cli.commands import gen
+
         args = mock.MagicMock()
         args.output = "/invalid/path/file.txt"
         args.show_entropy = False
