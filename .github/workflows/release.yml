@@ -78,36 +78,23 @@ jobs:
         echo "📦 Built packages:"
         ls -la dist/
 
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
+    - name: Create GitHub Release with assets
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.extract_version.outputs.tag_name }}
-        release_name: "Release ${{ steps.extract_version.outputs.version }}"
-        body_path: release_notes.md
-        draft: false
-        prerelease: false
-
-    - name: Upload wheel to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: dist/sseed-${{ steps.extract_version.outputs.version }}-py3-none-any.whl
-        asset_name: sseed-${{ steps.extract_version.outputs.version }}-py3-none-any.whl
-        asset_content_type: application/zip
-
-    - name: Upload source distribution to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: dist/sseed-${{ steps.extract_version.outputs.version }}.tar.gz
-        asset_name: sseed-${{ steps.extract_version.outputs.version }}.tar.gz
-        asset_content_type: application/gzip
+      run: |
+        VERSION="${{ steps.extract_version.outputs.version }}"
+        TAG_NAME="${{ steps.extract_version.outputs.tag_name }}"
+        
+        echo "🚀 Creating GitHub release for $TAG_NAME..."
+        
+        # Create release with assets using gh CLI
+        gh release create "$TAG_NAME" \
+          --title "Release $VERSION" \
+          --notes-file release_notes.md \
+          --draft=false \
+          --prerelease=false \
+          dist/sseed-${VERSION}-py3-none-any.whl \
+          dist/sseed-${VERSION}.tar.gz
 
     - name: Summary
       run: |
