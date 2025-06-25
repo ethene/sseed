@@ -1,6 +1,7 @@
 """Base command class for CLI architecture.
 
 Provides common functionality and patterns for all CLI commands.
+Optimized with lazy imports for better startup performance.
 """
 
 import argparse
@@ -10,23 +11,14 @@ from abc import (
 )
 from typing import Optional
 
-from sseed.bip39 import get_mnemonic_entropy
-from sseed.entropy import secure_delete_variable
-from sseed.file_operations import (
-    read_from_stdin,
-    read_mnemonic_from_file,
-    write_mnemonic_to_file,
-)
-from sseed.logging_config import get_logger
-
-logger = get_logger(__name__)
-
 
 class BaseCommand(ABC):
     """Base class for all CLI commands.
 
     Provides common functionality like input/output handling,
     argument parsing patterns, and secure memory cleanup.
+
+    Uses lazy imports to minimize startup overhead.
     """
 
     def __init__(self, name: str, help_text: str, description: str = ""):
@@ -70,6 +62,16 @@ class BaseCommand(ABC):
         Returns:
             Input content as string.
         """
+        # Lazy imports for better startup performance
+        from sseed.file_operations import (  # pylint: disable=import-outside-toplevel
+            read_from_stdin,
+            read_mnemonic_from_file,
+        )
+        from sseed.logging_config import (  # pylint: disable=import-outside-toplevel
+            get_logger,
+        )
+
+        logger = get_logger(__name__)
         input_file = getattr(args, input_arg, None)
 
         if input_file:
@@ -96,6 +98,15 @@ class BaseCommand(ABC):
             output_arg: Name of the output argument (default: "output").
             success_message: Optional success message to print.
         """
+        # Lazy imports for better startup performance
+        from sseed.file_operations import (  # pylint: disable=import-outside-toplevel
+            write_mnemonic_to_file,
+        )
+        from sseed.logging_config import (  # pylint: disable=import-outside-toplevel
+            get_logger,
+        )
+
+        logger = get_logger(__name__)
         output_file = getattr(args, output_arg, None)
 
         if output_file:
@@ -125,6 +136,19 @@ class BaseCommand(ABC):
         entropy_info = ""
 
         if getattr(args, "show_entropy", False):
+            # Lazy imports for better startup performance
+            from sseed.bip39 import (  # pylint: disable=import-outside-toplevel
+                get_mnemonic_entropy,
+            )
+            from sseed.entropy import (  # pylint: disable=import-outside-toplevel
+                secure_delete_variable,
+            )
+            from sseed.logging_config import (  # pylint: disable=import-outside-toplevel
+                get_logger,
+            )
+
+            logger = get_logger(__name__)
+
             try:
                 entropy_bytes = get_mnemonic_entropy(mnemonic)
                 entropy_hex = entropy_bytes.hex()
@@ -139,13 +163,13 @@ class BaseCommand(ABC):
                     try:
                         with open(output_file, "a", encoding="utf-8") as f:
                             f.write("\n" + entropy_info + "\n")
-                    except Exception as e:
+                    except Exception as e:  # pylint: disable=broad-exception-caught
                         logger.warning("Failed to write entropy to file: %s", e)
 
                 # Clean up entropy from memory
                 secure_delete_variable(entropy_bytes, entropy_hex)
 
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.warning("Failed to extract entropy for display: %s", e)
                 entropy_info = "# Entropy: <extraction failed>"
 

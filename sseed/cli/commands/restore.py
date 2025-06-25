@@ -88,7 +88,7 @@ Examples:
                     raise MnemonicError(
                         f"Failed to read shard file {shard_file}: {e}",
                         context={"file": shard_file, "error": str(e)},
-                    )
+                    ) from e
 
             logger.info("Read %d shards from %d files", len(shards), len(args.shards))
 

@@ -94,7 +94,7 @@ Repository: https://github.com/ethene/sseed
 
     # Add all registered commands
     for command_name, command_class in COMMANDS.items():
-        command_instance: BaseCommand = command_class()  # type: ignore
+        command_instance: BaseCommand = command_class()
 
         # Create subparser for this command using our custom parser class
         cmd_parser = subparsers.add_parser(
