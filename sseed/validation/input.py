@@ -1,7 +1,7 @@
 """Input normalization and format validation for sseed application.
 
 This module handles input processing, Unicode normalization, and format validation
-for BIP-39 mnemonics and filenames.
+for BIP-39 mnemonics and filenames with multi-language support.
 """
 
 import re
@@ -17,8 +17,10 @@ logger = get_logger(__name__)
 BIP39_WORD_COUNT = 2048
 BIP39_MNEMONIC_LENGTHS = [12, 15, 18, 21, 24]  # Valid mnemonic lengths
 
-# Regex patterns for validation
-MNEMONIC_WORD_PATTERN = re.compile(r"^[a-z]+$")
+# Multi-language word pattern: Unicode word characters excluding ASCII uppercase
+# This pattern accepts lowercase ASCII, Unicode letters, and combining marks
+# while rejecting ASCII uppercase letters (which are not in BIP-39 wordlists)
+MNEMONIC_WORD_PATTERN = re.compile(r"^(?![A-Z])[\w\u0300-\u036f]+$", re.UNICODE)
 
 
 def normalize_input(text: str) -> str:
@@ -63,51 +65,56 @@ def normalize_input(text: str) -> str:
 
 
 def validate_mnemonic_words(words: List[str]) -> None:
-    """Validate mnemonic word list format and structure.
+    """Validate mnemonic word format with multi-language Unicode support.
 
-    Validates that mnemonic words conform to BIP-39 requirements:
-    - Correct number of words (12, 15, 18, 21, or 24)
-    - All words are lowercase alphabetic
-    - No duplicate words
+    Validates that all words match expected BIP-39 format patterns including
+    support for Unicode characters in non-Latin scripts (Chinese, Korean)
+    and accented characters in Latin scripts (Spanish, French, etc.).
 
     Args:
         words: List of mnemonic words to validate.
 
     Raises:
-        ValidationError: If mnemonic words are invalid.
+        ValidationError: If any word fails format validation.
+
+    Example:
+        >>> # English words
+        >>> validate_mnemonic_words(['abandon', 'ability', 'able'])
+
+        >>> # Spanish words with accents
+        >>> validate_mnemonic_words(['ábaco', 'abdomen', 'abeja'])
+
+        >>> # Chinese words
+        >>> validate_mnemonic_words(['的', '一', '是'])
     """
-    if not isinstance(words, list):
+    if not words:
         raise ValidationError(
-            f"Mnemonic words must be a list, got {type(words).__name__}",
-            context={"input_type": type(words).__name__},
+            "Empty word list provided",
+            context={"word_count": 0},
         )
 
-    # Check word count
-    word_count = len(words)
-    if word_count not in BIP39_MNEMONIC_LENGTHS:
-        raise ValidationError(
-            f"Invalid mnemonic length: {word_count}. Must be one of {BIP39_MNEMONIC_LENGTHS}",
-            context={"word_count": word_count, "valid_lengths": BIP39_MNEMONIC_LENGTHS},
-        )
-
-    # Note: BIP-39 allows duplicate words, so we don't check for duplicates here
-    # The checksum validation will catch invalid mnemonics
-
-    # Validate each word format
     for i, word in enumerate(words):
         if not isinstance(word, str):
             raise ValidationError(
-                f"Word at position {i} is not a string: {type(word).__name__}",
-                context={"position": i, "word_type": type(word).__name__},
+                f"Word at position {i + 1} is not a string: {type(word).__name__}",
+                context={"position": i + 1, "word_type": type(word).__name__},
             )
 
-        if not MNEMONIC_WORD_PATTERN.match(word):
+        if not word:
             raise ValidationError(
-                f"Invalid word format at position {i}: '{word}'. Must be lowercase alphabetic.",
-                context={"position": i, "word": word},
+                f"Empty word at position {i + 1}",
+                context={"position": i + 1},
             )
 
-    logger.info("Successfully validated %d mnemonic words", word_count)
+        # Normalize the word for validation (handle combining characters)
+        normalized_word = unicodedata.normalize("NFKD", word.strip())
+
+        # Check against multi-language pattern
+        if not MNEMONIC_WORD_PATTERN.match(normalized_word):
+            raise ValidationError(
+                f"Invalid word format at position {i + 1}: '{word}'",
+                context={"position": i + 1, "word": word},
+            )
 
 
 def sanitize_filename(filename: str) -> str:

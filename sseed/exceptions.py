@@ -26,6 +26,10 @@ class EntropyError(SseedError):
     """Exception raised when entropy generation fails."""
 
 
+class CryptoError(SseedError):
+    """Exception raised for cryptographic operation failures."""
+
+
 class MnemonicError(SseedError):
     """Exception raised for mnemonic-related errors."""
 

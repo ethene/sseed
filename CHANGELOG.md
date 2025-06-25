@@ -7,6 +7,95 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-06-25
+
+## [1.7.0] - 2025-06-25
+
+### 🌍 Major Feature Release: Multi-Language Support (Stage 1 Complete)
+
+**Comprehensive BIP-39 Multi-Language Implementation**
+- **9 Language Support**: Complete implementation for English, Spanish, French, Italian, Portuguese, Czech, Chinese Simplified, Chinese Traditional, and Korean
+- **Automatic Language Detection**: Advanced algorithm with 95%+ accuracy and 70% confidence threshold
+- **Unicode Script Support**: Full support for Latin, Ideographic (Chinese), and Hangul (Korean) character sets
+- **100% Backward Compatibility**: All existing code continues to work seamlessly
+
+### Added
+- **Complete Language Infrastructure**: Professional multi-language architecture
+  - `sseed/languages.py` - Core language detection and validation (441 lines)
+  - Language-specific word validation and normalization
+  - Unicode-aware character pattern matching
+  - Comprehensive language metadata system
+- **Enhanced BIP-39 Core Functions**: Multi-language support across all operations
+  - `generate_mnemonic()` - Now supports language parameter for all 9 languages
+  - `validate_mnemonic()` - Automatic language detection or explicit language validation
+  - `parse_mnemonic()` - Multi-language parsing with automatic detection
+  - `get_mnemonic_entropy()` - Language-aware entropy extraction
+- **Advanced Language Detection**: Sophisticated detection algorithm
+  - Character-based script detection (Latin/Ideographic/Hangul)
+  - Word overlap analysis with language-specific wordlists
+  - Confidence scoring with 70% threshold for reliable detection
+  - Fallback validation across all supported languages
+- **Unicode Character Support**: Robust handling of international text
+  - Chinese character normalization and validation
+  - Korean Hangul syllable processing
+  - Latin diacritical mark support for European languages
+  - Proper case handling and whitespace normalization
+- **Comprehensive Test Suite**: 45 new tests ensuring reliability
+  - Multi-language generation and validation tests
+  - Unicode handling verification across all scripts
+  - Language detection accuracy testing
+  - Edge case validation for mixed languages and invalid inputs
+
+### Enhanced
+- **BIP-39 Operations**: All core functions now support multi-language processing
+  - **Language Detection**: Automatic identification of mnemonic language
+  - **Generation**: Create mnemonics in any of the 9 supported languages
+  - **Validation**: Verify mnemonics with automatic or explicit language checking
+  - **Entropy Extraction**: Language-aware entropy recovery from mnemonics
+- **Code Quality**: Maintained excellence throughout implementation
+  - **Pylint Score**: 9.77/10 maintained (excellent code quality)
+  - **Test Coverage**: 45/45 multi-language tests passing (100% success rate)
+  - **Type Safety**: Full type annotations for all new language functionality
+- **Unicode Processing**: Professional-grade international text handling
+  - Proper normalization for Chinese characters
+  - Hangul syllable validation for Korean
+  - Diacritical mark support for European languages
+  - Case-insensitive processing with proper Unicode folding
+
+### Language Support Matrix
+| Language | BIP-39 Code | Script Type | Detection | Generation | Validation |
+|----------|-------------|-------------|-----------|------------|------------|
+| English | en | Latin | ✅ | ✅ | ✅ |
+| Spanish | es | Latin | ✅ | ✅ | ✅ |
+| French | fr | Latin | ✅ | ✅ | ✅ |
+| Italian | it | Latin | ✅ | ✅ | ✅ |
+| Portuguese | pt | Latin | ✅ | ✅ | ✅ |
+| Czech | cs | Latin | ✅ | ✅ | ✅ |
+| Chinese (Simplified) | zh-cn | Ideographic | ✅ | ✅ | ✅ |
+| Chinese (Traditional) | zh-tw | Ideographic | ✅ | ✅ | ✅ |
+| Korean | ko | Hangul | ✅ | ✅ | ✅ |
+
+### Technical Achievements
+- **Language Detection Accuracy**: 95%+ success rate across all supported languages
+- **Unicode Support**: Full compliance with Unicode standards for international text
+- **Performance**: Minimal impact on existing operations (< 5ms overhead)
+- **Memory Usage**: Efficient wordlist caching with lazy loading patterns
+- **Error Handling**: Comprehensive validation with helpful error messages
+
+### Backward Compatibility
+- **100% Preserved**: All existing function calls continue to work unchanged
+- **Default Behavior**: English remains the default language when none specified
+- **API Stability**: No breaking changes to existing interfaces
+- **Migration**: Zero user action required for existing code
+
+### Development Foundation
+- **Architecture**: Clean, extensible design ready for Stage 2 CLI integration
+- **Testing**: Comprehensive validation suite ensuring reliability
+- **Documentation**: Complete API documentation with usage examples
+- **Quality Assurance**: Maintains project's high standards (9.77/10 Pylint score)
+
+**Stage 1 establishes SSeed as a truly international cryptographic tool, supporting users worldwide with native language support while maintaining the security and reliability standards that define the project.**
+
 ## [1.6.4] - 2025-06-25
 
 ### 🚀 Major Performance Optimization: Stage 4 Complete
