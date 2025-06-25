@@ -33,7 +33,7 @@ logger = get_logger(__name__)
 
 
 class ShardCommand(BaseCommand):
-    """Split mnemonic into SLIP-39 shards with group/threshold configuration and automatic language detection."""
+    """Split mnemonic into SLIP-39 shards with group/threshold config and language detection."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -101,7 +101,9 @@ Examples:
             detected_lang = detect_mnemonic_language(mnemonic)
             if detected_lang:
                 logger.info(
-                    f"Detected mnemonic language: {detected_lang.name} ({detected_lang.code})"
+                    "Detected mnemonic language: %s (%s)",
+                    detected_lang.name,
+                    detected_lang.code,
                 )
                 language_display = (
                     f"Language: {detected_lang.name} ({detected_lang.code})"
@@ -110,7 +112,8 @@ Examples:
                 # Validate with detected language
                 if not validate_mnemonic_checksum(mnemonic, detected_lang.bip_enum):
                     logger.warning(
-                        f"Checksum validation failed for detected language {detected_lang.name}"
+                        "Checksum validation failed for detected language %s",
+                        detected_lang.name,
                     )
                     # Fall back to general validation
                     if not validate_mnemonic_checksum(mnemonic):
@@ -119,7 +122,7 @@ Examples:
                             context={"validation_type": "checksum"},
                         )
                 else:
-                    logger.info(f"Checksum validation passed for {detected_lang.name}")
+                    logger.info("Checksum validation passed for %s", detected_lang.name)
             else:
                 logger.warning("Could not detect mnemonic language, assuming English")
                 language_display = "Language: English (en) - assumed"

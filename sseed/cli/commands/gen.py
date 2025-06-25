@@ -5,15 +5,10 @@ Generates secure BIP-39 mnemonics with multi-language support.
 
 import argparse
 
-from bip_utils import Bip39Languages
-
 from sseed.bip39 import generate_mnemonic
 from sseed.entropy import secure_delete_variable
 from sseed.exceptions import MnemonicError
-from sseed.languages import (
-    get_supported_languages,
-    validate_language_code,
-)
+from sseed.languages import validate_language_code
 from sseed.logging_config import get_logger
 from sseed.validation import validate_mnemonic_checksum
 
@@ -77,12 +72,14 @@ class GenCommand(BaseCommand):
         Returns:
             Exit code.
         """
-        logger.info(f"Starting mnemonic generation (language: {args.language})")
+        logger.info("Starting mnemonic generation (language: %s)", args.language)
 
         try:
             # Validate and get language information
             language_info = validate_language_code(args.language)
-            logger.info(f"Using language: {language_info.name} ({language_info.code})")
+            logger.info(
+                "Using language: %s (%s)", language_info.name, language_info.code
+            )
 
             # Generate the mnemonic with specified language
             mnemonic = generate_mnemonic(language_info.bip_enum)
@@ -125,7 +122,7 @@ class GenCommand(BaseCommand):
                 entropy_info = self.handle_entropy_display(mnemonic, args)
                 if entropy_info:
                     print(entropy_info)
-                logger.info(f"Mnemonic written to stdout in {language_info.name}")
+                logger.info("Mnemonic written to stdout in %s", language_info.name)
 
             return EXIT_SUCCESS
 
