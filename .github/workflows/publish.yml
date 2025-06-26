@@ -42,9 +42,14 @@ jobs:
 
     - name: Verify version consistency
       run: |
-        # Extract version from tag (remove 'v' prefix if present)
-        TAG_VERSION=${GITHUB_REF#refs/tags/}
-        TAG_VERSION=${TAG_VERSION#v}
+        # Extract version from tag (handle both release and manual dispatch)
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          TAG_VERSION="${{ inputs.tag }}"
+          TAG_VERSION=${TAG_VERSION#v}
+        else
+          TAG_VERSION=${GITHUB_REF#refs/tags/}
+          TAG_VERSION=${TAG_VERSION#v}
+        fi
         
         # Extract version from __init__.py
         CODE_VERSION=$(python -c "from sseed import __version__; print(__version__)")
