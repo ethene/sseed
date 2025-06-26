@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2025-06-26
+
 ## [1.8.0] - 2025-06-26
 
 ## [1.8.0] - 2024-12-19 - **BIP85 DETERMINISTIC ENTROPY GENERATION**
