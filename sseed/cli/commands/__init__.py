@@ -53,6 +53,13 @@ def _lazy_load_version_command() -> Type[BaseCommand]:
     return VersionCommand
 
 
+def _lazy_load_bip85_command() -> Type[BaseCommand]:
+    """Lazy load Bip85Command."""
+    from .bip85 import Bip85Command  # pylint: disable=import-outside-toplevel
+
+    return Bip85Command
+
+
 # Command registry with lazy loaders - maps command names to loader functions
 _COMMAND_LOADERS: Dict[str, Callable[[], Type[BaseCommand]]] = {
     "gen": _lazy_load_gen_command,
@@ -60,6 +67,7 @@ _COMMAND_LOADERS: Dict[str, Callable[[], Type[BaseCommand]]] = {
     "restore": _lazy_load_restore_command,
     "seed": _lazy_load_seed_command,
     "version": _lazy_load_version_command,
+    "bip85": _lazy_load_bip85_command,
 }
 
 # Cache for loaded commands to avoid repeated imports
@@ -78,6 +86,7 @@ class LazyCommandRegistry:
             "restore": self._load_restore_command,
             "seed": self._load_seed_command,
             "version": self._load_version_command,
+            "bip85": self._load_bip85_command,
         }
 
     def __getitem__(self, name: str) -> Any:
@@ -132,6 +141,12 @@ class LazyCommandRegistry:
 
         return VersionCommand
 
+    def _load_bip85_command(self) -> Any:
+        """Load the bip85 command class."""
+        from .bip85 import Bip85Command  # pylint: disable=import-outside-toplevel
+
+        return Bip85Command
+
 
 # Global command registry instance
 COMMANDS = LazyCommandRegistry()
@@ -183,6 +198,15 @@ def handle_version_command(args: Any) -> int:
     return _handler(args)
 
 
+def handle_bip85_command(args: Any) -> int:
+    """Lazy wrapper for bip85 command handler."""
+    from .bip85 import (
+        handle_bip85_command as _handler,  # pylint: disable=import-outside-toplevel
+    )
+
+    return _handler(args)
+
+
 # Backward compatibility - lazy class access
 def __getattr__(name: str) -> Any:
     """Support for direct class imports with lazy loading."""
@@ -199,6 +223,7 @@ __all__ = [
     "handle_restore_command",
     "handle_seed_command",
     "handle_version_command",
+    "handle_bip85_command",
     # Note: Command classes are available via __getattr__ for lazy loading
-    # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand", "VersionCommand"
+    # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand", "VersionCommand", "Bip85Command"
 ]
