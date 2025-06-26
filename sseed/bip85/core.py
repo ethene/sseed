@@ -357,7 +357,7 @@ def validate_master_seed_format(master_seed: bytes) -> Tuple[bool, str]:
         True
     """
     if not isinstance(master_seed, bytes):
-        return False, f"Master seed must be bytes, got {type(master_seed).__name__}"
+        return False, f"Master seed must be bytes, got {type(master_seed).__name__}"  # type: ignore[unreachable]
 
     if len(master_seed) != 64:
         return False, f"Master seed must be 64 bytes, got {len(master_seed)}"
@@ -395,6 +395,10 @@ def convert_hex_to_bytes(master_seed_str: str) -> bytes:
         raise Bip85ValidationError(
             "Master seed contains invalid hexadecimal characters",
             parameter="master_seed",
-            value=master_seed_str[:50] + "..." if len(master_seed_str) > 50 else master_seed_str,
+            value=(
+                master_seed_str[:50] + "..."
+                if len(master_seed_str) > 50
+                else master_seed_str
+            ),
             valid_range="Valid hexadecimal string (0-9, a-f, A-F)",
         ) from e

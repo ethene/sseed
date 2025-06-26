@@ -299,7 +299,8 @@ def calculate_entropy_bytes_needed(application: int, length: int) -> int:
                 value=length,
                 valid_range=f"One of {sorted(BIP39_VALID_WORD_COUNTS)}",
             )
-        return int(APPLICATION_ENTROPY_LENGTHS[39][length])
+        entropy_map = {12: 16, 15: 20, 18: 24, 21: 28, 24: 32}
+        return entropy_map[length]
 
     elif application in [2, 32]:  # HD-Seed WIF, XPRV
         return 64  # Always 512 bits = 64 bytes
