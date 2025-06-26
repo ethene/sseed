@@ -30,11 +30,11 @@ class TestCLIExamples(unittest.TestCase):
         # Test that output contains expected sections
         self.assertIn("🔐 SSeed Usage Examples", output)
         self.assertIn("📝 Basic Generation:", output)
-        self.assertIn("🔗 Sharding (SLIP-39):", output)
-        self.assertIn("🔄 Restoration:", output)
-        self.assertIn("🌱 Seed Derivation:", output)
+        self.assertIn("🔗 Sharding (SLIP-39) with Language Detection:", output)
+        self.assertIn("🔄 Restoration with Auto-Detection:", output)
+        self.assertIn("🌱 Seed Derivation with Language Detection:", output)
         self.assertIn("📋 Information:", output)
-        self.assertIn("🚀 Advanced Workflows:", output)
+        self.assertIn("🚀 Advanced Multi-Language Workflows:", output)
         self.assertIn("📚 Tips & Best Practices:", output)
 
         # Test specific commands are mentioned

@@ -40,14 +40,13 @@ class TestCLISeedCommand(unittest.TestCase):
         # Create output file path
         output_file = self.temp_dir / "test_seed.bin"
 
-        # Create mock args for binary format output to file
+        # Create mock args
         args = Mock()
         args.input = str(mnemonic_file)
         args.output = str(output_file)
         args.passphrase = False
         args.format = "binary"
 
-        # Run seed command
         command = SeedCommand()
         exit_code = command.handle(args)
 
@@ -55,12 +54,18 @@ class TestCLISeedCommand(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertTrue(output_file.exists())
 
-        # Verify binary file content
+        # Verify binary file content (now includes language info as UTF-8 header)
         with open(output_file, "rb") as f:
             seed_bytes = f.read()
 
-        self.assertEqual(len(seed_bytes), 64)  # BIP-32 seed should be 64 bytes
+        # File now contains language info header + 64-byte binary seed
+        # Language info line is approximately 25 bytes as UTF-8
+        self.assertGreater(len(seed_bytes), 64)  # Should be more than just the seed
         self.assertIsInstance(seed_bytes, bytes)
+
+        # The actual binary seed should be the last 64 bytes
+        actual_seed = seed_bytes[-64:]
+        self.assertEqual(len(actual_seed), 64)
 
     def test_seed_command_binary_format_to_stdout_fallback(self):
         """Test seed command with binary format to stdout (should fallback to hex)."""
@@ -89,8 +94,13 @@ class TestCLISeedCommand(unittest.TestCase):
         self.assertEqual(exit_code, 0)
 
         # Should output hex to stdout when binary is requested for stdout
-        output = captured_output.getvalue().strip()
-        self.assertEqual(len(output), 128)  # 64 bytes = 128 hex characters
+        # Now includes language info line
+        output_lines = captured_output.getvalue().strip().split("\n")
+        hex_output = output_lines[0]  # First line is the hex seed
+        language_line = output_lines[1]  # Second line is language info
+
+        self.assertEqual(len(hex_output), 128)  # 64 bytes = 128 hex characters
+        self.assertTrue(language_line.startswith("# Language:"))
 
         # Should warn about binary not supported for stdout
         error_output = captured_error.getvalue()
@@ -120,8 +130,14 @@ class TestCLISeedCommand(unittest.TestCase):
 
         # Check results
         self.assertEqual(exit_code, 0)
-        output = captured_output.getvalue().strip()
-        self.assertEqual(len(output), 128)  # 64 bytes = 128 hex characters
+
+        # Now includes language info line
+        output_lines = captured_output.getvalue().strip().split("\n")
+        hex_output = output_lines[0]  # First line is the hex seed
+        language_line = output_lines[1]  # Second line is language info
+
+        self.assertEqual(len(hex_output), 128)  # 64 bytes = 128 hex characters
+        self.assertTrue(language_line.startswith("# Language:"))
 
     def test_seed_command_hex_flag_backward_compatibility(self):
         """Test seed command with --hex flag for backward compatibility."""
@@ -145,8 +161,14 @@ class TestCLISeedCommand(unittest.TestCase):
 
         # Check results
         self.assertEqual(exit_code, 0)
-        output = captured_output.getvalue().strip()
-        self.assertEqual(len(output), 128)  # 64 bytes = 128 hex characters
+
+        # Now includes language info line
+        output_lines = captured_output.getvalue().strip().split("\n")
+        hex_output = output_lines[0]  # First line is the hex seed
+        language_line = output_lines[1]  # Second line is language info
+
+        self.assertEqual(len(hex_output), 128)  # 64 bytes = 128 hex characters
+        self.assertTrue(language_line.startswith("# Language:"))
 
     def test_seed_command_invalid_mnemonic_checksum(self):
         """Test seed command with invalid mnemonic checksum."""
@@ -197,9 +219,16 @@ class TestCLISeedCommand(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         mock_handle_output.assert_called_once()
 
-        # Verify the output content would be hex format
+        # Verify the output content would be hex format with language info
         call_args = mock_handle_output.call_args[0]
-        hex_output = call_args[0]
+        full_output = call_args[0]
+
+        # Output now includes language info header
+        output_lines = full_output.strip().split("\n")
+        language_line = output_lines[0]  # First line is language info comment
+        hex_output = output_lines[1]  # Second line is the hex seed
+
+        self.assertTrue(language_line.startswith("# Language:"))
         self.assertEqual(len(hex_output), 128)  # 64 bytes = 128 hex characters
 
     def test_seed_command_memory_cleanup_on_exception(self):
@@ -244,8 +273,14 @@ class TestCLISeedCommand(unittest.TestCase):
 
         # Check results
         self.assertEqual(exit_code, 0)
-        output = captured_output.getvalue().strip()
-        self.assertEqual(len(output), 128)  # 64 bytes = 128 hex characters
+
+        # Now includes language info line
+        output_lines = captured_output.getvalue().strip().split("\n")
+        hex_output = output_lines[0]  # First line is the hex seed
+        language_line = output_lines[1]  # Second line is language info
+
+        self.assertEqual(len(hex_output), 128)  # 64 bytes = 128 hex characters
+        self.assertTrue(language_line.startswith("# Language:"))
 
 
 if __name__ == "__main__":

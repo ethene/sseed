@@ -176,7 +176,8 @@ Examples:
                 # Display entropy info if showing entropy
                 if entropy_info:
                     print(
-                        f"Mnemonic with language info and entropy reconstructed and written to: {args.output}"
+                        f"Mnemonic with language info and entropy reconstructed "
+                        f"and written to: {args.output}"
                     )
                 else:
                     print(

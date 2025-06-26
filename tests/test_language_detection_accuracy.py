@@ -77,7 +77,10 @@ class TestLanguageDetectionAccuracy:
             "invalid words that are not in any wordlist",
             "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon",  # Too short
             "abandon " * 25,  # Too long
-            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",  # Invalid checksum
+            # Invalid checksum (24 words but wrong checksum)
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon "
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon "
+            "abandon about",
         ]
 
         for invalid_mnemonic in invalid_cases:

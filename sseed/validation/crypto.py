@@ -110,7 +110,7 @@ def validate_entropy_length(entropy: bytes) -> bool:
         True if entropy length is valid for BIP-39.
     """
     if not isinstance(entropy, bytes):
-        return False
+        return False  # type: ignore[unreachable]
 
     # BIP-39 supports entropy lengths: 128, 160, 192, 224, 256 bits
     valid_lengths = {16, 20, 24, 28, 32}  # bytes

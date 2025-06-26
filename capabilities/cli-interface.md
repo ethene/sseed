@@ -248,9 +248,25 @@ sseed gen [options]
 ```
 
 ### Options
+- `-l, --language CODE` - Language for mnemonic generation (default: en)
 - `-o, --output FILE` - Output file (default: stdout)
 - `--show-entropy` - Display the underlying entropy (hex) alongside the mnemonic
 - `-h, --help` - Show command help
+
+### Language Support
+SSeed supports all 9 official BIP-39 languages:
+
+| Code | Language | Script | Example |
+|------|----------|--------|---------|
+| `en` | English | Latin | abandon ability able... |
+| `es` | Spanish | Latin | ábaco abdomen abedul... |
+| `fr` | French | Latin | abaisser abandon abdiquer... |
+| `it` | Italian | Latin | abaco abbaglio abbinare... |
+| `pt` | Portuguese | Latin | abacate abalar abater... |
+| `cs` | Czech | Latin | abdikace abeceda adresa... |
+| `zh-cn` | Chinese (Simplified) | Ideographic | 的 一 是 在 不 了... |
+| `zh-tw` | Chinese (Traditional) | Ideographic | 的 一 是 在 不 了... |
+| `ko` | Korean | Hangul | 가격 가끔 가난 가능... |
 
 ### Usage Examples
 

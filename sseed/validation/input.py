@@ -65,17 +65,18 @@ def normalize_input(text: str) -> str:
 
 
 def validate_mnemonic_words(words: List[str]) -> None:
-    """Validate mnemonic word format with multi-language Unicode support.
+    """Validate mnemonic word format and length with multi-language Unicode support.
 
     Validates that all words match expected BIP-39 format patterns including
     support for Unicode characters in non-Latin scripts (Chinese, Korean)
     and accented characters in Latin scripts (Spanish, French, etc.).
+    Also validates that the mnemonic has a valid BIP-39 length.
 
     Args:
         words: List of mnemonic words to validate.
 
     Raises:
-        ValidationError: If any word fails format validation.
+        ValidationError: If any word fails format validation or length is invalid.
 
     Example:
         >>> # English words
@@ -87,10 +88,24 @@ def validate_mnemonic_words(words: List[str]) -> None:
         >>> # Chinese words
         >>> validate_mnemonic_words(['的', '一', '是'])
     """
+    if not isinstance(words, list):
+        raise ValidationError(
+            "Mnemonic words must be a list",
+            context={"input_type": type(words).__name__},
+        )
+
     if not words:
         raise ValidationError(
-            "Empty word list provided",
+            "Invalid mnemonic length: 0 words (must be 12, 15, 18, 21, or 24)",
             context={"word_count": 0},
+        )
+
+    # Validate mnemonic length
+    word_count = len(words)
+    if word_count not in BIP39_MNEMONIC_LENGTHS:
+        raise ValidationError(
+            f"Invalid mnemonic length: {word_count} words (must be 12, 15, 18, 21, or 24)",
+            context={"word_count": word_count, "valid_lengths": BIP39_MNEMONIC_LENGTHS},
         )
 
     for i, word in enumerate(words):

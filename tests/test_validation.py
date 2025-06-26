@@ -76,7 +76,7 @@ class TestMnemonicValidation:
         words = ["abandon"] * 11 + ["UPPERCASE"]  # Invalid format
         with pytest.raises(ValidationError) as exc_info:
             validate_mnemonic_words(words)
-        assert "Invalid word format at position 11" in str(exc_info.value)
+        assert "Invalid word format at position 12" in str(exc_info.value)
 
     def test_validate_mnemonic_words_not_list(self):
         """Test validation with non-list input."""

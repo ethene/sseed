@@ -281,6 +281,7 @@ def _calculate_language_score(
 
         # Primary scoring: BIP-39 validation (90% weight)
         # This is the most reliable indicator of language correctness
+        validation_score = 0.0
         try:
             validator = Bip39MnemonicValidator(lang_info.bip_enum)
             mnemonic_text = " ".join(words)
@@ -368,7 +369,7 @@ def detect_mnemonic_language(mnemonic: str) -> Optional[LanguageInfo]:
         'es'
     """
     if not isinstance(mnemonic, str):
-        logger.warning(
+        logger.warning(  # type: ignore[unreachable]
             "Invalid mnemonic type for language detection: %s", type(mnemonic)
         )
         return None
@@ -451,7 +452,7 @@ def validate_mnemonic_words_for_language(
 
     for word in words:
         if not isinstance(word, str):
-            return False
+            return False  # type: ignore[unreachable]
 
         # Relaxed script-based validation
         if language_info.script == "ideographic":

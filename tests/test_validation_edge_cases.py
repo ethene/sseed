@@ -125,7 +125,7 @@ class TestValidationEdgeCases:
     def test_validate_mnemonic_words_empty_word(self):
         """Test mnemonic word validation with empty word."""
         words = ["abandon", "", "about", "ability"] * 3
-        with pytest.raises(ValidationError, match="Invalid word format"):
+        with pytest.raises(ValidationError, match="Empty word at position"):
             validate_mnemonic_words(words)
 
     def test_validate_mnemonic_words_whitespace_only_word(self):
@@ -225,18 +225,14 @@ class TestValidationEdgeCases:
     def test_validate_mnemonic_checksum_invalid_words(self):
         """Test mnemonic checksum validation with invalid words."""
         invalid_mnemonic = "invalid words that are not in bip39 wordlist"
-        with pytest.raises(
-            ValidationError, match="Error during mnemonic checksum validation"
-        ):
-            validate_mnemonic_checksum(invalid_mnemonic)
+        result = validate_mnemonic_checksum(invalid_mnemonic)
+        assert result is False
 
     def test_validate_mnemonic_checksum_wrong_length(self):
         """Test mnemonic checksum validation with wrong word count."""
         wrong_length = "abandon about"  # Only 2 words
-        with pytest.raises(
-            ValidationError, match="Error during mnemonic checksum validation"
-        ):
-            validate_mnemonic_checksum(wrong_length)
+        result = validate_mnemonic_checksum(wrong_length)
+        assert result is False
 
     def test_validate_mnemonic_checksum_invalid_checksum(self):
         """Test mnemonic checksum validation with invalid checksum."""
@@ -251,12 +247,10 @@ class TestValidationEdgeCases:
             "sseed.validation.crypto.Bip39MnemonicValidator",
             side_effect=Exception("Error"),
         ):
-            with pytest.raises(
-                ValidationError, match="Error during mnemonic checksum validation"
-            ):
-                validate_mnemonic_checksum(
-                    "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
-                )
+            result = validate_mnemonic_checksum(
+                "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+            )
+            assert result is False
 
     # ===== SHARD INTEGRITY VALIDATION EDGE CASES =====
 

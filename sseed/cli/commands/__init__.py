@@ -12,7 +12,6 @@ from typing import (
     List,
     Tuple,
     Type,
-    Union,
 )
 
 from ..base import BaseCommand
@@ -48,9 +47,8 @@ def _lazy_load_seed_command() -> Type[BaseCommand]:
 
 def _lazy_load_version_command() -> Type[BaseCommand]:
     """Lazy load VersionCommand."""
-    from .version import (  # pylint: disable=import-outside-toplevel  # pylint: disable=import-outside-toplevel
-        VersionCommand,
-    )
+    # pylint: disable=import-outside-toplevel
+    from .version import VersionCommand
 
     return VersionCommand
 

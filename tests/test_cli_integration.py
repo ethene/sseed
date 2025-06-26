@@ -75,21 +75,26 @@ class TestCLIIntegration:
     def test_gen_command_with_show_entropy_stdout(self):
         """Test gen command with --show-entropy flag to stdout."""
         exit_code, stdout, stderr = self.run_sseed_command(
-            ["--log-level", "CRITICAL", "gen", "--show-entropy"]
+            ["--log-level", "ERROR", "gen", "--show-entropy"]
         )
 
         assert exit_code == 0
         # Note: stderr may contain status messages, which is expected
 
         lines = stdout.strip().split("\n")
-        assert len(lines) == 2
+        assert len(lines) == 3  # mnemonic, language info, entropy
 
         # First line should be the mnemonic (24 words)
         mnemonic_line = lines[0].strip()
         assert len(mnemonic_line.split()) == 24
 
-        # Second line should be entropy comment
-        entropy_line = lines[1].strip()
+        # Second line should be language info
+        language_line = lines[1].strip()
+        assert language_line.startswith("# Language: ")
+        assert "English (en)" in language_line
+
+        # Third line should be entropy comment
+        entropy_line = lines[2].strip()
         assert entropy_line.startswith("# Entropy: ")
         assert "32 bytes" in entropy_line
 
@@ -106,7 +111,7 @@ class TestCLIIntegration:
         )
 
         assert exit_code == 0
-        assert "Mnemonic and entropy written to:" in stdout
+        assert "Mnemonic with language info and entropy written to:" in stdout
         assert output_file.exists()
 
         # Read and verify file content
@@ -207,9 +212,13 @@ class TestCLIIntegration:
         with open(shards_file, "r") as f:
             content = f.read()
 
-        # Count shard references in comments
-        shard_count = content.count("# Shard")
-        assert shard_count == 3
+        # Count actual shard lines (non-comment lines)
+        shard_lines = [
+            line.strip()
+            for line in content.split("\n")
+            if line.strip() and not line.strip().startswith("#")
+        ]
+        assert len(shard_lines) == 3
 
     def test_error_handling_invalid_threshold(self):
         """Test CLI error handling with invalid threshold."""
@@ -461,14 +470,18 @@ class TestCLIIntegration:
         # Note: stderr may contain status messages, which is expected
 
         lines = stdout.strip().split("\n")
-        assert len(lines) == 2
+        assert len(lines) == 3  # mnemonic, language info, entropy
 
         # First line should be the restored mnemonic (24 words)
         mnemonic_line = lines[0].strip()
         assert len(mnemonic_line.split()) == 24
 
-        # Second line should be entropy comment
-        entropy_line = lines[1].strip()
+        # Second line should be language info
+        language_line = lines[1].strip()
+        assert language_line.startswith("# Language: ")
+
+        # Third line should be entropy comment
+        entropy_line = lines[2].strip()
         assert entropy_line.startswith("# Entropy: ")
         assert "32 bytes" in entropy_line
 
@@ -524,7 +537,10 @@ class TestCLIIntegration:
         )
 
         assert exit_code == 0, f"Restore failed with stderr: {stderr}"
-        assert "Mnemonic and entropy reconstructed and written to:" in stdout
+        assert (
+            "Mnemonic with language info and entropy reconstructed and written to:"
+            in stdout
+        )
         assert output_file.exists()
 
         # Read and verify file content
@@ -554,7 +570,8 @@ class TestCLIIntegration:
 
         lines = stdout.strip().split("\n")
         original_mnemonic = lines[0].strip()
-        original_entropy = lines[1].strip().split("# Entropy: ")[1].split(" (")[0]
+        # Now entropy is on the third line due to language info
+        original_entropy = lines[2].strip().split("# Entropy: ")[1].split(" (")[0]
 
         # Save mnemonic to file
         mnemonic_file = self.temp_dir / "original_mnemonic.txt"
@@ -594,7 +611,8 @@ class TestCLIIntegration:
 
         lines = stdout.strip().split("\n")
         restored_mnemonic = lines[0].strip()
-        restored_entropy = lines[1].strip().split("# Entropy: ")[1].split(" (")[0]
+        # Now entropy is on the third line due to language info
+        restored_entropy = lines[2].strip().split("# Entropy: ")[1].split(" (")[0]
 
         # Verify consistency
         assert original_mnemonic == restored_mnemonic

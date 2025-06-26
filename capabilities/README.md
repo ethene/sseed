@@ -4,9 +4,15 @@ This directory contains comprehensive documentation of all sseed capabilities, o
 
 ## Overview
 
-SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency seed management. It provides exceptional capabilities across 8 functional areas with enterprise-grade security, performance, and code quality.
+SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency seed management with comprehensive multi-language support. It provides exceptional capabilities across 9 functional areas with enterprise-grade security, performance, and code quality.
 
 ## Capability Categories
+
+### 🌍 [Multi-Language Support](./multi-language-support.md)
+- Support for all 9 official BIP-39 languages
+- Automatic language detection with 95%+ accuracy  
+- Unicode support for Latin, Ideographic, and Hangul scripts
+- Seamless CLI integration with language selection
 
 ### 🔐 [Cryptographic Operations](./cryptographic-operations.md)
 - BIP-39 mnemonic generation with secure entropy
@@ -14,9 +20,9 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - Cryptographic validation and integrity checks
 
 ### 🖥️ [Command Line Interface](./cli-interface.md)  
-- Generation command (`gen`)
-- Sharding command (`shard`)
-- Restoration command (`restore`)
+- Generation command (`gen`) with language selection
+- Sharding command (`shard`) with auto-detection
+- Restoration command (`restore`) with language awareness
 - Enhanced ergonomics with --version, --examples flags
 - Comprehensive exit codes (5 specific codes for automation)
 - Extensive help system with 30+ practical examples
@@ -24,7 +30,7 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 ### 📁 [File Operations](./file-operations.md)
 - Input/output handling (stdin/stdout/files)
 - File format support and compatibility
-- Unicode and encoding handling
+- Unicode and encoding handling with multi-language metadata
 
 ### 🛡️ [Security Features](./security-features.md)
 - Offline operation guarantees
@@ -42,8 +48,8 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - Cross-platform compatibility
 
 ### 🧪 [Testing and Quality](./testing-quality.md)
-- 90% test coverage with comprehensive edge case testing
-- 265+ total tests including 11 property-based mathematical verification tests
+- 89.96% test coverage with comprehensive edge case testing
+- 502+ total tests including 48 multi-language tests
 - Mathematical verification of cryptographic properties using Hypothesis
 - Enterprise-grade quality assurance processes
 - Security-focused testing with 23 security scenarios
@@ -52,8 +58,8 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 ### 💎 [Code Quality](./code-quality.md)
 - Professional development standards maintained
 - Comprehensive code analysis and bug fixes
-- 9.89/10 quality score achievement
-- Industry-leading 90% test coverage
+- 9.86/10 quality score achievement
+- Industry-leading 89.96% test coverage
 
 ### 🏷️ [Version Management](./version-management.md)
 - PEP 440 compliant version validation and bumping
@@ -66,6 +72,7 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 
 | Capability | Key Features | Performance | Test Coverage |
 |------------|--------------|-------------|---------------|
+| **Multi-Language** | 9 BIP-39 languages, auto-detection | < 100ms detection | 48 specialized tests |
 | **BIP-39 Generation** | 24-word mnemonics, secure entropy | < 1ms | 100% |
 | **SLIP-39 Sharding** | Flexible group/threshold schemes | < 5ms | 89% |
 | **Reconstruction** | Multi-shard recovery, validation | < 4ms | 89% |

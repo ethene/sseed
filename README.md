@@ -4,15 +4,16 @@
 [![CI Status](https://github.com/ethene/sseed/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/ethene/sseed/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/sseed.svg)](https://pypi.org/project/sseed/)
-[![Test Coverage](https://img.shields.io/badge/coverage-87.0%25-brightgreen.svg)](https://github.com/ethene/sseed)
+[![Test Coverage](https://img.shields.io/badge/coverage-89.96%25-brightgreen.svg)](https://github.com/ethene/sseed)
 [![Code Quality](https://img.shields.io/badge/pylint-9.86%2F10-brightgreen.svg)](https://github.com/ethene/sseed)
 
-**Secure, offline BIP39/SLIP39 cryptocurrency seed management with mathematical verification**
+**Secure, offline BIP39/SLIP39 cryptocurrency seed management with multi-language support**
 
 ---
 
 ## ✨ Features
 
+- 🌍 **Multi-Language BIP-39 Support** - Generate and restore mnemonics in 9 languages with automatic detection
 - 🔐 **Generate secure 24-word BIP-39 mnemonics** with cryptographically secure entropy
 - 🌱 **Generate master seeds from mnemonics** using PBKDF2-HMAC-SHA512 per BIP-39 specification
 - 🔄 **Split secrets using SLIP-39** with flexible group/threshold configurations
@@ -25,9 +26,33 @@
 - 📦 **Zero dependencies** - self-contained, easy deployment
 - 🌍 **Cross-platform** - macOS, Linux, Windows compatibility
 
+## 🌍 Multi-Language Support
+
+SSeed supports all 9 official BIP-39 languages with automatic detection:
+
+| Language | Code | Script | Example |
+|----------|------|--------|---------|
+| **English** | `en` | Latin | `abandon ability able...` |
+| **Spanish** | `es` | Latin | `ábaco abdomen abedul...` |
+| **French** | `fr` | Latin | `abaisser abandon abdiquer...` |
+| **Italian** | `it` | Latin | `abaco abbaglio abbinare...` |
+| **Portuguese** | `pt` | Latin | `abacate abalar abater...` |
+| **Czech** | `cs` | Latin | `abdikace abeceda adresa...` |
+| **Chinese (Simplified)** | `zh-cn` | Ideographic | `的 一 是 在 不 了...` |
+| **Chinese (Traditional)** | `zh-tw` | Ideographic | `的 一 是 在 不 了...` |
+| **Korean** | `ko` | Hangul | `가격 가끔 가난 가능...` |
+
+### Language Features
+- ✅ **Automatic Detection** - Identifies mnemonic language with 95%+ accuracy
+- ✅ **Unicode Support** - Full support for international character sets
+- ✅ **Generate in Any Language** - Use `--language/-l` flag for generation
+- ✅ **Seamless Recovery** - Auto-detects language during restore operations
+- ✅ **100% Backward Compatible** - English remains default, existing code unchanged
+
 ## ✨ Key Features
 
 - **🔐 Secure Generation**: 24-word BIP-39 mnemonics using cryptographic entropy
+- **🌍 Multi-Language**: Generate and restore in 9 languages with auto-detection
 - **🧩 SLIP-39 Sharding**: Split mnemonics into threshold-based secret shares
 - **🔄 Perfect Recovery**: Reconstruct original mnemonics from sufficient shards
 - **🌱 Master Seed Generation**: BIP-39 compliant PBKDF2-HMAC-SHA512 seed derivation
@@ -35,7 +60,7 @@
 - **⚡ Cross-Tool Compatibility**: Full interoperability with official Trezor SLIP-39 CLI
 - **🛡️ Security First**: Memory cleanup, input validation, and comprehensive error handling
 - **📁 Flexible I/O**: File operations, stdin/stdout, and batch processing support
-- **🧪 Battle Tested**: 331 comprehensive tests with 87% code coverage
+- **🧪 Battle Tested**: 502 comprehensive tests with 89.96% code coverage
 
 ## 🚀 Quick Install
 

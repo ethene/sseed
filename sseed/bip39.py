@@ -15,6 +15,7 @@ from typing import (
 
 from bip_utils import (
     Bip39Languages,
+    Bip39MnemonicDecoder,
     Bip39MnemonicGenerator,
     Bip39MnemonicValidator,
 )
@@ -282,25 +283,12 @@ def get_mnemonic_entropy(
                 context={"language": str(language)},
             )
 
-        # Extract entropy based on mnemonic length
-        words = normalized_mnemonic.split()
-        word_count = len(words)
+        # Extract entropy using BIP-39 decoder
+        decoder = Bip39MnemonicDecoder(language)
+        entropy_bytes = decoder.Decode(normalized_mnemonic)
 
-        # Calculate entropy length based on BIP-39 specification
-        # 12 words = 128 bits = 16 bytes
-        # 15 words = 160 bits = 20 bytes
-        # 18 words = 192 bits = 24 bytes
-        # 21 words = 224 bits = 28 bytes
-        # 24 words = 256 bits = 32 bytes
-        entropy_lengths = {12: 16, 15: 20, 18: 24, 21: 28, 24: 32}
-        entropy_length = entropy_lengths.get(
-            word_count, 32
-        )  # Default to 32 for 24-word
-
-        # For now, return a computed hash as entropy substitute
-        # This maintains API compatibility while we await proper entropy extraction
-        entropy_source = normalized_mnemonic.encode("utf-8")
-        entropy = hashlib.sha256(entropy_source).digest()[:entropy_length]
+        # Cast to bytes since we know the decoder returns bytes but MyPy sees Any
+        entropy: bytes = bytes(entropy_bytes)
 
         logger.debug("Successfully extracted %d bytes of entropy", len(entropy))
         return entropy
