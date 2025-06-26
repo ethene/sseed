@@ -32,9 +32,9 @@ class TestCLIExamples(unittest.TestCase):
         self.assertIn("📝 Basic Generation:", output)
         self.assertIn("🔗 Sharding (SLIP-39) with Language Detection:", output)
         self.assertIn("🔄 Restoration with Auto-Detection:", output)
-        self.assertIn("🌱 Seed Derivation with Language Detection:", output)
+        self.assertIn("🌱 Master Seed Generation (BIP-39 → BIP-32):", output)
         self.assertIn("📋 Information:", output)
-        self.assertIn("🚀 Advanced Multi-Language Workflows:", output)
+        self.assertIn("🚀 Complete Multi-Language Workflows:", output)
         self.assertIn("📚 Tips & Best Practices:", output)
 
         # Test specific commands are mentioned

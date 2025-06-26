@@ -13,9 +13,18 @@ from unittest.mock import patch
 import pytest
 from bip_utils import Bip39Languages
 
-from sseed.bip39 import generate_mnemonic, validate_mnemonic
-from sseed.cli.commands.bip85 import Bip85Command, handle_bip85_command
-from sseed.exceptions import CryptoError, MnemonicError
+from sseed.bip39 import (
+    generate_mnemonic,
+    validate_mnemonic,
+)
+from sseed.cli.commands.bip85 import (
+    Bip85Command,
+    handle_bip85_command,
+)
+from sseed.exceptions import (
+    CryptoError,
+    MnemonicError,
+)
 
 
 class TestBip85CliBasic:
@@ -33,10 +42,13 @@ class TestBip85CliBasic:
         cmd = Bip85Command()
         parser = argparse.ArgumentParser()
         cmd.add_arguments(parser)
-        
+
         # Test that subparsers were created by checking for SubParsersAction
-        subparsers_actions = [action for action in parser._actions 
-                             if action.__class__.__name__ == '_SubParsersAction']
+        subparsers_actions = [
+            action
+            for action in parser._actions
+            if action.__class__.__name__ == "_SubParsersAction"
+        ]
         assert len(subparsers_actions) == 1
         subparsers_action = subparsers_actions[0]
         assert "bip39" in subparsers_action.choices
@@ -69,7 +81,7 @@ class TestBip85CliBip39:
     @pytest.fixture
     def temp_file(self):
         """Create a temporary file for testing."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
             temp_path = Path(f.name)
         yield temp_path
         temp_path.unlink(missing_ok=True)
@@ -77,10 +89,12 @@ class TestBip85CliBip39:
     def test_bip39_generation_default_options(self, master_mnemonic):
         """Test BIP39 generation with default options."""
         cmd = Bip85Command()
-        
+
         # Mock stdin to provide master mnemonic
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print') as mock_print:
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print") as mock_print:
                 args = argparse.Namespace(
                     application="bip39",
                     input=None,
@@ -88,17 +102,19 @@ class TestBip85CliBip39:
                     words=12,
                     language="en",
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 0
-                
+
                 # Check that output was printed
                 assert mock_print.call_count >= 2  # mnemonic + metadata
-                
+
                 # Verify the generated mnemonic is valid
-                output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                output_calls = [
+                    call[0][0] for call in mock_print.call_args_list if call[0]
+                ]
                 mnemonic_output = output_calls[0]  # First output should be the mnemonic
                 assert validate_mnemonic(mnemonic_output)
 
@@ -106,10 +122,12 @@ class TestBip85CliBip39:
         """Test BIP39 generation in different languages."""
         cmd = Bip85Command()
         languages = ["en", "es", "fr", "it"]
-        
+
         for lang in languages:
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="bip39",
                         input=None,
@@ -117,12 +135,12 @@ class TestBip85CliBip39:
                         words=12,
                         language=lang,
                         index=0,
-                        passphrase=""
+                        passphrase="",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Verify output exists
                     assert mock_print.call_count >= 2
 
@@ -130,10 +148,12 @@ class TestBip85CliBip39:
         """Test BIP39 generation with different word counts."""
         cmd = Bip85Command()
         word_counts = [12, 15, 18, 21, 24]
-        
+
         for count in word_counts:
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="bip39",
                         input=None,
@@ -141,23 +161,27 @@ class TestBip85CliBip39:
                         words=count,
                         language="en",
                         index=0,
-                        passphrase=""
+                        passphrase="",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Verify the generated mnemonic has correct word count
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     mnemonic_output = output_calls[0]
                     assert len(mnemonic_output.split()) == count
 
     def test_bip39_file_output(self, master_mnemonic, temp_file):
         """Test BIP39 generation with file output."""
         cmd = Bip85Command()
-        
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print') as mock_print:
+
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print") as mock_print:
                 args = argparse.Namespace(
                     application="bip39",
                     input=None,
@@ -165,15 +189,17 @@ class TestBip85CliBip39:
                     words=12,
                     language="en",
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 0
-                
+
                 # Check that success message was printed
-                assert any("written to" in str(call) for call in mock_print.call_args_list)
-                
+                assert any(
+                    "written to" in str(call) for call in mock_print.call_args_list
+                )
+
                 # Verify file was created and contains valid content
                 assert temp_file.exists()
                 content = temp_file.read_text()
@@ -183,9 +209,11 @@ class TestBip85CliBip39:
     def test_bip39_with_passphrase(self, master_mnemonic):
         """Test BIP39 generation with passphrase."""
         cmd = Bip85Command()
-        
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print') as mock_print:
+
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print") as mock_print:
                 args = argparse.Namespace(
                     application="bip39",
                     input=None,
@@ -193,12 +221,12 @@ class TestBip85CliBip39:
                     words=12,
                     language="en",
                     index=0,
-                    passphrase="test123"
+                    passphrase="test123",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 0
-                
+
                 # Verify output exists
                 assert mock_print.call_count >= 2
 
@@ -206,10 +234,12 @@ class TestBip85CliBip39:
         """Test BIP39 generation with different indices produces different results."""
         cmd = Bip85Command()
         results = []
-        
+
         for index in [0, 1, 42]:
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="bip39",
                         input=None,
@@ -217,17 +247,19 @@ class TestBip85CliBip39:
                         words=12,
                         language="en",
                         index=index,
-                        passphrase=""
+                        passphrase="",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Extract the mnemonic from output
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     mnemonic_output = output_calls[0]
                     results.append(mnemonic_output)
-        
+
         # Verify all results are different
         assert len(set(results)) == len(results)
 
@@ -243,9 +275,11 @@ class TestBip85CliHex:
     def test_hex_generation_default_options(self, master_mnemonic):
         """Test hex generation with default options."""
         cmd = Bip85Command()
-        
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print') as mock_print:
+
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print") as mock_print:
                 args = argparse.Namespace(
                     application="hex",
                     input=None,
@@ -253,24 +287,28 @@ class TestBip85CliHex:
                     bytes=32,
                     uppercase=False,
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 0
-                
+
                 # Verify hex output
-                output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                output_calls = [
+                    call[0][0] for call in mock_print.call_args_list if call[0]
+                ]
                 hex_output = output_calls[0]
                 assert len(hex_output) == 64  # 32 bytes * 2 chars
-                assert all(c in '0123456789abcdef' for c in hex_output)
+                assert all(c in "0123456789abcdef" for c in hex_output)
 
     def test_hex_generation_uppercase(self, master_mnemonic):
         """Test hex generation with uppercase option."""
         cmd = Bip85Command()
-        
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print') as mock_print:
+
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print") as mock_print:
                 args = argparse.Namespace(
                     application="hex",
                     input=None,
@@ -278,26 +316,30 @@ class TestBip85CliHex:
                     bytes=32,
                     uppercase=True,
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 0
-                
+
                 # Verify uppercase hex output
-                output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                output_calls = [
+                    call[0][0] for call in mock_print.call_args_list if call[0]
+                ]
                 hex_output = output_calls[0]
                 assert len(hex_output) == 64
-                assert all(c in '0123456789ABCDEF' for c in hex_output)
+                assert all(c in "0123456789ABCDEF" for c in hex_output)
 
     def test_hex_generation_different_byte_lengths(self, master_mnemonic):
         """Test hex generation with different byte lengths."""
         cmd = Bip85Command()
         byte_lengths = [16, 24, 32, 48, 64]
-        
+
         for length in byte_lengths:
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="hex",
                         input=None,
@@ -305,24 +347,28 @@ class TestBip85CliHex:
                         bytes=length,
                         uppercase=False,
                         index=0,
-                        passphrase=""
+                        passphrase="",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Verify correct hex length
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     hex_output = output_calls[0]
                     assert len(hex_output) == length * 2
 
     def test_hex_validation_errors(self, master_mnemonic):
         """Test hex generation with invalid byte counts."""
         cmd = Bip85Command()
-        
+
         # Test invalid byte count (too small)
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print'):
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print"):
                 args = argparse.Namespace(
                     application="hex",
                     input=None,
@@ -330,9 +376,9 @@ class TestBip85CliHex:
                     bytes=8,  # Too small
                     uppercase=False,
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 2  # EXIT_VALIDATION_ERROR
 
@@ -348,9 +394,11 @@ class TestBip85CliPassword:
     def test_password_generation_default_options(self, master_mnemonic):
         """Test password generation with default options."""
         cmd = Bip85Command()
-        
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print') as mock_print:
+
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print") as mock_print:
                 args = argparse.Namespace(
                     application="password",
                     input=None,
@@ -358,14 +406,16 @@ class TestBip85CliPassword:
                     length=20,
                     charset="base64",
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 0
-                
+
                 # Verify password output
-                output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                output_calls = [
+                    call[0][0] for call in mock_print.call_args_list if call[0]
+                ]
                 password_output = output_calls[0]
                 assert len(password_output) == 20
 
@@ -373,10 +423,12 @@ class TestBip85CliPassword:
         """Test password generation with different character sets."""
         cmd = Bip85Command()
         charsets = ["base64", "base85", "alphanumeric", "ascii"]
-        
+
         for charset in charsets:
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="password",
                         input=None,
@@ -384,14 +436,16 @@ class TestBip85CliPassword:
                         length=20,
                         charset=charset,
                         index=0,
-                        passphrase=""
+                        passphrase="",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Verify password exists
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     password_output = output_calls[0]
                     assert len(password_output) == 20
 
@@ -399,10 +453,12 @@ class TestBip85CliPassword:
         """Test password generation with different lengths."""
         cmd = Bip85Command()
         lengths = [10, 15, 25, 50, 100]
-        
+
         for length in lengths:
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="password",
                         input=None,
@@ -410,24 +466,28 @@ class TestBip85CliPassword:
                         length=length,
                         charset="base64",
                         index=0,
-                        passphrase=""
+                        passphrase="",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Verify correct password length
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     password_output = output_calls[0]
                     assert len(password_output) == length
 
     def test_password_validation_errors(self, master_mnemonic):
         """Test password generation with invalid lengths."""
         cmd = Bip85Command()
-        
+
         # Test invalid length (too small)
-        with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-            with patch('builtins.print'):
+        with patch(
+            "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+        ):
+            with patch("builtins.print"):
                 args = argparse.Namespace(
                     application="password",
                     input=None,
@@ -435,9 +495,9 @@ class TestBip85CliPassword:
                     length=5,  # Too small
                     charset="base64",
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 2  # EXIT_VALIDATION_ERROR
 
@@ -448,9 +508,12 @@ class TestBip85CliErrorHandling:
     def test_invalid_master_mnemonic(self):
         """Test handling of invalid master mnemonic."""
         cmd = Bip85Command()
-        
-        with patch('sseed.file_operations.read_from_stdin', return_value="invalid mnemonic words"):
-            with patch('builtins.print') as mock_print:
+
+        with patch(
+            "sseed.file_operations.read_from_stdin",
+            return_value="invalid mnemonic words",
+        ):
+            with patch("builtins.print") as mock_print:
                 args = argparse.Namespace(
                     application="bip39",
                     input=None,
@@ -458,42 +521,42 @@ class TestBip85CliErrorHandling:
                     words=12,
                     language="en",
                     index=0,
-                    passphrase=""
+                    passphrase="",
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 2  # EXIT_VALIDATION_ERROR
-                
+
                 # Check that error message was printed
-                error_printed = any("Invalid master mnemonic" in str(call) for call in mock_print.call_args_list)
+                error_printed = any(
+                    "Invalid master mnemonic" in str(call)
+                    for call in mock_print.call_args_list
+                )
                 assert error_printed
 
     def test_unknown_application(self):
         """Test handling of unknown application."""
         cmd = Bip85Command()
-        
-        with patch('sseed.file_operations.read_from_stdin', return_value=generate_mnemonic(Bip39Languages.ENGLISH)):
-            with patch('builtins.print'):
+
+        with patch(
+            "sseed.file_operations.read_from_stdin",
+            return_value=generate_mnemonic(Bip39Languages.ENGLISH),
+        ):
+            with patch("builtins.print"):
                 args = argparse.Namespace(
-                    application="unknown",
-                    input=None,
-                    output=None
+                    application="unknown", input=None, output=None
                 )
-                
+
                 result = cmd.handle(args)
                 assert result == 2  # EXIT_VALIDATION_ERROR
 
     def test_metadata_generation(self):
         """Test metadata comment generation."""
         cmd = Bip85Command()
-        
+
         # Test BIP39 metadata
         args = argparse.Namespace(
-            application="bip39",
-            words=24,
-            language="es",
-            index=5,
-            passphrase="test"
+            application="bip39", words=24, language="es", index=5, passphrase="test"
         )
         metadata = cmd._generate_metadata_comment(args)
         assert "BIP85 BIP39 Generation" in metadata
@@ -501,14 +564,10 @@ class TestBip85CliErrorHandling:
         assert "Language: es" in metadata
         assert "Index: 5" in metadata
         assert "Passphrase: yes" in metadata
-        
+
         # Test hex metadata
         args = argparse.Namespace(
-            application="hex",
-            bytes=48,
-            uppercase=True,
-            index=10,
-            passphrase=""
+            application="hex", bytes=48, uppercase=True, index=10, passphrase=""
         )
         metadata = cmd._generate_metadata_comment(args)
         assert "BIP85 HEX Generation" in metadata
@@ -516,14 +575,10 @@ class TestBip85CliErrorHandling:
         assert "Format: uppercase" in metadata
         assert "Index: 10" in metadata
         assert "Passphrase: no" in metadata
-        
+
         # Test password metadata
         args = argparse.Namespace(
-            application="password",
-            length=30,
-            charset="ascii",
-            index=15,
-            passphrase=""
+            application="password", length=30, charset="ascii", index=15, passphrase=""
         )
         metadata = cmd._generate_metadata_comment(args)
         assert "BIP85 PASSWORD Generation" in metadata
@@ -544,11 +599,13 @@ class TestBip85CliDeterministic:
         """Test that same inputs produce same BIP39 output."""
         cmd = Bip85Command()
         results = []
-        
+
         # Generate the same output twice
         for _ in range(2):
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="bip39",
                         input=None,
@@ -556,16 +613,18 @@ class TestBip85CliDeterministic:
                         words=15,
                         language="fr",
                         index=42,
-                        passphrase="test123"
+                        passphrase="test123",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Extract output
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     results.append(output_calls[0])
-        
+
         # Verify outputs are identical
         assert results[0] == results[1]
 
@@ -573,11 +632,13 @@ class TestBip85CliDeterministic:
         """Test that same inputs produce same hex output."""
         cmd = Bip85Command()
         results = []
-        
+
         # Generate the same output twice
         for _ in range(2):
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="hex",
                         input=None,
@@ -585,16 +646,18 @@ class TestBip85CliDeterministic:
                         bytes=24,
                         uppercase=True,
                         index=123,
-                        passphrase="secret"
+                        passphrase="secret",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Extract output
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     results.append(output_calls[0])
-        
+
         # Verify outputs are identical
         assert results[0] == results[1]
 
@@ -602,11 +665,13 @@ class TestBip85CliDeterministic:
         """Test that same inputs produce same password output."""
         cmd = Bip85Command()
         results = []
-        
+
         # Generate the same output twice
         for _ in range(2):
-            with patch('sseed.file_operations.read_from_stdin', return_value=master_mnemonic):
-                with patch('builtins.print') as mock_print:
+            with patch(
+                "sseed.file_operations.read_from_stdin", return_value=master_mnemonic
+            ):
+                with patch("builtins.print") as mock_print:
                     args = argparse.Namespace(
                         application="password",
                         input=None,
@@ -614,15 +679,17 @@ class TestBip85CliDeterministic:
                         length=35,
                         charset="base85",
                         index=999,
-                        passphrase="complex_pass"
+                        passphrase="complex_pass",
                     )
-                    
+
                     result = cmd.handle(args)
                     assert result == 0
-                    
+
                     # Extract output
-                    output_calls = [call[0][0] for call in mock_print.call_args_list if call[0]]
+                    output_calls = [
+                        call[0][0] for call in mock_print.call_args_list if call[0]
+                    ]
                     results.append(output_calls[0])
-        
+
         # Verify outputs are identical
-        assert results[0] == results[1] 
+        assert results[0] == results[1]

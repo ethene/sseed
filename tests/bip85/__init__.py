@@ -1,1 +1,1 @@
-"""BIP85 test module initialization.""" 
+"""BIP85 test module initialization."""

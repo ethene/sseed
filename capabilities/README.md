@@ -19,6 +19,13 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - SLIP-39 secret sharing and reconstruction
 - Cryptographic validation and integrity checks
 
+### 🎯 [BIP85 Deterministic Entropy](./bip85-deterministic-entropy.md)
+- Generate unlimited child wallets from single master seed
+- Multi-language BIP39 mnemonic derivation (9 languages)
+- Hex entropy generation for key material (16-64 bytes)
+- Password generation with multiple character sets
+- Perfect forward secrecy and information-theoretic independence
+
 ### 🖥️ [Command Line Interface](./cli-interface.md)  
 - Generation command (`gen`) with language selection
 - Sharding command (`shard`) with auto-detection
@@ -74,6 +81,7 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 |------------|--------------|-------------|---------------|
 | **Multi-Language** | 9 BIP-39 languages, auto-detection | < 100ms detection | 48 specialized tests |
 | **BIP-39 Generation** | 24-word mnemonics, secure entropy | < 1ms | 100% |
+| **BIP85 Entropy** | Child wallets, hex, passwords | < 10ms | 97%+ |
 | **SLIP-39 Sharding** | Flexible group/threshold schemes | < 5ms | 89% |
 | **Reconstruction** | Multi-shard recovery, validation | < 4ms | 89% |
 | **Mathematical Verification** | Property-based testing, Hypothesis | Real-time | 100% of cryptographic properties |

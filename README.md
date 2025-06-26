@@ -73,25 +73,34 @@ pip install sseed
 ### Generate → Shard → Restore Demo
 
 ```bash
-# Generate a secure mnemonic
+# Generate a secure mnemonic (English by default)
 $ sseed gen
 abandon ability able about above absent absorb abstract absurd abuse access accident
+
+# Generate in different languages
+$ sseed gen -l es  # Spanish
+ábaco abdomen abedul abeja abismo abogado abono aborto abrazo abrir absurdo abuelo
+
+$ sseed gen -l zh-cn  # Chinese Simplified
+的 一 是 在 不 了 有 和 人 这 中 大 为 上 个 国 我 以 要 他
 
 # Generate master seed from mnemonic (BIP-39 → BIP-32 HD wallet seed)
 $ sseed gen | sseed seed --hex
 7adb1efaf1659636ca22a200c4e688a2041972ebb8d1d49a71c4cb40b4a283fc51d4cfe31d45c0f90eb08a246008f8707f961b674246b016aa303041ceccb848
 
-# Split into 3-of-5 threshold shards  
-$ sseed gen | sseed shard -g 3-of-5
+# Split into 3-of-5 threshold shards (language auto-detected)
+$ sseed gen -l es | sseed shard -g 3-of-5
+# Language: Spanish (es) - Auto-detected
 # Group 1 of 1 - Share 1 of 5: academic acid acrobat...
 # Group 1 of 1 - Share 2 of 5: academic acid beard...
 # Group 1 of 1 - Share 3 of 5: academic acid ceramic...
 # Group 1 of 1 - Share 4 of 5: academic acid decision...
 # Group 1 of 1 - Share 5 of 5: academic acid echo...
 
-# Restore from any 3 shards
+# Restore from any 3 shards (language auto-detected)
 $ sseed restore shard1.txt shard2.txt shard3.txt
-abandon ability able about above absent absorb abstract absurd abuse access accident
+# Language: Spanish (es) - Auto-detected
+ábaco abdomen abedul abeja abismo abogado abono aborto abrazo abrir absurdo abuelo
 ```
 
 ### System Information

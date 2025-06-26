@@ -420,17 +420,17 @@ def mnemonic_to_hex_seed(
 
 def entropy_to_mnemonic(entropy: bytes, language: str = "en") -> str:
     """Convert raw entropy bytes to BIP39 mnemonic.
-    
+
     Args:
         entropy: Raw entropy bytes (16, 20, 24, 28, or 32 bytes).
         language: Language code (en, es, fr, it, pt, cs, zh-cn, zh-tw, ko).
-        
+
     Returns:
         BIP39 mnemonic string in the specified language.
-        
+
     Raises:
         MnemonicError: If entropy is invalid or conversion fails.
-        
+
     Example:
         >>> entropy = bytes.fromhex("a" * 32)  # 16 bytes
         >>> mnemonic = entropy_to_mnemonic(entropy, "en")
@@ -444,29 +444,32 @@ def entropy_to_mnemonic(entropy: bytes, language: str = "en") -> str:
                 f"Invalid entropy length: {len(entropy)} bytes. "
                 "Must be 16, 20, 24, 28, or 32 bytes."
             )
-        
+
         # Convert language code to BIP39Languages enum
         lang_info = validate_language_code(language)
         bip_language = lang_info.bip_enum
-        
+
         # Create language-specific generator
         generator = Bip39MnemonicGenerator(bip_language)
-        
+
         # Generate mnemonic from entropy
         mnemonic = str(generator.FromEntropy(entropy))
-        
+
         if not mnemonic:
             raise MnemonicError("Generated mnemonic is empty")
-        
+
         logger.debug(
             "Successfully converted %d bytes of entropy to %s mnemonic",
-            len(entropy), lang_info.name
+            len(entropy),
+            lang_info.name,
         )
-        
+
         return mnemonic
-        
+
     except Exception as error:
         logger.error("Failed to convert entropy to mnemonic: %s", error)
         if isinstance(error, MnemonicError):
             raise
-        raise MnemonicError(f"Failed to convert entropy to mnemonic: {error}") from error
+        raise MnemonicError(
+            f"Failed to convert entropy to mnemonic: {error}"
+        ) from error
