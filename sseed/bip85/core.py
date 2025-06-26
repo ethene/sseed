@@ -370,3 +370,31 @@ def validate_master_seed_format(master_seed: bytes) -> Tuple[bool, str]:
         return False, "Master seed cannot be all ones"
 
     return True, ""
+
+
+def convert_hex_to_bytes(master_seed_str: str) -> bytes:
+    """Convert a hexadecimal string to bytes.
+
+    Args:
+        master_seed_str: Hexadecimal string representation of the master seed.
+
+    Returns:
+        Bytes representation of the master seed.
+
+    Raises:
+        Bip85ValidationError: If the input string is invalid.
+
+    Example:
+        >>> convert_hex_to_bytes("a" * 128)
+        b'\xaa' * 64
+    """
+    # Convert valid hex string to bytes
+    try:
+        return bytes.fromhex(master_seed_str)
+    except ValueError as e:
+        raise Bip85ValidationError(
+            "Master seed contains invalid hexadecimal characters",
+            parameter="master_seed",
+            value=master_seed_str[:50] + "..." if len(master_seed_str) > 50 else master_seed_str,
+            valid_range="Valid hexadecimal string (0-9, a-f, A-F)",
+        ) from e

@@ -203,7 +203,7 @@ class Bip85Cache:
                     entry.access_count += 1
                     entry.last_accessed = time.time()
                     self._stats["hits"] += 1
-                    return entry.value
+                    return cast(int, entry.value)
                 else:
                     del self._cache[key]
 

@@ -40,7 +40,7 @@ logger = get_logger(__name__)
 class Bip85Applications:
     """Convert BIP85 entropy to various application formats."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize BIP85 applications formatter."""
         logger.debug("Initializing BIP85 applications formatter")
 

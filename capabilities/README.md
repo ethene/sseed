@@ -4,7 +4,7 @@ This directory contains comprehensive documentation of all sseed capabilities, o
 
 ## Overview
 
-SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency seed management with comprehensive multi-language support. It provides exceptional capabilities across 9 functional areas with enterprise-grade security, performance, and code quality.
+SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency seed management with comprehensive multi-language support. It provides exceptional capabilities across 10 functional areas with enterprise-grade security, performance, and code quality.
 
 ## Capability Categories
 
@@ -95,6 +95,7 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 sseed
 ├── Entropy Generation (secrets.SystemRandom)
 ├── BIP-39 Processing (bip-utils library)
+├── BIP85 Derivation (BIP32 + HMAC-SHA512)
 ├── SLIP-39 Operations (slip39 library)
 ├── CLI Interface (argparse + custom logic)
 ├── File Operations (UTF-8 + validation)
@@ -105,6 +106,8 @@ sseed
 ## Standards Compliance
 
 - ✅ **BIP-39**: Full compliance with Bitcoin Improvement Proposal 39
+- ✅ **BIP85**: Complete implementation of deterministic entropy derivation
+- ✅ **BIP32**: Hierarchical deterministic key derivation for BIP85
 - ✅ **SLIP-39**: Complete implementation of SLIP-39 specification
 - ✅ **UTF-8**: Unicode normalization (NFKD) and proper encoding
 - ✅ **Python**: PEP 8 compliance with type hints
@@ -113,10 +116,13 @@ sseed
 ## Use Cases
 
 1. **Cryptocurrency Backup**: Generate and split wallet seeds
-2. **Secret Sharing**: Distribute sensitive data across multiple locations
-3. **Disaster Recovery**: Reconstruct secrets from partial information
-4. **Security Research**: Test and validate cryptographic implementations
-5. **Automation**: Integrate into larger security workflows
+2. **Multiple Wallets**: Unlimited child wallets from single master backup
+3. **Secret Sharing**: Distribute sensitive data across multiple locations
+4. **Key Management**: Enterprise-grade deterministic key derivation
+5. **Password Management**: Deterministic password generation without databases
+6. **Disaster Recovery**: Reconstruct secrets from partial information
+7. **Security Research**: Test and validate cryptographic implementations
+8. **Automation**: Integrate into larger security workflows
 
 For detailed information about any capability area, see the corresponding documentation file.
 
@@ -127,7 +133,8 @@ This directory contains comprehensive documentation of sseed's capabilities acro
 | Capability Area | File | Size | Key Metrics |
 |----------------|------|------|-------------|
 | **Core Operations** | [cryptographic-operations.md](./cryptographic-operations.md) | 7.4KB | <1ms generation, <5ms sharding |
-| **User Interface** | [cli-interface.md](./cli-interface.md) | 15.2KB | 3 commands, 5 exit codes, --examples system |
+| **BIP85 Entropy** | [bip85-deterministic-entropy.md](./bip85-deterministic-entropy.md) | 25.8KB | <10ms derivation, 97%+ coverage |
+| **User Interface** | [cli-interface.md](./cli-interface.md) | 15.2KB | 4 commands, 5 exit codes, --examples system |
 | **File Handling** | [file-operations.md](./file-operations.md) | 16.4KB | UTF-8, cross-platform |
 | **Security** | [security-features.md](./security-features.md) | 13.7KB | 100% offline, secure memory |
 | **Performance** | [performance.md](./performance.md) | 10.9KB | Exceeds requirements 5-75x |

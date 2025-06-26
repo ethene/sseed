@@ -16,6 +16,7 @@
 - 🌍 **Multi-Language BIP-39 Support** - Generate and restore mnemonics in 9 languages with automatic detection
 - 🔐 **Generate secure 24-word BIP-39 mnemonics** with cryptographically secure entropy
 - 🌱 **Generate master seeds from mnemonics** using PBKDF2-HMAC-SHA512 per BIP-39 specification
+- 🎯 **BIP85 deterministic entropy derivation** - unlimited child wallets, passwords, and keys from single master
 - 🔄 **Split secrets using SLIP-39** with flexible group/threshold configurations
 - 🔧 **Reconstruct mnemonics from shards** with integrity validation
 - 🚫 **100% offline operation** - zero network calls, air-gapped security
@@ -219,7 +220,7 @@ make build             # Build distribution packages
 | Command | Purpose | Example |
 |---------|---------|---------|
 | `sseed version` | Show version and system info | `sseed version --json` |
-| `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -o backup.txt` |
+| `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -l es -o backup.txt` |
 | `sseed seed` | Generate BIP-32 master seed from BIP-39 mnemonic | `sseed seed -i mnemonic.txt --hex` |
 | `sseed shard` | Split into SLIP-39 shards | `sseed shard -g 3-of-5 -i seed.txt` |
 | `sseed restore` | Reconstruct from shards | `sseed restore shard*.txt` |
