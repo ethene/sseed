@@ -1,10 +1,60 @@
-"""Core BIP85 derivation logic using existing SSeed infrastructure.
+"""BIP85 entropy derivation core implementation.
 
-Implements the core BIP85 cryptographic operations including:
-- BIP32 hierarchical key derivation
-- HMAC-SHA512 entropy extraction
-- Secure memory management
-- Full BIP85 specification compliance
+This module implements the complete BIP85 specification for deterministic entropy
+derivation from BIP32 hierarchical deterministic wallets, with full specification
+compliance and security-focused design.
+
+BIP85 Overview:
+    BIP85 enables the derivation of multiple deterministic entropy sources from a
+    single master seed, useful for generating child mnemonics, HD wallet seeds,
+    passwords, and other cryptographic entropy in a reproducible manner.
+
+Key Features:
+    - Full BIP85 specification compliance
+    - Correct BIP39 derivation path: m/83696968'/39'/{language}'/{words}'/{index}'
+    - Support for all BIP85 applications (BIP39, hex, passwords)
+    - Memory-secure cleanup of sensitive data
+    - Comprehensive error handling and validation
+    - Performance optimization with master key caching
+
+Supported Applications:
+    - BIP39 Mnemonics (application 39) with proper language support
+    - Hex entropy (application 128)
+    - Passwords (application 9999) with various character sets
+
+BIP39 Language Codes (per BIP85 specification):
+    - 0: English
+    - 1: Japanese
+    - 2: Korean
+    - 3: Spanish
+    - 4: Chinese (Simplified)
+    - 5: Chinese (Traditional)
+    - 6: French
+    - 7: Italian
+    - 8: Czech
+    - 9: Portuguese
+
+Security Notes:
+    - All intermediate values are securely cleared from memory
+    - Private keys are never logged or exposed in exceptions
+    - HMAC uses the specified "bip-entropy-from-k" key per BIP85
+    - Master seed should be from a secure random source
+
+Example:
+    >>> import hashlib
+    >>> from sseed.bip85.applications import Bip85Applications
+    >>>
+    >>> # Generate master seed from mnemonic (production should use secure methods)
+    >>> test_mnemonic = "install scatter logic circle pencil average fall shoe quantum disease suspect usage"
+    >>> master_seed = hashlib.pbkdf2_hmac('sha512', test_mnemonic.encode('utf-8'), b'mnemonic', 2048, 64)
+    >>>
+    >>> # Create BIP85 applications instance
+    >>> apps = Bip85Applications()
+    >>>
+    >>> # Generate child BIP39 mnemonic (matches official test vector)
+    >>> child_mnemonic = apps.derive_bip39_mnemonic(master_seed, 12, 0, "en")
+    >>> print(child_mnemonic)
+    girl mad pet galaxy egg matter matrix prison refuse sense ordinary nose
 """
 
 import hashlib
@@ -180,7 +230,7 @@ def derive_bip85_entropy(
     1. Create BIP32 master key from master seed (or use cached key)
     2. Derive to path m/83696968'/{application}'/{length}'/{index}'
     3. Extract private key from final child
-    4. Compute HMAC-SHA512(key=private_key, data=path_bytes)
+    4. Compute HMAC-SHA512(key="bip-entropy-from-k", msg=private_key)
     5. Return first output_bytes of HMAC result
 
     Args:
@@ -207,7 +257,6 @@ def derive_bip85_entropy(
     master_key = None
     child_key = None
     private_key_bytes = None
-    path_bytes = None
     hmac_result = None
 
     try:
@@ -250,15 +299,17 @@ def derive_bip85_entropy(
         child_key = child_key.ChildKey(length | 0x80000000)  # Length (hardened)
         child_key = child_key.ChildKey(index | 0x80000000)  # Index (hardened)
 
-        # Step 3: Extract private key from final child
+        # Step 4: Extract private key from final child
         private_key_bytes = child_key.PrivateKey().Raw().ToBytes()
 
-        # Step 4: Encode path for HMAC message
-        path_bytes = encode_bip85_path(application, length, index)
+        # Path encoding no longer needed for HMAC per BIP85 spec
+        # path_bytes = encode_bip85_path(application, length, index)
 
-        # Step 5: Compute HMAC-SHA512(key=private_key, data=path_bytes)
+        # Step 5: Compute HMAC-SHA512(key="bip-entropy-from-k", msg=private_key)
+        # According to BIP85 specification
         logger.debug("Computing HMAC-SHA512 for entropy extraction")
-        hmac_result = hmac.new(private_key_bytes, path_bytes, hashlib.sha512).digest()
+        hmac_key = b"bip-entropy-from-k"
+        hmac_result = hmac.new(hmac_key, private_key_bytes, hashlib.sha512).digest()
 
         # Step 6: Extract required number of entropy bytes
         entropy = hmac_result[:output_bytes]
@@ -300,7 +351,163 @@ def derive_bip85_entropy(
         # Clean up variables in reverse order of creation
         for var_name, var_value in [
             ("hmac_result", hmac_result),
-            ("path_bytes", path_bytes),
+            ("private_key_bytes", private_key_bytes),
+            ("child_key", child_key),
+            ("master_key", master_key),
+        ]:
+            if var_value is not None:
+                try:
+                    # For BIP32 key objects, try to clear internal state
+                    if hasattr(var_value, "_key_data"):
+                        secure_delete_variable(var_value._key_data)
+                    if hasattr(var_value, "_chain_code"):
+                        secure_delete_variable(var_value._chain_code)
+
+                    # For bytes objects, use secure deletion
+                    if isinstance(var_value, bytes):
+                        secure_delete_variable(var_value)
+
+                except Exception as cleanup_error:
+                    logger.warning(
+                        "Failed to securely clean up %s: %s", var_name, cleanup_error
+                    )
+
+
+def derive_bip85_bip39_entropy(
+    master_seed: bytes,
+    language_code: int,
+    word_count: int,
+    index: int,
+    output_bytes: int,
+    _cached_master_key: Optional["Bip32Secp256k1"] = None,
+) -> bytes:
+    """Derive BIP85 entropy specifically for BIP39 mnemonics.
+
+    Implements the BIP85 derivation algorithm with the correct BIP39 path format:
+    m/83696968'/39'/{language}'/{words}'/{index}'
+
+    Args:
+        master_seed: 512-bit master seed from BIP39 PBKDF2.
+        language_code: BIP39 language code (0=English, 1=Japanese, etc.)
+        word_count: Number of words in mnemonic (12, 15, 18, 21, 24).
+        index: Child derivation index (0 to 2³¹-1).
+        output_bytes: Number of entropy bytes to return.
+        _cached_master_key: Optional cached BIP32 master key for performance.
+
+    Returns:
+        Derived entropy bytes of specified length.
+
+    Raises:
+        Bip85DerivationError: If derivation fails.
+        Bip85ValidationError: If parameters are invalid.
+
+    Example:
+        >>> master_seed = bytes.fromhex("a" * 128)
+        >>> entropy = derive_bip85_bip39_entropy(master_seed, 0, 12, 0, 16)
+        >>> len(entropy)
+        16
+    """
+    master_key = None
+    child_key = None
+    private_key_bytes = None
+    hmac_result = None
+
+    try:
+        logger.info(
+            "Starting BIP85 BIP39 derivation: lang=%d, words=%d, index=%d, output=%d bytes",
+            language_code,
+            word_count,
+            index,
+            output_bytes,
+        )
+        log_security_event(
+            f"BIP85: BIP39 entropy derivation initiated for index {index}"
+        )
+
+        # Validate output length
+        if not (1 <= output_bytes <= 64):
+            raise Bip85ValidationError(
+                f"Output bytes must be 1-64, got {output_bytes}",
+                parameter="output_bytes",
+                value=output_bytes,
+                valid_range="1 to 64",
+            )
+
+        # Step 1: Create or use cached BIP32 master key
+        if _cached_master_key is not None:
+            master_key = _cached_master_key
+            logger.debug("Using cached BIP32 master key for optimization")
+        else:
+            master_key = create_bip32_master_key(master_seed)
+
+        # Step 2: Derive BIP39-specific BIP85 path m/83696968'/39'/{language}'/{words}'/{index}'
+        derivation_path = (
+            f"m/{BIP85_PURPOSE}'/39'/{language_code}'/{word_count}'/{index}'"
+        )
+        logger.debug("Deriving BIP85 BIP39 path: %s", derivation_path)
+
+        # Derive step by step with hardened keys
+        child_key = master_key.ChildKey(
+            BIP85_PURPOSE | 0x80000000
+        )  # Purpose (hardened)
+        child_key = child_key.ChildKey(39 | 0x80000000)  # Application: BIP39 (hardened)
+        child_key = child_key.ChildKey(
+            language_code | 0x80000000
+        )  # Language (hardened)
+        child_key = child_key.ChildKey(word_count | 0x80000000)  # Word count (hardened)
+        child_key = child_key.ChildKey(index | 0x80000000)  # Index (hardened)
+
+        # Step 3: Extract private key from final child
+        private_key_bytes = child_key.PrivateKey().Raw().ToBytes()
+
+        # Step 4: Compute HMAC-SHA512(key="bip-entropy-from-k", msg=private_key)
+        # According to BIP85 specification
+        logger.debug("Computing HMAC-SHA512 for BIP39 entropy extraction")
+        hmac_key = b"bip-entropy-from-k"
+        hmac_result = hmac.new(hmac_key, private_key_bytes, hashlib.sha512).digest()
+
+        # Step 5: Extract required number of entropy bytes
+        entropy = hmac_result[:output_bytes]
+
+        logger.info(
+            "Successfully derived %d bytes of BIP85 BIP39 entropy for index %d",
+            len(entropy),
+            index,
+        )
+        log_security_event(
+            f"BIP85: BIP39 entropy derivation completed for index {index}"
+        )
+
+        return entropy
+
+    except (Bip85ValidationError, Bip85DerivationError):
+        # Re-raise BIP85-specific errors as-is
+        raise
+    except Exception as e:
+        error_msg = f"BIP85 BIP39 derivation failed: {e}"
+        logger.error(error_msg)
+        log_security_event(f"BIP85: BIP39 derivation failed: {error_msg}")
+
+        raise Bip85DerivationError(
+            error_msg,
+            derivation_path=f"m/{BIP85_PURPOSE}'/39'/{language_code}'/{word_count}'/{index}'",
+            operation="derive_bip85_bip39_entropy",
+            context={
+                "language_code": language_code,
+                "word_count": word_count,
+                "index": index,
+                "output_bytes": output_bytes,
+            },
+            original_error=e,
+        ) from e
+
+    finally:
+        # Secure cleanup of all sensitive variables
+        logger.debug("Performing secure cleanup of sensitive variables")
+
+        # Clean up variables in reverse order of creation
+        for var_name, var_value in [
+            ("hmac_result", hmac_result),
             ("private_key_bytes", private_key_bytes),
             ("child_key", child_key),
             ("master_key", master_key),

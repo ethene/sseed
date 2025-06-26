@@ -8,13 +8,11 @@ Comprehensive test suite covering:
 - Integration with existing SSeed infrastructure
 """
 
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from unittest.mock import patch
 
 import pytest
 
+import sseed.bip85.applications as apps_module
 from sseed.bip85.applications import Bip85Applications
 from sseed.bip85.exceptions import (
     Bip85ApplicationError,
@@ -315,7 +313,7 @@ class TestBip85Applications:
             password = apps.derive_password(seed, 20, 0, "base64")
             assert len(password) == 20
 
-    @patch("sseed.bip85.applications.derive_bip85_entropy")
+    @patch("sseed.bip85.applications.derive_bip85_bip39_entropy")
     def test_derive_bip85_entropy_error_handling(
         self, mock_derive, apps, test_master_seed
     ):
@@ -324,6 +322,13 @@ class TestBip85Applications:
 
         with pytest.raises(Bip85ApplicationError):
             apps.derive_bip39_mnemonic(test_master_seed, 12, 0, "en")
+
+    @patch("sseed.bip85.applications.derive_bip85_entropy")
+    def test_derive_hex_entropy_error_handling(
+        self, mock_derive, apps, test_master_seed
+    ):
+        """Test error handling when hex entropy derivation fails."""
+        mock_derive.side_effect = Exception("Derivation failed")
 
         with pytest.raises(Bip85ApplicationError):
             apps.derive_hex_entropy(test_master_seed, 32, 0)

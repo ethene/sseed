@@ -10,7 +10,6 @@ and follows SSeed patterns for error handling and validation.
 """
 
 import string
-from typing import Optional
 
 from sseed.bip39 import entropy_to_mnemonic
 from sseed.languages import (
@@ -22,19 +21,37 @@ from sseed.logging_config import (
     log_security_event,
 )
 
-from .core import derive_bip85_entropy
+from .core import (
+    derive_bip85_bip39_entropy,
+    derive_bip85_entropy,
+)
 from .exceptions import (
     Bip85ApplicationError,
     Bip85ValidationError,
 )
 from .paths import (
     calculate_entropy_bytes_needed,
-    format_parameter_summary,
     get_application_name,
     validate_bip85_parameters,
 )
 
 logger = get_logger(__name__)
+
+# BIP85 language codes according to the specification
+BIP85_LANGUAGE_CODES = {
+    "en": 0,  # English
+    "ja": 1,  # Japanese (SSeed doesn't support this yet)
+    "ko": 2,  # Korean
+    "es": 3,  # Spanish
+    "zh-cn": 4,  # Chinese (Simplified) - SSeed uses zh-cn
+    "zh-Hans": 4,  # Chinese (Simplified) - Alternative code
+    "zh-tw": 5,  # Chinese (Traditional) - SSeed uses zh-tw
+    "zh-Hant": 5,  # Chinese (Traditional) - Alternative code
+    "fr": 6,  # French
+    "it": 7,  # Italian
+    "cs": 8,  # Czech
+    "pt": 9,  # Portuguese
+}
 
 
 class Bip85Applications:
@@ -71,17 +88,29 @@ class Bip85Applications:
                     valid_range=f"One of: {available}",
                 )
 
+            # Get BIP85 language code
+            if language not in BIP85_LANGUAGE_CODES:
+                raise Bip85ValidationError(
+                    f"Language not supported by BIP85: {language}",
+                    parameter="language",
+                    value=language,
+                    valid_range=f"One of: {', '.join(BIP85_LANGUAGE_CODES.keys())}",
+                )
+
+            language_code = BIP85_LANGUAGE_CODES[language]
+
             # Validate BIP85 parameters
             validate_bip85_parameters(39, word_count, index, strict=True)
 
             # Calculate required entropy bytes
             entropy_bytes = calculate_entropy_bytes_needed(39, word_count)
 
-            # Derive BIP85 entropy
-            entropy = derive_bip85_entropy(
+            # Derive BIP85 entropy using the correct BIP39 path format
+            # m/83696968'/39'/{language}'/{words}'/{index}'
+            entropy = derive_bip85_bip39_entropy(
                 master_seed=master_seed,
-                application=39,  # BIP39 application
-                length=word_count,
+                language_code=language_code,
+                word_count=word_count,
                 index=index,
                 output_bytes=entropy_bytes,
             )

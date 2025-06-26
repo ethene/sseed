@@ -5,8 +5,6 @@ with comprehensive edge case handling, timing attack mitigation, and advanced
 security validation.
 """
 
-import hashlib
-import hmac
 import os
 import secrets
 import time
@@ -26,7 +24,6 @@ from sseed.logging_config import (
 )
 
 from .exceptions import (
-    Bip85DerivationError,
     Bip85ValidationError,
 )
 

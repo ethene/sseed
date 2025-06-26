@@ -308,3 +308,183 @@ class TestBip85TestVectors:
         # Verify it's not all zeros or obviously weak
         assert entropy != bytes(16)
         assert len(set(entropy)) > 1  # Should have entropy variation
+
+
+class TestBip85OfficialTestVectors:
+    """Test BIP85 implementation against official test vectors from the specification."""
+
+    @pytest.fixture
+    def official_test_mnemonic(self):
+        """Official test mnemonic from BIP85 specification."""
+        return "install scatter logic circle pencil average fall shoe quantum disease suspect usage"
+
+    @pytest.fixture
+    def official_test_seed(self, official_test_mnemonic):
+        """Master seed derived from official test mnemonic."""
+        import hashlib
+
+        return hashlib.pbkdf2_hmac(
+            "sha512", official_test_mnemonic.encode("utf-8"), b"mnemonic", 2048, 64
+        )
+
+    def test_bip85_official_12_word_english_vector(self, official_test_seed):
+        """Test 12-word English BIP39 mnemonic (index 0) against official vector."""
+        from sseed.bip85.applications import Bip85Applications
+
+        apps = Bip85Applications()
+        result = apps.derive_bip39_mnemonic(official_test_seed, 12, 0, "en")
+        expected = (
+            "girl mad pet galaxy egg matter matrix prison refuse sense ordinary nose"
+        )
+
+        assert result == expected, f"Expected: {expected}, Got: {result}"
+
+    def test_bip85_official_18_word_english_vector(self, official_test_seed):
+        """Test 18-word English BIP39 mnemonic (index 0) against official vector."""
+        from sseed.bip85.applications import Bip85Applications
+
+        apps = Bip85Applications()
+        result = apps.derive_bip39_mnemonic(official_test_seed, 18, 0, "en")
+        expected = "near account window bike charge season chef number sketch tomorrow excuse sniff circle vital hockey outdoor supply token"
+
+        assert result == expected, f"Expected: {expected}, Got: {result}"
+
+    def test_bip85_official_24_word_english_vector(self, official_test_seed):
+        """Test 24-word English BIP39 mnemonic (index 0) against official vector."""
+        from sseed.bip85.applications import Bip85Applications
+
+        apps = Bip85Applications()
+        result = apps.derive_bip39_mnemonic(official_test_seed, 24, 0, "en")
+        expected = "puppy ocean match cereal symbol another shed magic wrap hammer bulb intact gadget divorce twin tonight reason outdoor destroy simple truth cigar social volcano"
+
+        assert result == expected, f"Expected: {expected}, Got: {result}"
+
+    def test_bip85_official_entropy_values(self, official_test_seed):
+        """Test that we derive the correct entropy values for each word count."""
+        from sseed.bip85.core import derive_bip85_bip39_entropy
+
+        # Test 12-word entropy - this is the known test vector
+        entropy_12 = derive_bip85_bip39_entropy(
+            official_test_seed, 0, 12, 0, 16
+        )  # English=0, 12 words, index 0, 16 bytes
+        expected_12 = bytes.fromhex("6250b68daf746d12a24d58b4787a714b")
+        assert (
+            entropy_12 == expected_12
+        ), f"12-word entropy: Expected {expected_12.hex()}, Got {entropy_12.hex()}"
+
+        # Test 18-word entropy - verify correct length
+        entropy_18 = derive_bip85_bip39_entropy(
+            official_test_seed, 0, 18, 0, 24
+        )  # English=0, 18 words, index 0, 24 bytes
+        assert (
+            len(entropy_18) == 24
+        ), f"18-word entropy should be 24 bytes, got {len(entropy_18)}"
+
+        # Test 24-word entropy - verify correct length
+        entropy_24 = derive_bip85_bip39_entropy(
+            official_test_seed, 0, 24, 0, 32
+        )  # English=0, 24 words, index 0, 32 bytes
+        assert (
+            len(entropy_24) == 32
+        ), f"24-word entropy should be 32 bytes, got {len(entropy_24)}"
+
+        # Verify all entropies are different
+        assert (
+            entropy_12 != entropy_18[:16]
+        ), "12-word and 18-word entropy should be different"
+        assert (
+            entropy_12 != entropy_24[:16]
+        ), "12-word and 24-word entropy should be different"
+        assert (
+            entropy_18 != entropy_24[:24]
+        ), "18-word and 24-word entropy should be different"
+
+    def test_bip85_official_path_derivation(self, official_test_seed):
+        """Test that we use the correct BIP85 derivation path for BIP39."""
+        import hashlib
+        import hmac
+
+        from bip_utils import Bip32Secp256k1
+
+        from sseed.bip85.core import derive_bip85_bip39_entropy
+
+        # Manually verify the derivation path: m/83696968'/39'/0'/12'/0'
+        master_key = Bip32Secp256k1.FromSeed(official_test_seed)
+
+        # Step by step derivation
+        child_key = master_key.ChildKey(83696968 | 0x80000000)  # Purpose
+        child_key = child_key.ChildKey(39 | 0x80000000)  # Application (BIP39)
+        child_key = child_key.ChildKey(0 | 0x80000000)  # Language (English)
+        child_key = child_key.ChildKey(12 | 0x80000000)  # Words
+        child_key = child_key.ChildKey(0 | 0x80000000)  # Index
+
+        # Extract private key and compute HMAC
+        private_key = child_key.PrivateKey().Raw().ToBytes()
+        hmac_result = hmac.new(
+            b"bip-entropy-from-k", private_key, hashlib.sha512
+        ).digest()
+        manual_entropy = hmac_result[:16]
+
+        # Compare with our implementation
+        our_entropy = derive_bip85_bip39_entropy(official_test_seed, 0, 12, 0, 16)
+
+        assert (
+            our_entropy == manual_entropy
+        ), f"Derivation path mismatch: Manual {manual_entropy.hex()}, Our {our_entropy.hex()}"
+
+    def test_bip85_deterministic_across_indices(self, official_test_seed):
+        """Test that different indices produce different, deterministic results."""
+        from sseed.bip85.applications import Bip85Applications
+
+        apps = Bip85Applications()
+
+        # Test multiple indices for 12-word mnemonics
+        results = {}
+        for index in [0, 1, 2, 10, 100]:
+            mnemonic = apps.derive_bip39_mnemonic(official_test_seed, 12, index, "en")
+            results[index] = mnemonic
+
+            # Verify it's a valid 12-word mnemonic
+            assert len(mnemonic.split()) == 12, f"Index {index} should produce 12 words"
+
+        # All results should be different
+        unique_results = set(results.values())
+        assert len(unique_results) == len(
+            results
+        ), "All indices should produce unique mnemonics"
+
+        # Verify index 0 is the official test vector
+        assert (
+            results[0]
+            == "girl mad pet galaxy egg matter matrix prison refuse sense ordinary nose"
+        )
+
+    def test_bip85_language_consistency(self, official_test_seed):
+        """Test that language parameter correctly affects derivation."""
+        from sseed.bip85.core import derive_bip85_bip39_entropy
+
+        # Test that different languages produce different entropy
+        entropy_en = derive_bip85_bip39_entropy(
+            official_test_seed, 0, 12, 0, 16
+        )  # English
+        entropy_es = derive_bip85_bip39_entropy(
+            official_test_seed, 3, 12, 0, 16
+        )  # Spanish
+        entropy_fr = derive_bip85_bip39_entropy(
+            official_test_seed, 6, 12, 0, 16
+        )  # French
+
+        # All should be different
+        assert (
+            entropy_en != entropy_es
+        ), "English and Spanish should produce different entropy"
+        assert (
+            entropy_en != entropy_fr
+        ), "English and French should produce different entropy"
+        assert (
+            entropy_es != entropy_fr
+        ), "Spanish and French should produce different entropy"
+
+        # English should match our known test vector
+        expected_en = bytes.fromhex("6250b68daf746d12a24d58b4787a714b")
+        assert entropy_en == expected_en, f"English entropy should match test vector"

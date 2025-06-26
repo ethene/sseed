@@ -54,14 +54,16 @@ SSeed supports all 9 official BIP-39 languages with automatic detection:
 
 - **🔐 Secure Generation**: 24-word BIP-39 mnemonics using cryptographic entropy
 - **🌍 Multi-Language**: Generate and restore in 9 languages with auto-detection
+- **🎯 BIP85 Deterministic Entropy**: Generate unlimited child wallets, passwords, and hex entropy from one master seed
 - **🧩 SLIP-39 Sharding**: Split mnemonics into threshold-based secret shares
 - **🔄 Perfect Recovery**: Reconstruct original mnemonics from sufficient shards
 - **🌱 Master Seed Generation**: BIP-39 compliant PBKDF2-HMAC-SHA512 seed derivation
+- **🎯 BIP85 Deterministic Entropy**: Generate unlimited child wallets, passwords, and hex entropy from one master seed
 - **🔍 Entropy Display**: View underlying entropy alongside mnemonics for verification
 - **⚡ Cross-Tool Compatibility**: Full interoperability with official Trezor SLIP-39 CLI
 - **🛡️ Security First**: Memory cleanup, input validation, and comprehensive error handling
 - **📁 Flexible I/O**: File operations, stdin/stdout, and batch processing support
-- **🧪 Battle Tested**: 502 comprehensive tests with 89.96% code coverage
+- **🧪 Battle Tested**: 632 comprehensive tests with 95%+ code coverage
 
 ## 🚀 Quick Install
 
@@ -161,6 +163,73 @@ ORIGINAL_ENTROPY=$(sseed gen --show-entropy | grep "# Entropy:" | cut -d' ' -f3)
 echo "$ORIGINAL_ENTROPY" > entropy_backup.txt
 ```
 
+## 🎯 BIP85 Deterministic Entropy
+
+SSeed implements **BIP85** for deterministic entropy generation, enabling unlimited child wallets, passwords, and cryptographic secrets from a single master seed backup. This transforms SSeed into a complete cryptographic entropy management system.
+
+### What is BIP85?
+
+**BIP85** allows deriving multiple independent secrets from one master seed:
+- **🔒 One Master Backup**: Single mnemonic protects unlimited child wallets
+- **🎲 Deterministic**: Same parameters always produce identical output
+- **🔐 Independent**: Child entropy appears completely random
+- **🌍 Multi-Purpose**: BIP39 mnemonics, hex entropy, passwords
+- **🛡️ Secure**: Information-theoretic independence between children
+
+### Quick BIP85 Examples
+
+```bash
+# Generate master mnemonic
+$ sseed gen -o master.txt
+
+# Generate child BIP39 wallets
+$ sseed bip85 bip39 -i master.txt -w 12 -n 0  # Child wallet #1
+$ sseed bip85 bip39 -i master.txt -w 12 -n 1  # Child wallet #2
+$ sseed bip85 bip39 -i master.txt -w 24 -l es -n 2  # Spanish child wallet
+
+# Generate hex entropy (for keys, tokens)
+$ sseed bip85 hex -i master.txt -b 32 -n 0    # 32 bytes entropy
+$ sseed bip85 hex -i master.txt -b 16 -u -n 1 # 16 bytes uppercase
+
+# Generate passwords 
+$ sseed bip85 password -i master.txt -l 20 -c base64 -n 0      # Base64 password
+$ sseed bip85 password -i master.txt -l 16 -c alphanumeric -n 1 # Alphanumeric
+```
+
+### BIP85 Applications
+
+| Application | Purpose | Options | Example |
+|-------------|---------|---------|---------|
+| **bip39** | Child BIP39 mnemonics | 12/15/18/21/24 words, 9 languages | `sseed bip85 bip39 -w 12 -l en -n 0` |
+| **hex** | Raw entropy bytes | 16-64 bytes, upper/lowercase | `sseed bip85 hex -b 32 -u -n 0` |
+| **password** | Secure passwords | 4 character sets, 10-128 chars | `sseed bip85 password -l 20 -c base64 -n 0` |
+
+### Advanced BIP85 Workflows
+
+```bash
+# Master → Multiple Child Wallets
+sseed gen -o master.txt
+sseed bip85 bip39 -i master.txt -w 12 -n 0 -o wallet1.txt  # Personal wallet
+sseed bip85 bip39 -i master.txt -w 12 -n 1 -o wallet2.txt  # Business wallet  
+sseed bip85 bip39 -i master.txt -w 12 -n 2 -o wallet3.txt  # Backup wallet
+
+# Multi-Language Child Wallets
+sseed bip85 bip39 -i master.txt -w 24 -l en -n 0 -o english.txt
+sseed bip85 bip39 -i master.txt -w 24 -l es -n 1 -o spanish.txt
+sseed bip85 bip39 -i master.txt -w 24 -l zh-cn -n 2 -o chinese.txt
+
+# BIP85 + SLIP39 Combination  
+sseed bip85 bip39 -i master.txt -w 12 -n 0 | sseed shard -g 3-of-5
+sseed bip85 bip39 -i master.txt -w 24 -l es -n 1 | sseed shard -g 2-of-3
+
+# Application-Specific Entropy
+sseed bip85 hex -i master.txt -b 32 -n 0 -o app1_key.hex     # App 1 encryption key
+sseed bip85 hex -i master.txt -b 32 -n 1 -o app2_key.hex     # App 2 encryption key  
+sseed bip85 password -i master.txt -l 32 -n 0 -o app.pwd     # Application password
+```
+
+**[🎯 Complete BIP85 Documentation →](capabilities/bip85-deterministic-entropy.md)**
+
 ## 📚 API Documentation
 
 For programmatic integration, SSeed provides a clean Python API:
@@ -222,6 +291,7 @@ make build             # Build distribution packages
 | `sseed version` | Show version and system info | `sseed version --json` |
 | `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -l es -o backup.txt` |
 | `sseed seed` | Generate BIP-32 master seed from BIP-39 mnemonic | `sseed seed -i mnemonic.txt --hex` |
+| `sseed bip85` | Generate BIP85 deterministic entropy | `sseed bip85 bip39 -w 12 -n 0` |
 | `sseed shard` | Split into SLIP-39 shards | `sseed shard -g 3-of-5 -i seed.txt` |
 | `sseed restore` | Reconstruct from shards | `sseed restore shard*.txt` |
 

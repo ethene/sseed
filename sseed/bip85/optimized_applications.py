@@ -1,7 +1,8 @@
-"""Optimized BIP85 applications with caching and performance enhancements.
+"""BIP85 optimized applications with caching.
 
-Phase 5: Optimization & Performance Tuning implementation that provides
-significant performance improvements for repeated operations and batch processing.
+High-performance BIP85 derivation with intelligent caching and optimization.
+Provides the same interface as the standard applications but with better
+performance for batch operations and repeated derivations.
 """
 
 import string
@@ -9,19 +10,18 @@ from typing import (
     Any,
     Dict,
     List,
-    Optional,
 )
 
-from sseed.bip39 import entropy_to_mnemonic
 from sseed.languages import (
     get_supported_language_codes,
     validate_language_code,
 )
-from sseed.logging_config import (
+
+from ..bip39 import entropy_to_mnemonic
+from ..logging_config import (
     get_logger,
     log_security_event,
 )
-
 from .cache import (
     OptimizedBip32KeyManager,
     get_global_cache,
@@ -33,8 +33,6 @@ from .exceptions import (
 )
 from .paths import (
     calculate_entropy_bytes_needed,
-    format_parameter_summary,
-    get_application_name,
     validate_bip85_parameters,
 )
 

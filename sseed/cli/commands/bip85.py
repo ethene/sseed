@@ -5,7 +5,6 @@ Supports BIP39 mnemonics, hex entropy, and passwords in multiple formats.
 """
 
 import argparse
-from typing import Optional
 
 from sseed.bip39 import (
     generate_master_seed,

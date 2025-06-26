@@ -77,7 +77,7 @@ def validate_bip85_parameters(
             value=application,
         )
 
-    if not (0 <= application <= 0xFFFFFFFF):
+    if not 0 <= application <= 0xFFFFFFFF:
         raise Bip85ValidationError(
             f"Application must be 0-4294967295, got {application}",
             parameter="application",
