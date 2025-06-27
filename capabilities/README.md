@@ -26,6 +26,10 @@ SSeed is an offline BIP39/SLIP39 CLI tool designed for secure cryptocurrency see
 - Password generation with multiple character sets
 - Perfect forward secrecy and information-theoretic independence
 
+**Additional BIP85 Resources:**
+- 📋 [BIP85 Usage Guide](./bip85-usage-guide.md) - Comprehensive practical examples and workflows  
+- 🏢 [BIP85 Production Guide](./bip85-production-guide.md) - Enterprise deployment and security guidelines
+
 ### 🖥️ [Command Line Interface](./cli-interface.md)  
 - Generation command (`gen`) with language selection
 - Sharding command (`shard`) with auto-detection

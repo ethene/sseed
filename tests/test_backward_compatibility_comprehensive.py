@@ -32,6 +32,7 @@ class TestBackwardCompatibilityComprehensive:
             language = "en"  # Default behavior
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24  # Default behavior
 
         gen_cmd = GenCommand()
         result = gen_cmd.handle(GenArgs())
@@ -123,6 +124,7 @@ abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon 
             language = "en"
             output = None  # stdout
             show_entropy = False
+            words = 24  # Default behavior
 
         gen_cmd = GenCommand()
         result = gen_cmd.handle(GenArgs())
@@ -135,6 +137,7 @@ abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon 
             language = "en"
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24  # Default behavior
 
         gen_cmd.handle(GenArgsFile())
 
@@ -210,6 +213,7 @@ abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon 
             language = "invalid"
             output = None
             show_entropy = False
+            words = 24  # Default behavior
 
         gen_cmd = GenCommand()
         result = gen_cmd.handle(GenArgs())

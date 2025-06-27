@@ -34,8 +34,8 @@ class TestBip39EdgeCases:
 
     def test_generate_mnemonic_empty_result(self):
         """Test mnemonic generation when empty result is returned."""
-        with patch("sseed.bip39.Bip39MnemonicGenerator") as mock_gen:
-            mock_gen.return_value.FromWordsNumber.return_value = ""
+        with patch("sseed.bip39.entropy_to_mnemonic") as mock_entropy_to_mnemonic:
+            mock_entropy_to_mnemonic.return_value = ""
             with pytest.raises(CryptoError, match="Generated mnemonic is empty"):
                 generate_mnemonic()
 

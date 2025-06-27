@@ -20,10 +20,14 @@ from bip_utils import (
     Bip39MnemonicValidator,
 )
 
-from sseed.entropy import secure_delete_variable
+from sseed.entropy import (
+    generate_entropy_bytes,
+    secure_delete_variable,
+)
 from sseed.exceptions import (
     CryptoError,
     MnemonicError,
+    ValidationError,
 )
 from sseed.languages import (
     detect_mnemonic_language,
@@ -31,6 +35,7 @@ from sseed.languages import (
     validate_language_code,
 )
 from sseed.logging_config import log_security_event
+from sseed.validation.input import BIP39_MNEMONIC_LENGTHS
 
 logger = logging.getLogger(__name__)
 
@@ -56,53 +61,78 @@ def _normalize_mnemonic(mnemonic: str) -> str:
     return normalized
 
 
-def generate_mnemonic(language: Optional[Bip39Languages] = None) -> str:
-    """Generate a BIP-39 mnemonic with optional language support.
+def generate_mnemonic(
+    language: Optional[Bip39Languages] = None, word_count: int = 24
+) -> str:
+    """Generate a BIP-39 mnemonic with optional language and word count support.
 
     Args:
         language: Optional BIP-39 language. Defaults to English for backward compatibility.
+        word_count: Number of words in mnemonic (12, 15, 18, 21, or 24). Defaults to 24.
 
     Returns:
-        Generated BIP-39 mnemonic string (24 words).
+        Generated BIP-39 mnemonic string with specified word count.
 
     Raises:
         CryptoError: If mnemonic generation fails.
+        ValidationError: If word_count is not valid BIP-39 length.
 
     Example:
-        >>> # English (default)
+        >>> # English (default) - 24 words
         >>> mnemonic_en = generate_mnemonic()
         >>> len(mnemonic_en.split())
         24
 
-        >>> # Spanish
+        >>> # Spanish - 12 words
         >>> from bip_utils import Bip39Languages
-        >>> mnemonic_es = generate_mnemonic(Bip39Languages.SPANISH)
+        >>> mnemonic_es = generate_mnemonic(Bip39Languages.SPANISH, 12)
         >>> len(mnemonic_es.split())
-        24
+        12
     """
     try:
-        # Use English as default for backward compatibility
+        # Validate word count using existing infrastructure
+        if word_count not in BIP39_MNEMONIC_LENGTHS:
+            raise ValidationError(
+                f"Invalid word count: {word_count}. Must be one of: {BIP39_MNEMONIC_LENGTHS}"
+            )
+
+        # Set default language
         if language is None:
             language = Bip39Languages.ENGLISH
 
-        logger.debug("Generating mnemonic in language: %s", language)
+        logger.debug(
+            "Generating %d-word mnemonic in language: %s", word_count, language
+        )
 
-        # Create language-specific generator
-        generator = Bip39MnemonicGenerator(language)
+        # Calculate required entropy bytes from word count
+        entropy_bytes = word_count_to_entropy_bytes(word_count)
 
-        # Generate with high entropy (256 bits = 24 words)
-        mnemonic = str(generator.FromWordsNumber(24))
+        # Generate secure entropy
+        entropy = generate_entropy_bytes(entropy_bytes)
+
+        # Convert entropy to mnemonic (reuse existing working function)
+        language_code = get_language_code_from_bip_enum(language)
+        mnemonic = entropy_to_mnemonic(entropy, language_code)
 
         if not mnemonic:
             raise CryptoError("Generated mnemonic is empty")
 
+        # Verify word count matches expectation
+        actual_words = len(mnemonic.split())
+        if actual_words != word_count:
+            raise CryptoError(
+                f"Generated mnemonic has {actual_words} words, expected {word_count}"
+            )
+
         # Get language info for logging
         try:
             lang_info = get_language_by_bip_enum(language)
-            logger.info("Successfully generated %s mnemonic", lang_info.name)
+            logger.info(
+                "Successfully generated %d-word %s mnemonic", word_count, lang_info.name
+            )
         except Exception as lang_error:  # pylint: disable=broad-exception-caught
             logger.debug("Could not get language info: %s", lang_error)
-            logger.info("Successfully generated mnemonic")
+            logger.info("Successfully generated %d-word mnemonic", word_count)
 
         return mnemonic
 
@@ -473,3 +503,47 @@ def entropy_to_mnemonic(entropy: bytes, language: str = "en") -> str:
         raise MnemonicError(
             f"Failed to convert entropy to mnemonic: {error}"
         ) from error
+
+
+def word_count_to_entropy_bytes(word_count: int) -> int:
+    """Convert BIP-39 word count to required entropy bytes.
+
+    Reuses the same mapping as BIP85 for consistency and proven reliability.
+
+    Args:
+        word_count: Number of words (12, 15, 18, 21, or 24)
+
+    Returns:
+        Required entropy bytes for the word count
+
+    Raises:
+        ValidationError: If word count is invalid
+    """
+    # Use the same mapping as BIP85 for consistency
+    entropy_map = {
+        12: 16,  # 128 bits
+        15: 20,  # 160 bits
+        18: 24,  # 192 bits
+        21: 28,  # 224 bits
+        24: 32,  # 256 bits
+    }
+
+    if word_count not in entropy_map:
+        raise ValidationError(
+            f"Invalid word count: {word_count}. Must be one of: {list(entropy_map.keys())}"
+        )
+
+    return entropy_map[word_count]
+
+
+def get_language_code_from_bip_enum(bip_language: Bip39Languages) -> str:
+    """Convert BIP39Languages enum to language code string.
+
+    Args:
+        bip_language: BIP39Languages enum value
+
+    Returns:
+        Language code string (e.g., "en", "es", "fr")
+    """
+    lang_info = get_language_by_bip_enum(bip_language)
+    return lang_info.code

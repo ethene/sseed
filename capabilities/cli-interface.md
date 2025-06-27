@@ -593,6 +593,29 @@ sseed shard -i seed.txt -g "2:(3-of-5,2-of-3)" --separate -o enterprise_backup
 - **Memory**: < 100KB additional during operation
 - **Scalability**: Linear with number of shards
 
+### Multi-Language Auto-Detection
+The shard command automatically detects the language of input mnemonics:
+
+- **Automatic Detection**: Identifies language with 95%+ accuracy
+- **Language Preservation**: Original language information preserved in shards
+- **Unicode Support**: Full support for Latin, Ideographic, and Hangul scripts
+- **Feedback**: Language detection results shown in verbose mode
+
+```bash
+# Spanish mnemonic auto-detected
+sseed shard -i spanish_mnemonic.txt -g 3-of-5
+# Language: Spanish (es) - Auto-detected
+
+# Chinese mnemonic auto-detected
+sseed shard -i chinese_mnemonic.txt -g 2-of-3 --separate
+# Language: Chinese Simplified (zh-cn) - Auto-detected
+
+# Korean mnemonic with verbose output
+sseed -v shard -i korean_mnemonic.txt -g 3-of-5
+# Language: Korean (ko) - Auto-detected
+# Creating 3-of-5 SLIP-39 shards...
+```
+
 ## Restoration Command (`restore`)
 
 ### Purpose

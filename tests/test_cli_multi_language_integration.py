@@ -37,6 +37,7 @@ class TestCLIMultiLanguageIntegration:
             language = lang_code
             output = str(output_file)
             show_entropy = False
+            words = 24  # Default word count
 
         # Test generation
         gen_cmd = GenCommand()
@@ -66,6 +67,7 @@ class TestCLIMultiLanguageIntegration:
             language = "es"
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         assert gen_cmd.handle(GenArgs()) == 0
@@ -137,6 +139,7 @@ class TestCLIMultiLanguageIntegration:
             language = "zh-cn"
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         assert gen_cmd.handle(GenArgs()) == 0
@@ -168,6 +171,7 @@ class TestCLIMultiLanguageIntegration:
             language = "fr"
             output = str(french_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         assert gen_cmd.handle(GenArgs()) == 0
@@ -236,6 +240,7 @@ class TestCLIMultiLanguageIntegration:
             language = lang_code
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         result = gen_cmd.handle(GenArgs())
@@ -257,6 +262,7 @@ class TestCLIMultiLanguageIntegration:
             language = lang_code
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         result = gen_cmd.handle(GenArgs())
@@ -280,6 +286,7 @@ class TestCLIMultiLanguageIntegration:
             language = "ko"
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         result = gen_cmd.handle(GenArgs())
@@ -303,6 +310,7 @@ class TestCLIMultiLanguageIntegration:
             language = "en"  # Default behavior
             output = str(mnemonic_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         result = gen_cmd.handle(GenArgs())
@@ -321,6 +329,7 @@ class TestCLIMultiLanguageIntegration:
             language = "invalid"
             output = None
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
 
@@ -337,6 +346,7 @@ class TestCLIMultiLanguageIntegration:
             language = "es"
             output = str(spanish_file)
             show_entropy = False
+            words = 24
 
         gen_cmd = GenCommand()
         assert gen_cmd.handle(GenArgs()) == 0
@@ -378,6 +388,7 @@ class TestCLIPerformanceRegression:
                 language = lang_code
                 output = str(mnemonic_file)
                 show_entropy = False
+                words = 24
 
             gen_cmd = GenCommand()
             gen_cmd.handle(GenArgs())
@@ -419,6 +430,7 @@ class TestCLIPerformanceRegression:
                 language = lang_code
                 output = None  # stdout
                 show_entropy = False
+                words = 24
 
             gen_cmd = GenCommand()
             result = gen_cmd.handle(GenArgs())

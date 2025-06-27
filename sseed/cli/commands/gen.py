@@ -22,15 +22,16 @@ logger = get_logger(__name__)
 
 
 class GenCommand(BaseCommand):
-    """Generate a 24-word BIP-39 mnemonic using secure entropy with multi-language support."""
+    """Generate a BIP-39 mnemonic (12-24 words) using secure entropy with multi-language support."""
 
     def __init__(self) -> None:
         super().__init__(
             name="gen",
-            help_text="Generate a 24-word BIP-39 mnemonic using secure entropy",
+            help_text="Generate a BIP-39 mnemonic (12-24 words) using secure entropy",
             description=(
-                "Generate a cryptographically secure 24-word BIP-39 mnemonic "
-                "using system entropy. Supports all 9 BIP-39 languages."
+                "Generate a cryptographically secure BIP-39 mnemonic with flexible word counts "
+                "(12, 15, 18, 21, or 24 words) using system entropy. "
+                "Supports all 9 BIP-39 languages."
             ),
         )
 
@@ -42,6 +43,17 @@ class GenCommand(BaseCommand):
             type=str,
             metavar="FILE",
             help="Output file (default: stdout)",
+        )
+
+        # NEW: Word count argument (pattern copied from BIP85)
+        parser.add_argument(
+            "-w",
+            "--words",
+            type=int,
+            choices=[12, 15, 18, 21, 24],
+            default=24,
+            metavar="COUNT",
+            help="Number of words in generated mnemonic (default: 24)",
         )
 
         # Add language support
@@ -64,7 +76,7 @@ class GenCommand(BaseCommand):
 
     @handle_common_errors("generation")
     def handle(self, args: argparse.Namespace) -> int:
-        """Handle the 'gen' command with multi-language support.
+        """Handle the 'gen' command with word count support.
 
         Args:
             args: Parsed command-line arguments.
@@ -72,17 +84,24 @@ class GenCommand(BaseCommand):
         Returns:
             Exit code.
         """
-        logger.info("Starting mnemonic generation (language: %s)", args.language)
+        logger.info(
+            "Starting mnemonic generation (language: %s, words: %d)",
+            args.language,
+            args.words,
+        )
 
         try:
             # Validate and get language information
             language_info = validate_language_code(args.language)
             logger.info(
-                "Using language: %s (%s)", language_info.name, language_info.code
+                "Using language: %s (%s), generating %d words",
+                language_info.name,
+                language_info.code,
+                args.words,
             )
 
-            # Generate the mnemonic with specified language
-            mnemonic = generate_mnemonic(language_info.bip_enum)
+            # Generate the mnemonic with specified language AND word count
+            mnemonic = generate_mnemonic(language_info.bip_enum, args.words)
 
             # Validate generated mnemonic checksum (Phase 5 requirement)
             if not validate_mnemonic_checksum(mnemonic, language_info.bip_enum):
@@ -91,16 +110,19 @@ class GenCommand(BaseCommand):
                     context={
                         "validation_type": "checksum",
                         "language": language_info.name,
+                        "word_count": args.words,
                     },
                 )
 
-            # Prepare language info for verbose output
+            # Prepare language and word count info for verbose output
             language_display = f"Language: {language_info.name} ({language_info.code})"
+            word_count_display = f"Words: {args.words}"
+            metadata_display = f"{language_display}, {word_count_display}"
 
             # Output mnemonic first
             if args.output:
-                # Include language info in file output
-                output_content = f"# {language_display}\n{mnemonic}"
+                # Include language and word count info in file output
+                output_content = f"# {metadata_display}\n{mnemonic}"
                 self.handle_output(
                     output_content, args, success_message="Mnemonic written to: {file}"
                 )
@@ -109,20 +131,24 @@ class GenCommand(BaseCommand):
                 entropy_info = self.handle_entropy_display(mnemonic, args, args.output)
                 if entropy_info:
                     print(
-                        f"Mnemonic with language info and entropy written to: {args.output}"
+                        f"Mnemonic with metadata and entropy written to: {args.output}"
                     )
                 else:
-                    print(f"Mnemonic with language info written to: {args.output}")
+                    print(f"Mnemonic with metadata written to: {args.output}")
             else:
                 # Output to stdout
                 print(mnemonic)
-                print(f"# {language_display}")
+                print(f"# {metadata_display}")
 
                 # Handle entropy display for stdout
                 entropy_info = self.handle_entropy_display(mnemonic, args)
                 if entropy_info:
                     print(entropy_info)
-                logger.info("Mnemonic written to stdout in %s", language_info.name)
+                logger.info(
+                    "Mnemonic written to stdout: %d words in %s",
+                    args.words,
+                    language_info.name,
+                )
 
             return EXIT_SUCCESS
 

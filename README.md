@@ -16,7 +16,7 @@
 - 🌍 **Multi-Language BIP-39 Support** - Generate and restore mnemonics in 9 languages with automatic detection
 - 🔐 **Generate secure 24-word BIP-39 mnemonics** with cryptographically secure entropy
 - 🌱 **Generate master seeds from mnemonics** using PBKDF2-HMAC-SHA512 per BIP-39 specification
-- 🎯 **BIP85 deterministic entropy derivation** - unlimited child wallets, passwords, and keys from single master
+- 🎯 **BIP85 deterministic entropy derivation** - specification-compliant implementation with official test vector compatibility
 - 🔄 **Split secrets using SLIP-39** with flexible group/threshold configurations
 - 🔧 **Reconstruct mnemonics from shards** with integrity validation
 - 🚫 **100% offline operation** - zero network calls, air-gapped security
