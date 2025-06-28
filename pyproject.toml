@@ -112,6 +112,9 @@ include = ["sseed*"]
 #
 # IMPORTANT: Keep target versions synchronized across tools for consistency.
 # Current project targets: Python 3.10, 3.11, and 3.12
+#
+# NOTE: flake8 configuration is handled via command-line arguments in Makefile
+# and GitHub Actions since flake8 doesn't natively support pyproject.toml
 # =============================================================================
 
 [tool.black]
@@ -122,10 +125,6 @@ target-version = ["py310", "py311", "py312"]
 profile = "black"
 line_length = 88
 force_grid_wrap = 2
-
-[tool.flake8]
-max-line-length = 210
-extend-ignore = ["E203", "W503", "F401", "F841", "E402", "F811", "F541", "W293"]
 
 [tool.ruff]
 line-length = 88
