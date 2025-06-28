@@ -437,4 +437,3 @@ def format_validation_output(
         return formatter.format_text(
             results, verbose=verbose, use_colors=use_colors, use_symbols=use_symbols
         )
-

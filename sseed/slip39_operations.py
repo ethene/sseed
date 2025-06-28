@@ -373,4 +373,3 @@ def get_shard_info(shard: str) -> dict[str, Any]:
         error_msg = f"Failed to extract shard information: {e}"
         logger.error(error_msg)
         raise ShardError(error_msg, context={"original_error": str(e)}) from e
-

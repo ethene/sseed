@@ -616,10 +616,3 @@ def convert_hex_to_bytes(master_seed_str: str) -> bytes:
             ),
             valid_range="Valid hexadecimal string (0-9, a-f, A-F)",
         ) from e
-
-                master_seed_str[:50] + "..."
-                if len(master_seed_str) > 50
-                else master_seed_str
-            ),
-            valid_range="Valid hexadecimal string (0-9, a-f, A-F)",
-        ) from e

@@ -253,7 +253,3 @@ __all__ = [
     # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand",
     # "VersionCommand", "Bip85Command"
 ]
-
-    # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand",
-    # "VersionCommand", "Bip85Command"
-]

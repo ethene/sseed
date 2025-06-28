@@ -393,4 +393,3 @@ def format_parameter_summary(
         "derivation_path": format_bip85_path(application, length, index),
         "entropy_bytes": calculate_entropy_bytes_needed(application, length),
     }
-

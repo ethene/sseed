@@ -75,6 +75,45 @@ sseed = "sseed.__main__:main"
 where = ["."]
 include = ["sseed*"]
 
+# =============================================================================
+# DEVELOPMENT TOOL CONFIGURATIONS
+# =============================================================================
+# This section contains configuration for various development tools used in
+# the SSeed project. Each tool has specific configuration keys that control
+# how the tool behaves during development and CI/CD processes.
+#
+# Key Configuration Examples:
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │ Config Key              │ Example Value │ What it tells the tool        │
+# ├─────────────────────────────────────────────────────────────────────────┤
+# │ python_version          │ "3.12"        │ "Type-check my code as if it  │
+# │ under [tool.mypy]       │               │ will execute on Python 3.12." │
+# │                         │               │ MyPy enables/disables features│
+# │                         │               │ and built-ins accordingly.    │
+# ├─────────────────────────────────────────────────────────────────────────┤
+# │ target-version          │ "py312"       │ "Lint my code against the     │
+# │ under [tool.ruff]       │               │ syntax and std-lib available  │
+# │                         │               │ in Python 3.12." Ruff will   │
+# │                         │               │ allow/forbid newer syntax     │
+# │                         │               │ based on this setting.        │
+# ├─────────────────────────────────────────────────────────────────────────┤
+# │ line-length             │ 88            │ "Format code lines to this    │
+# │ under [tool.black]      │               │ maximum character width."     │
+# │                         │               │ Black will wrap longer lines. │
+# ├─────────────────────────────────────────────────────────────────────────┤
+# │ target-version          │ ["py310",     │ "Generate code compatible     │
+# │ under [tool.black]      │  "py311",     │ with these Python versions."  │
+# │                         │  "py312"]     │ Affects syntax choices.       │
+# ├─────────────────────────────────────────────────────────────────────────┤
+# │ profile                 │ "black"       │ "Use Black-compatible import  │
+# │ under [tool.isort]      │               │ sorting rules." Ensures isort │
+# │                         │               │ and Black work together.      │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# IMPORTANT: Keep target versions synchronized across tools for consistency.
+# Current project targets: Python 3.10, 3.11, and 3.12
+# =============================================================================
+
 [tool.black]
 line-length = 88
 target-version = ["py310", "py311", "py312"]
@@ -90,7 +129,7 @@ extend-ignore = ["E203", "W503", "F401", "F841", "E402", "F811", "F541", "W293"]
 
 [tool.ruff]
 line-length = 88
-target-version = "1.11.0"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "D", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
@@ -100,7 +139,7 @@ ignore = ["D100", "D104", "D107", "EM101", "EM102", "TRY003", "TRY300", "TRY400"
 convention = "google"
 
 [tool.mypy]
-python_version = "1.11.0"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
