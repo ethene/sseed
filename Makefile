@@ -128,9 +128,30 @@ ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@echo "5️⃣ Type checking (MyPy)..."
 	@python -m mypy sseed/ --show-error-codes --show-error-context
 	@echo "6️⃣ Security analysis (Bandit)..."
+	@python -m bandit -r sseed/ -f json -o bandit-report.json --configfile pyproject.toml 2>/dev/null || true
 	@python -m bandit -r sseed/ -f txt --configfile pyproject.toml
-	@echo "7️⃣ Running tests with coverage..."
-	@python -m pytest --cov=sseed --cov-fail-under=85 --cov-report=term-missing -v tests/
+	@echo "7️⃣ Dependency security check (Safety)..."
+	@echo "   Creating requirements.txt for safety check..."
+	@python -m pip freeze > requirements.txt 2>/dev/null || true
+	@python -m safety check -r requirements.txt --save-json safety-report.json 2>/dev/null || true
+	@python -m safety check -r requirements.txt 2>/dev/null || echo "⚠️  Safety check completed with warnings"
+	@echo "8️⃣ Running tests with coverage..."
+	@python -m pytest \
+		--cov=sseed \
+		--cov-report=term-missing \
+		--cov-report=xml \
+		--cov-report=html \
+		--cov-fail-under=85 \
+		--junit-xml=pytest-results.xml \
+		--html=pytest-report.html \
+		--self-contained-html \
+		-v \
+		--tb=short \
+		--strict-markers \
+		--disable-warnings \
+		tests/
+	@echo "9️⃣ Verifying coverage threshold..."
+	@python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); coverage = float(root.attrib['line-rate']) * 100; print(f'Current coverage: {coverage:.1f}%'); print(f'Minimum required: 85%'); exit(1 if coverage < 85 else 0)"
 	@echo "✅ All CI checks passed!"
 
 build: ## Build distribution packages
