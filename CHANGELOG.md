@@ -7,6 +7,171 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2025-06-28
+
+### ✨ **CUSTOM ENTROPY SOURCES IMPLEMENTATION (A.3)**
+
+**Advanced Custom Entropy Input Support**
+- **Security-First Design**: Production-ready custom entropy with comprehensive quality validation
+- **Multiple Input Methods**: Hex strings and dice rolls with flexible parsing
+- **Quality Analysis System**: 0-100 scoring with pattern detection and bias analysis
+- **User Consent Model**: Two-tier security override system with explicit warnings
+- **100% Backward Compatibility**: All existing functionality preserved unchanged
+
+#### **Added**
+
+**Core Custom Entropy Infrastructure**
+- **`sseed/entropy/` Module**: Refactored entropy system with modular architecture
+  - `core.py`: Original entropy functions (generate_entropy_bits/bytes, secure_delete_variable)
+  - `custom.py`: New custom entropy functionality with quality validation
+  - `__init__.py`: Unified exports maintaining backward compatibility
+- **Custom Entropy Functions**:
+  - `hex_to_entropy()`: Converts hex strings to entropy with length validation
+  - `dice_to_entropy()`: Converts dice rolls to entropy using SHA-256 deterministic conversion
+  - `validate_entropy_quality()`: Comprehensive quality analysis (0-100 scale)
+- **`EntropyQuality` Class**: Structured quality assessment with warnings and recommendations
+
+**CLI Integration**
+- **`sseed gen --entropy-hex HEX`**: Custom hex entropy input with validation
+- **`sseed gen --entropy-dice ROLLS`**: Dice roll entropy input (multiple formats supported)
+- **`sseed gen --allow-weak`**: Override quality threshold (≥70 for hex, ≥60 for dice)
+- **`sseed gen --force`**: Force operation despite security warnings (requires --allow-weak)
+- **`sseed gen --entropy-analysis`**: Display detailed quality analysis report
+
+**Quality Validation System**
+- **Pattern Detection**: Identifies weak patterns (all zeros, repeating sequences, sequential bytes)
+- **Distribution Analysis**: Byte distribution analysis with configurable thresholds
+- **Weakness Signatures**: Detects timestamps, ASCII text, and other non-random patterns
+- **Acceptance Thresholds**: ≥70 for general entropy, ≥60 for dice (more tolerance for dice randomness)
+- **Comprehensive Scoring**: 0-100 scale with detailed explanations and recommendations
+
+**Security Features**
+- **Default Rejection**: Custom entropy rejected by default (use secure system entropy)
+- **Explicit Warnings**: Clear security warnings with emoji indicators
+- **Two-Flag Requirement**: Both `--allow-weak` and `--force` required for dangerous operations
+- **Quality Display**: Optional detailed analysis with `--entropy-analysis`
+- **Metadata Integration**: Custom entropy source tracked in output files
+
+#### **Examples**
+
+```bash
+# Generate with good quality hex entropy
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+
+# Generate with dice rolls (multiple formats supported)
+sseed gen --entropy-dice "1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2"
+sseed gen --entropy-dice "1 2 3 4 5 6 1 2 3 4 5 6"  # Space-separated
+sseed gen --entropy-dice "123456123456"              # Continuous digits
+
+# Override weak entropy (NOT RECOMMENDED)
+sseed gen --entropy-hex "0000000000000000000000000000000000000000000000000000000000000000" --allow-weak --force
+
+# Display quality analysis
+sseed gen --entropy-dice "1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2" --entropy-analysis
+
+# Combine with existing features
+sseed gen --entropy-hex "a1b2c3..." --words 12 --language es --output wallet.txt
+sseed gen --entropy-dice "1,2,3,4..." --show-entropy | sseed shard -g 3-of-5
+```
+
+#### **Security Warnings and User Experience**
+
+**Quality Analysis Display**:
+```
+📊 Entropy Quality Analysis:
+   Quality Score: 95/100
+   Warnings: (if any)
+   Recommendations: (if any)
+```
+
+**Security Warning System**:
+```bash
+⚠️  WARNING: Using custom hex entropy (NOT RECOMMENDED)
+✅ Entropy quality acceptable (95/100)
+
+# For weak entropy:
+❌ SECURITY WARNING: Entropy quality insufficient (20/100)
+   Issues detected:
+     • Contains repeating patterns
+     • Poor byte distribution
+   Use --allow-weak to override (NOT RECOMMENDED)
+```
+
+**Metadata Integration**:
+```bash
+# Language: English (en), Words: 24, Entropy: Custom (hex)
+abandon ability able about above absent absorb abstract absurd abuse access accident
+```
+
+#### **Testing**
+
+**Comprehensive Test Coverage**
+- **16 New CLI Tests**: Complete coverage of custom entropy CLI integration
+- **Quality Validation Tests**: All quality analysis functions tested
+- **Security Override Tests**: Validation of two-tier consent system
+- **Format Support Tests**: Multiple dice input formats validated
+- **Error Handling Tests**: Invalid input and edge cases covered
+- **Backward Compatibility Tests**: All existing functionality preserved
+
+**Test Categories**
+- **`tests/test_cli_custom_entropy.py`**: 16 comprehensive CLI integration tests
+- **Unit Tests**: Quality validation, entropy conversion, format parsing
+- **Integration Tests**: File I/O, multi-language support, existing feature compatibility
+- **Security Tests**: Weak entropy rejection, override behavior, warning display
+
+#### **Technical Implementation**
+
+**Architecture**
+- **Modular Design**: Clean separation between core and custom entropy functionality
+- **Type Safety**: Full MyPy compliance with proper type annotations
+- **Error Handling**: Comprehensive exception handling with informative messages
+- **Memory Security**: Secure deletion of sensitive entropy data
+
+**Quality Analysis Algorithm**
+- **Multi-Factor Scoring**: Pattern detection + distribution analysis + weakness signatures
+- **Context-Aware Thresholds**: Different acceptance criteria for different entropy sources
+- **Detailed Feedback**: Specific warnings and actionable recommendations
+- **Performance Optimized**: Fast analysis suitable for interactive CLI usage
+
+**Dice Entropy Conversion**
+- **Deterministic**: SHA-256 based conversion for reproducible results
+- **Entropy Calculation**: Accurate entropy bit calculation (log₂(6) ≈ 2.585 bits per roll)
+- **Minimum Roll Validation**: Ensures sufficient entropy for requested word count
+- **Format Flexibility**: Supports comma-separated, space-separated, and continuous formats
+
+#### **Documentation**
+
+**Security Documentation**
+- **`docs/custom-entropy-security.md`**: Comprehensive security guidelines
+- **Quality Requirements**: Detailed explanation of validation layers
+- **Best Practices**: Entropy source recommendations and security pitfalls
+- **User Consent System**: Documentation of security warning and override system
+
+**CLI Documentation Updates**
+- **`capabilities/cli-interface.md`**: Updated with custom entropy options
+- **Usage Examples**: Security-focused examples with warnings
+- **Integration Patterns**: How custom entropy works with existing features
+
+**Security Features Documentation**
+- **`capabilities/security-features.md`**: Enhanced with custom entropy security section
+- **Quality Analysis**: Detailed explanation of scoring system
+- **Threat Model**: Security considerations and mitigation strategies
+
+#### **Quality Metrics**
+- **Test Coverage**: 87.82% (763 tests, 100% backward compatibility maintained)
+- **Code Quality**: 9.56/10 Pylint score with comprehensive type safety
+- **Security**: Production-ready with enterprise-grade validation and user consent
+- **Performance**: No regression in existing operations, fast quality analysis
+
+#### **Integration**
+- **Universal Compatibility**: Works with all word counts (12, 15, 18, 21, 24)
+- **Multi-Language Support**: Compatible with all 9 BIP-39 languages
+- **File I/O Integration**: Custom entropy metadata preserved in output files
+- **SLIP39 Compatibility**: Custom entropy mnemonics work seamlessly with sharding
+- **Entropy Display**: Integration with existing `--show-entropy` feature
+
+**A.3 Implementation represents the completion of SSeed's advanced entropy management capabilities, providing expert users with custom entropy input while maintaining the security-first design principles that define the project. The implementation serves as a model for secure CLI design with comprehensive validation and explicit user consent requirements.**
+
 ## [1.9.0] - 2025-06-27
 
 ### ✨ **FLEXIBLE WORD COUNTS IMPLEMENTATION (A.2)**

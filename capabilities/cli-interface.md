@@ -253,6 +253,13 @@ sseed gen [options]
 - `--show-entropy` - Display the underlying entropy (hex) alongside the mnemonic
 - `-h, --help` - Show command help
 
+#### Custom Entropy Sources (Advanced Users Only)
+- `--entropy-hex HEX` - Use custom hex entropy (e.g., 'a1b2c3...' or '0xa1b2c3...')
+- `--entropy-dice ROLLS` - Use dice rolls as entropy source (e.g., '1,2,3,4,5,6' or '1 2 3 4 5 6')
+- `--allow-weak` - Allow entropy with quality score < 70 (not recommended)
+- `--force` - Force operation despite security warnings (dangerous)
+- `--entropy-analysis` - Show detailed entropy quality analysis
+
 ### Language Support
 SSeed supports all 9 official BIP-39 languages:
 
@@ -316,6 +323,49 @@ sseed gen > secure_seed.txt
 # Append to existing file
 sseed gen >> multiple_seeds.txt
 ```
+
+#### Custom Entropy Sources (Advanced Users Only)
+```bash
+# Use hex entropy with quality analysis
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --entropy-analysis --allow-weak
+
+# Example output with quality analysis
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Language: English (en), Words: 24, Entropy: Custom (hex)
+
+📊 Entropy Quality Analysis:
+   Quality Score: 85/100
+   Warnings: None
+   Recommendations: Consider using system entropy for maximum security
+
+# Use dice rolls as entropy source
+sseed gen --entropy-dice "1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6" --force
+
+# Different dice formats supported
+sseed gen --entropy-dice "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6" --force
+sseed gen --entropy-dice "123456123456123456123456123456" --force
+
+# Weak entropy with warnings
+sseed gen --entropy-hex "0000000000000000000000000000000000000000000000000000000000000000" --allow-weak --force
+
+# Example output with security warnings
+⚠️ WARNING: Using custom hex entropy (NOT RECOMMENDED)
+❌ SECURITY WARNING: Entropy quality insufficient (0/100)
+   Warnings: Entropy is all zeros
+   Recommendations: This entropy is not suitable for cryptographic use
+
+# Custom entropy with file output
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --allow-weak -o custom_entropy_seed.txt
+```
+
+⚠️ **Critical Security Warning**: Custom entropy sources bypass SSeed's secure random number generation. Only use if:
+- You fully understand the cryptographic implications
+- You have a verified high-quality entropy source
+- You accept full responsibility for entropy security
+- You have tested the entropy quality thoroughly
+
+**Recommended**: Use default `sseed gen` for maximum security. See `docs/custom-entropy-security.md` for detailed security guidelines.
 
 ### Security Features
 - **Entropy Quality**: Uses `secrets.SystemRandom()` for cryptographic entropy
@@ -426,6 +476,49 @@ for account in personal business trading; do
         -o "${account}_master_seed.txt" --hex
 done
 ```
+
+#### Custom Entropy Sources (Advanced Users Only)
+```bash
+# Use hex entropy with quality analysis
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --entropy-analysis --allow-weak
+
+# Example output with quality analysis
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Language: English (en), Words: 24, Entropy: Custom (hex)
+
+📊 Entropy Quality Analysis:
+   Quality Score: 85/100
+   Warnings: None
+   Recommendations: Consider using system entropy for maximum security
+
+# Use dice rolls as entropy source
+sseed gen --entropy-dice "1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6" --force
+
+# Different dice formats supported
+sseed gen --entropy-dice "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6" --force
+sseed gen --entropy-dice "123456123456123456123456123456" --force
+
+# Weak entropy with warnings
+sseed gen --entropy-hex "0000000000000000000000000000000000000000000000000000000000000000" --allow-weak --force
+
+# Example output with security warnings
+⚠️ WARNING: Using custom hex entropy (NOT RECOMMENDED)
+❌ SECURITY WARNING: Entropy quality insufficient (0/100)
+   Warnings: Entropy is all zeros
+   Recommendations: This entropy is not suitable for cryptographic use
+
+# Custom entropy with file output
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --allow-weak -o custom_entropy_seed.txt
+```
+
+⚠️ **Critical Security Warning**: Custom entropy sources bypass SSeed's secure random number generation. Only use if:
+- You fully understand the cryptographic implications
+- You have a verified high-quality entropy source
+- You accept full responsibility for entropy security
+- You have tested the entropy quality thoroughly
+
+**Recommended**: Use default `sseed gen` for maximum security. See `docs/custom-entropy-security.md` for detailed security guidelines.
 
 ### Security Features
 - **Standard Compliance**: Follows BIP-39 specification exactly
@@ -582,6 +675,49 @@ sseed shard -i seed.txt -g 3-of-5 -o "shards_$(date +%Y%m%d).txt"
 sseed shard -i seed.txt -g "2:(3-of-5,2-of-3)" --separate -o enterprise_backup
 ```
 
+#### Custom Entropy Sources (Advanced Users Only)
+```bash
+# Use hex entropy with quality analysis
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --entropy-analysis --allow-weak
+
+# Example output with quality analysis
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Language: English (en), Words: 24, Entropy: Custom (hex)
+
+📊 Entropy Quality Analysis:
+   Quality Score: 85/100
+   Warnings: None
+   Recommendations: Consider using system entropy for maximum security
+
+# Use dice rolls as entropy source
+sseed gen --entropy-dice "1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6" --force
+
+# Different dice formats supported
+sseed gen --entropy-dice "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6" --force
+sseed gen --entropy-dice "123456123456123456123456123456" --force
+
+# Weak entropy with warnings
+sseed gen --entropy-hex "0000000000000000000000000000000000000000000000000000000000000000" --allow-weak --force
+
+# Example output with security warnings
+⚠️ WARNING: Using custom hex entropy (NOT RECOMMENDED)
+❌ SECURITY WARNING: Entropy quality insufficient (0/100)
+   Warnings: Entropy is all zeros
+   Recommendations: This entropy is not suitable for cryptographic use
+
+# Custom entropy with file output
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --allow-weak -o custom_entropy_seed.txt
+```
+
+⚠️ **Critical Security Warning**: Custom entropy sources bypass SSeed's secure random number generation. Only use if:
+- You fully understand the cryptographic implications
+- You have a verified high-quality entropy source
+- You accept full responsibility for entropy security
+- You have tested the entropy quality thoroughly
+
+**Recommended**: Use default `sseed gen` for maximum security. See `docs/custom-entropy-security.md` for detailed security guidelines.
+
 ### Security Features
 - **Perfect Secrecy**: Insufficient shards reveal no information
 - **Integrity Protection**: Built-in SLIP-39 checksums
@@ -686,6 +822,49 @@ if [ $(ls shard*.txt | wc -l) -ge 3 ]; then
     sseed restore shard*.txt -o recovered_seed.txt
 fi
 ```
+
+#### Custom Entropy Sources (Advanced Users Only)
+```bash
+# Use hex entropy with quality analysis
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --entropy-analysis --allow-weak
+
+# Example output with quality analysis
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Language: English (en), Words: 24, Entropy: Custom (hex)
+
+📊 Entropy Quality Analysis:
+   Quality Score: 85/100
+   Warnings: None
+   Recommendations: Consider using system entropy for maximum security
+
+# Use dice rolls as entropy source
+sseed gen --entropy-dice "1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6" --force
+
+# Different dice formats supported
+sseed gen --entropy-dice "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6" --force
+sseed gen --entropy-dice "123456123456123456123456123456" --force
+
+# Weak entropy with warnings
+sseed gen --entropy-hex "0000000000000000000000000000000000000000000000000000000000000000" --allow-weak --force
+
+# Example output with security warnings
+⚠️ WARNING: Using custom hex entropy (NOT RECOMMENDED)
+❌ SECURITY WARNING: Entropy quality insufficient (0/100)
+   Warnings: Entropy is all zeros
+   Recommendations: This entropy is not suitable for cryptographic use
+
+# Custom entropy with file output
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --allow-weak -o custom_entropy_seed.txt
+```
+
+⚠️ **Critical Security Warning**: Custom entropy sources bypass SSeed's secure random number generation. Only use if:
+- You fully understand the cryptographic implications
+- You have a verified high-quality entropy source
+- You accept full responsibility for entropy security
+- You have tested the entropy quality thoroughly
+
+**Recommended**: Use default `sseed gen` for maximum security. See `docs/custom-entropy-security.md` for detailed security guidelines.
 
 ### Security Features
 - **Threshold Validation**: Ensures sufficient shards available
@@ -1038,6 +1217,49 @@ sseed seed -i mnemonic.txt --iterations 4096 --hex
 # Enterprise-grade security
 sseed seed -i mnemonic.txt --iterations 10000 --hex
 ```
+
+#### Custom Entropy Sources (Advanced Users Only)
+```bash
+# Use hex entropy with quality analysis
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --entropy-analysis --allow-weak
+
+# Example output with quality analysis
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Language: English (en), Words: 24, Entropy: Custom (hex)
+
+📊 Entropy Quality Analysis:
+   Quality Score: 85/100
+   Warnings: None
+   Recommendations: Consider using system entropy for maximum security
+
+# Use dice rolls as entropy source
+sseed gen --entropy-dice "1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6" --force
+
+# Different dice formats supported
+sseed gen --entropy-dice "1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6 1 2 3 4 5 6" --force
+sseed gen --entropy-dice "123456123456123456123456123456" --force
+
+# Weak entropy with warnings
+sseed gen --entropy-hex "0000000000000000000000000000000000000000000000000000000000000000" --allow-weak --force
+
+# Example output with security warnings
+⚠️ WARNING: Using custom hex entropy (NOT RECOMMENDED)
+❌ SECURITY WARNING: Entropy quality insufficient (0/100)
+   Warnings: Entropy is all zeros
+   Recommendations: This entropy is not suitable for cryptographic use
+
+# Custom entropy with file output
+sseed gen --entropy-hex "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456" --allow-weak -o custom_entropy_seed.txt
+```
+
+⚠️ **Critical Security Warning**: Custom entropy sources bypass SSeed's secure random number generation. Only use if:
+- You fully understand the cryptographic implications
+- You have a verified high-quality entropy source
+- You accept full responsibility for entropy security
+- You have tested the entropy quality thoroughly
+
+**Recommended**: Use default `sseed gen` for maximum security. See `docs/custom-entropy-security.md` for detailed security guidelines.
 
 ### Security Features
 - **BIP-39 Compliance**: Follows Bitcoin Improvement Proposal 39 specification exactly

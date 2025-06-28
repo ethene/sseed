@@ -62,30 +62,34 @@ def _normalize_mnemonic(mnemonic: str) -> str:
 
 
 def generate_mnemonic(
-    language: Optional[Bip39Languages] = None, word_count: int = 24
+    language: Optional[Bip39Languages] = None,
+    word_count: int = 24,
+    custom_entropy: Optional[bytes] = None,
 ) -> str:
-    """Generate a BIP-39 mnemonic with optional language and word count support.
+    """Generate a BIP-39 mnemonic with optional language, word count, and custom entropy support.
 
     Args:
         language: Optional BIP-39 language. Defaults to English for backward compatibility.
         word_count: Number of words in mnemonic (12, 15, 18, 21, or 24). Defaults to 24.
+        custom_entropy: Optional custom entropy bytes. If None, secure system entropy is used.
 
     Returns:
         Generated BIP-39 mnemonic string with specified word count.
 
     Raises:
         CryptoError: If mnemonic generation fails.
-        ValidationError: If word_count is not valid BIP-39 length.
+        ValidationError: If word_count is not valid BIP-39 length or custom_entropy is wrong size.
 
     Example:
-        >>> # English (default) - 24 words
+        >>> # English (default) - 24 words with system entropy
         >>> mnemonic_en = generate_mnemonic()
         >>> len(mnemonic_en.split())
         24
 
-        >>> # Spanish - 12 words
+        >>> # Spanish - 12 words with custom entropy
         >>> from bip_utils import Bip39Languages
-        >>> mnemonic_es = generate_mnemonic(Bip39Languages.SPANISH, 12)
+        >>> custom_entropy = b'\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f\\x10'
+        >>> mnemonic_es = generate_mnemonic(Bip39Languages.SPANISH, 12, custom_entropy)
         >>> len(mnemonic_es.split())
         12
     """
@@ -105,10 +109,22 @@ def generate_mnemonic(
         )
 
         # Calculate required entropy bytes from word count
-        entropy_bytes = word_count_to_entropy_bytes(word_count)
+        required_entropy_bytes = word_count_to_entropy_bytes(word_count)
 
-        # Generate secure entropy
-        entropy = generate_entropy_bytes(entropy_bytes)
+        # Use custom entropy if provided, otherwise generate secure entropy
+        if custom_entropy is not None:
+            # Validate custom entropy length
+            if len(custom_entropy) != required_entropy_bytes:
+                raise ValidationError(
+                    f"Custom entropy must be exactly {required_entropy_bytes} bytes "
+                    f"for {word_count} words, got {len(custom_entropy)} bytes"
+                )
+            entropy = custom_entropy
+            logger.info("Using custom entropy: %d bytes", len(entropy))
+        else:
+            # Generate secure entropy using system entropy
+            entropy = generate_entropy_bytes(required_entropy_bytes)
+            logger.debug("Generated system entropy: %d bytes", len(entropy))
 
         # Convert entropy to mnemonic (reuse existing working function)
         language_code = get_language_code_from_bip_enum(language)
@@ -127,12 +143,21 @@ def generate_mnemonic(
         # Get language info for logging
         try:
             lang_info = get_language_by_bip_enum(language)
+            entropy_source = "custom" if custom_entropy is not None else "system"
             logger.info(
-                "Successfully generated %d-word %s mnemonic", word_count, lang_info.name
+                "Successfully generated %d-word %s mnemonic using %s entropy",
+                word_count,
+                lang_info.name,
+                entropy_source,
             )
         except Exception as lang_error:  # pylint: disable=broad-exception-caught
             logger.debug("Could not get language info: %s", lang_error)
-            logger.info("Successfully generated %d-word mnemonic", word_count)
+            entropy_source = "custom" if custom_entropy is not None else "system"
+            logger.info(
+                "Successfully generated %d-word mnemonic using %s entropy",
+                word_count,
+                entropy_source,
+            )
 
         return mnemonic
 

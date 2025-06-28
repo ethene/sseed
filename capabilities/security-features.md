@@ -438,3 +438,49 @@ USER sseed
 # No network access
 # Minimal privileges
 ``` 
+### Custom Entropy Security
+
+#### Advanced Entropy Sources
+SSeed supports custom entropy sources for specialized use cases while maintaining strict security standards:
+
+**Security Layers:**
+- **Quality Scoring**: 0-100 scale with acceptance thresholds
+- **Pattern Detection**: All zeros, repeating sequences, predictable data
+- **Distribution Analysis**: Byte frequency analysis and bias detection
+- **Weakness Signatures**: Common weak entropy patterns (timestamps, ASCII text)
+- **User Consent**: Two-tier consent system (`--allow-weak`, `--force`)
+- **Security Warnings**: Clear warnings about entropy quality issues
+
+**Acceptance Thresholds:**
+- Default: Reject custom entropy (use system entropy)
+- `--allow-weak`: Accept entropy with score ≥ 70 (≥ 60 for dice)
+- `--force`: Override all quality checks (dangerous, requires explicit consent)
+
+**Quality Analysis Examples:**
+```bash
+# Good quality entropy (Score: 95/100)
+📊 Entropy Quality Analysis:
+   Quality Score: 95/100
+   Warnings: None
+   Recommendations: Entropy quality is excellent
+
+# Poor quality entropy (Score: 20/100)
+📊 Entropy Quality Analysis:
+   Quality Score: 20/100
+   Warnings: Entropy contains repeating 1-byte pattern
+   Recommendations: This entropy is not suitable for cryptographic use
+```
+
+**Security Warnings:**
+- ⚠️ WARNING: Using custom hex entropy (NOT RECOMMENDED)
+- ❌ SECURITY WARNING: Entropy quality insufficient (score/100)
+- 🚨 CRITICAL: This entropy appears to be non-random
+
+**Recommended Practices:**
+- Use system entropy (`sseed gen`) for maximum security
+- Only use custom entropy if you understand the cryptographic implications
+- Always validate entropy quality with `--entropy-analysis`
+- Never reuse the same entropy source
+- Document entropy generation procedures for audit purposes
+
+See `docs/custom-entropy-security.md` for comprehensive security guidelines.
