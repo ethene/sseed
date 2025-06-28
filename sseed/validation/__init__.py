@@ -29,22 +29,24 @@ from sseed.validation.structure import (
 # Phase 2 modules - Advanced validation features
 try:
     from sseed.validation.analysis import (
-        analyze_mnemonic_comprehensive,
         MnemonicAnalysisResult,
         SecurityAnalyzer,
+        analyze_mnemonic_comprehensive,
     )
+
     _ANALYSIS_AVAILABLE = True
 except ImportError:
     _ANALYSIS_AVAILABLE = False
 
 try:
     from sseed.validation.cross_tool import (
-        test_cross_tool_compatibility,
-        get_available_tools,
-        is_tool_available,
         CrossToolCompatibilityResult,
         CrossToolTester,
+        get_available_tools,
+        is_tool_available,
+        test_cross_tool_compatibility,
     )
+
     _CROSS_TOOL_AVAILABLE = True
 except ImportError:
     _CROSS_TOOL_AVAILABLE = False
@@ -52,19 +54,21 @@ except ImportError:
 # Phase 3 modules - Batch processing and advanced formatting
 try:
     from sseed.validation.batch import (
-        validate_batch_files,
-        BatchValidator,
         BatchValidationResult,
+        BatchValidator,
+        validate_batch_files,
     )
+
     _BATCH_AVAILABLE = True
 except ImportError:
     _BATCH_AVAILABLE = False
 
 try:
     from sseed.validation.formatters import (
-        format_validation_output,
         ValidationFormatter,
+        format_validation_output,
     )
+
     _FORMATTERS_AVAILABLE = True
 except ImportError:
     _FORMATTERS_AVAILABLE = False
@@ -72,10 +76,11 @@ except ImportError:
 # Phase 4 modules - Backup verification
 try:
     from sseed.validation.backup_verification import (
-        verify_backup_integrity,
-        BackupVerifier,
         BackupVerificationResult,
+        BackupVerifier,
+        verify_backup_integrity,
     )
+
     _BACKUP_VERIFICATION_AVAILABLE = True
 except ImportError:
     _BACKUP_VERIFICATION_AVAILABLE = False
@@ -101,42 +106,52 @@ __all__ = [
 
 # Add Phase 2 functions if available
 if _ANALYSIS_AVAILABLE:
-    __all__.extend([
-        "analyze_mnemonic_comprehensive",
-        "MnemonicAnalysisResult",
-        "SecurityAnalyzer",
-    ])
+    __all__.extend(
+        [
+            "analyze_mnemonic_comprehensive",
+            "MnemonicAnalysisResult",
+            "SecurityAnalyzer",
+        ]
+    )
 
 if _CROSS_TOOL_AVAILABLE:
-    __all__.extend([
-        "test_cross_tool_compatibility",
-        "get_available_tools",
-        "is_tool_available",
-        "CrossToolCompatibilityResult",
-        "CrossToolTester",
-    ])
+    __all__.extend(
+        [
+            "test_cross_tool_compatibility",
+            "get_available_tools",
+            "is_tool_available",
+            "CrossToolCompatibilityResult",
+            "CrossToolTester",
+        ]
+    )
 
 # Add Phase 3 functions if available
 if _BATCH_AVAILABLE:
-    __all__.extend([
-        "validate_batch_files",
-        "BatchValidator",
-        "BatchValidationResult",
-    ])
+    __all__.extend(
+        [
+            "validate_batch_files",
+            "BatchValidator",
+            "BatchValidationResult",
+        ]
+    )
 
 if _FORMATTERS_AVAILABLE:
-    __all__.extend([
-        "format_validation_output",
-        "ValidationFormatter",
-    ])
+    __all__.extend(
+        [
+            "format_validation_output",
+            "ValidationFormatter",
+        ]
+    )
 
 # Add Phase 4 functions if available
 if _BACKUP_VERIFICATION_AVAILABLE:
-    __all__.extend([
-        "verify_backup_integrity",
-        "BackupVerifier",
-        "BackupVerificationResult",
-    ])
+    __all__.extend(
+        [
+            "verify_backup_integrity",
+            "BackupVerifier",
+            "BackupVerificationResult",
+        ]
+    )
 
 # Module availability flags
 ANALYSIS_AVAILABLE = _ANALYSIS_AVAILABLE

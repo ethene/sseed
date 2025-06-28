@@ -130,7 +130,9 @@ def show_examples(_: argparse.Namespace) -> int:
 
     print("🔍 Mnemonic Validation & Analysis:")
     print("   # Basic validation")
-    print("   echo 'clarify off only today...' | sseed validate    # Validate from stdin")
+    print(
+        "   echo 'clarify off only today...' | sseed validate    # Validate from stdin"
+    )
     print("   sseed validate -i wallet.txt                        # Validate from file")
     print("   sseed validate 'clarify off only today...'          # Direct validation")
     print()
@@ -138,7 +140,9 @@ def show_examples(_: argparse.Namespace) -> int:
     print("   sseed validate -i wallet.txt --mode advanced        # Deep analysis")
     print("   sseed validate -i wallet.txt --mode entropy         # Entropy analysis")
     print("   sseed validate -i wallet.txt --mode compatibility   # Cross-tool testing")
-    print("   sseed validate -i wallet.txt --mode backup          # Backup verification")
+    print(
+        "   sseed validate -i wallet.txt --mode backup          # Backup verification"
+    )
     print()
     print("   # Backup verification workflows")
     print("   sseed validate -i original.txt --mode backup \\")

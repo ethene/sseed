@@ -7,20 +7,32 @@ multiple mnemonic files concurrently with pattern matching and result aggregatio
 import glob
 import logging
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    as_completed,
+)
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+)
 
+from ..exceptions import (
+    FileError,
+    ValidationError,
+)
 from ..file_operations.readers import read_mnemonic_from_file
 from .analysis import analyze_mnemonic_comprehensive
-from ..exceptions import ValidationError, FileError
 
 logger = logging.getLogger(__name__)
 
 
 class BatchValidationResult:
     """Results of batch validation operation."""
-    
+
     def __init__(self):
         self.total_files: int = 0
         self.processed_files: int = 0
@@ -34,7 +46,7 @@ class BatchValidationResult:
         self.file_results: List[Dict[str, Any]] = []
         self.errors: List[Dict[str, Any]] = []
         self.summary_stats: Dict[str, Any] = {}
-        
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert batch result to dictionary."""
         return {
@@ -52,13 +64,13 @@ class BatchValidationResult:
             "file_results": self.file_results,
             "errors": self.errors,
         }
-        
+
     def get_success_rate(self) -> float:
         """Calculate success rate as percentage."""
         if self.processed_files == 0:
             return 0.0
         return (self.passed_files / self.processed_files) * 100.0
-        
+
     def add_file_result(self, file_path: str, analysis_result: Dict[str, Any]) -> None:
         """Add a file validation result."""
         file_result = {
@@ -68,12 +80,12 @@ class BatchValidationResult:
             "passed": analysis_result.get("overall_score", 0) >= 70,
         }
         self.file_results.append(file_result)
-        
+
         if file_result["passed"]:
             self.passed_files += 1
         else:
             self.failed_files += 1
-            
+
     def add_error(self, file_path: str, error: str) -> None:
         """Add a file processing error."""
         error_result = {
@@ -84,18 +96,21 @@ class BatchValidationResult:
         }
         self.errors.append(error_result)
         self.error_files += 1
-        
+
     def calculate_statistics(self) -> None:
         """Calculate summary statistics from file results."""
         if not self.file_results:
             return
-            
-        scores = [r["analysis"]["overall_score"] for r in self.file_results 
-                 if "overall_score" in r["analysis"]]
-        
+
+        scores = [
+            r["analysis"]["overall_score"]
+            for r in self.file_results
+            if "overall_score" in r["analysis"]
+        ]
+
         if scores:
             self.average_score = sum(scores) / len(scores)
-            
+
             self.summary_stats = {
                 "score_distribution": {
                     "min": min(scores),
@@ -113,37 +128,45 @@ class BatchValidationResult:
                 "language_distribution": {},
                 "word_count_distribution": {},
             }
-            
+
             # Language distribution
-            languages = [r["analysis"]["checks"]["language"]["detected"] 
-                        for r in self.file_results 
-                        if "language" in r["analysis"]["checks"]
-                        and "detected" in r["analysis"]["checks"]["language"]]
-            
+            languages = [
+                r["analysis"]["checks"]["language"]["detected"]
+                for r in self.file_results
+                if "language" in r["analysis"]["checks"]
+                and "detected" in r["analysis"]["checks"]["language"]
+            ]
+
             for lang in set(languages):
-                self.summary_stats["language_distribution"][lang] = languages.count(lang)
-                
+                self.summary_stats["language_distribution"][lang] = languages.count(
+                    lang
+                )
+
             # Word count distribution
-            word_counts = [r["analysis"]["checks"]["format"]["word_count"]
-                          for r in self.file_results
-                          if "format" in r["analysis"]["checks"]
-                          and "word_count" in r["analysis"]["checks"]["format"]]
-            
+            word_counts = [
+                r["analysis"]["checks"]["format"]["word_count"]
+                for r in self.file_results
+                if "format" in r["analysis"]["checks"]
+                and "word_count" in r["analysis"]["checks"]["format"]
+            ]
+
             for count in set(word_counts):
-                self.summary_stats["word_count_distribution"][str(count)] = word_counts.count(count)
+                self.summary_stats["word_count_distribution"][str(count)] = (
+                    word_counts.count(count)
+                )
 
 
 class BatchValidator:
     """Efficient batch validation with concurrent processing."""
-    
+
     def __init__(self, max_workers: Optional[int] = None):
         """Initialize batch validator.
-        
+
         Args:
             max_workers: Maximum number of concurrent workers (default: CPU count)
         """
         self.max_workers = max_workers or min(32, (Path.cwd().stat().st_dev or 1) + 4)
-        
+
     def validate_files(
         self,
         file_patterns: List[str],
@@ -153,31 +176,31 @@ class BatchValidator:
         include_analysis: bool = True,
     ) -> BatchValidationResult:
         """Validate multiple files using patterns.
-        
+
         Args:
             file_patterns: List of file patterns (glob supported)
             expected_language: Expected language for all files
             strict_mode: Enable strict validation mode
             fail_fast: Stop on first error
             include_analysis: Include full analysis in results
-            
+
         Returns:
             BatchValidationResult with aggregated results
         """
         result = BatchValidationResult()
         result.start_time = time.perf_counter()
-        
+
         try:
             # Expand file patterns
             file_paths = self._expand_file_patterns(file_patterns)
             result.total_files = len(file_paths)
-            
+
             if not file_paths:
                 logger.warning("No files found matching patterns: %s", file_patterns)
                 return result
-                
+
             logger.info("Starting batch validation of %d files", len(file_paths))
-            
+
             # Process files concurrently
             with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
                 # Submit all validation tasks
@@ -187,57 +210,59 @@ class BatchValidator:
                         file_path,
                         expected_language,
                         strict_mode,
-                        include_analysis
+                        include_analysis,
                     ): file_path
                     for file_path in file_paths
                 }
-                
+
                 # Collect results as they complete
                 for future in as_completed(future_to_file):
                     file_path = future_to_file[future]
                     result.processed_files += 1
-                    
+
                     try:
                         file_result = future.result()
                         if file_result["success"]:
                             result.add_file_result(file_path, file_result["analysis"])
                         else:
                             result.add_error(file_path, file_result["error"])
-                            
+
                     except Exception as e:
                         logger.error("Unexpected error processing %s: %s", file_path, e)
                         result.add_error(file_path, f"Unexpected error: {str(e)}")
-                        
+
                     # Fail fast if requested
                     if fail_fast and result.error_files > 0:
-                        logger.warning("Stopping batch validation due to fail_fast mode")
+                        logger.warning(
+                            "Stopping batch validation due to fail_fast mode"
+                        )
                         break
-                        
+
             # Calculate final statistics
             result.calculate_statistics()
-            
+
             result.end_time = time.perf_counter()
             result.total_duration_ms = (result.end_time - result.start_time) * 1000
-            
+
             logger.info(
                 "Batch validation completed: %d/%d files processed, %.1f%% success rate, %.2fms total",
                 result.processed_files,
                 result.total_files,
                 result.get_success_rate(),
-                result.total_duration_ms
+                result.total_duration_ms,
             )
-            
+
             return result
-            
+
         except Exception as e:
             logger.error("Batch validation failed: %s", e)
             result.add_error("batch_operation", f"Batch validation failed: {str(e)}")
             return result
-            
+
     def _expand_file_patterns(self, patterns: List[str]) -> List[str]:
         """Expand file patterns using glob."""
         file_paths = []
-        
+
         for pattern in patterns:
             try:
                 # Handle both absolute and relative paths
@@ -245,22 +270,24 @@ class BatchValidator:
                     matches = glob.glob(pattern)
                 else:
                     matches = glob.glob(pattern, recursive=True)
-                    
+
                 # Filter to only include files (not directories)
                 file_matches = [p for p in matches if Path(p).is_file()]
                 file_paths.extend(file_matches)
-                
-                logger.debug("Pattern '%s' matched %d files", pattern, len(file_matches))
-                
+
+                logger.debug(
+                    "Pattern '%s' matched %d files", pattern, len(file_matches)
+                )
+
             except Exception as e:
                 logger.warning("Error expanding pattern '%s': %s", pattern, e)
-                
+
         # Remove duplicates and sort
         unique_paths = sorted(set(file_paths))
         logger.debug("Total unique files found: %d", len(unique_paths))
-        
+
         return unique_paths
-        
+
     def _validate_single_file(
         self,
         file_path: str,
@@ -269,32 +296,33 @@ class BatchValidator:
         include_analysis: bool,
     ) -> Dict[str, Any]:
         """Validate a single file.
-        
+
         Returns:
             Dict with success flag, analysis result or error message
         """
         try:
             logger.debug("Validating file: %s", file_path)
-            
+
             # Read mnemonic from file
             mnemonic = read_mnemonic_from_file(file_path)
-            
+
             if not mnemonic or not mnemonic.strip():
                 return {
                     "success": False,
-                    "error": "File is empty or contains no valid mnemonic"
+                    "error": "File is empty or contains no valid mnemonic",
                 }
-                
+
             # Perform comprehensive analysis
             if include_analysis:
                 analysis_result = analyze_mnemonic_comprehensive(
                     mnemonic.strip(),
                     expected_language=expected_language,
-                    strict_mode=strict_mode
+                    strict_mode=strict_mode,
                 )
             else:
                 # Basic validation only
                 from ..bip39 import validate_mnemonic
+
                 try:
                     validate_mnemonic(mnemonic.strip())
                     analysis_result = {
@@ -303,7 +331,7 @@ class BatchValidator:
                         "checks": {
                             "format": {"status": "pass"},
                             "checksum": {"status": "pass"},
-                        }
+                        },
                     }
                 except Exception:
                     analysis_result = {
@@ -312,29 +340,17 @@ class BatchValidator:
                         "checks": {
                             "format": {"status": "fail"},
                             "checksum": {"status": "fail"},
-                        }
+                        },
                     }
-                    
-            return {
-                "success": True,
-                "analysis": analysis_result
-            }
-            
+
+            return {"success": True, "analysis": analysis_result}
+
         except FileError as e:
-            return {
-                "success": False,
-                "error": f"File read error: {str(e)}"
-            }
+            return {"success": False, "error": f"File read error: {str(e)}"}
         except ValidationError as e:
-            return {
-                "success": False,
-                "error": f"Validation error: {str(e)}"
-            }
+            return {"success": False, "error": f"Validation error: {str(e)}"}
         except Exception as e:
-            return {
-                "success": False,
-                "error": f"Unexpected error: {str(e)}"
-            }
+            return {"success": False, "error": f"Unexpected error: {str(e)}"}
 
 
 def validate_batch_files(
@@ -346,7 +362,7 @@ def validate_batch_files(
     max_workers: Optional[int] = None,
 ) -> Dict[str, Any]:
     """Public interface for batch validation.
-    
+
     Args:
         file_patterns: List of file patterns (glob supported)
         expected_language: Expected language for all files
@@ -354,7 +370,7 @@ def validate_batch_files(
         fail_fast: Stop on first error
         include_analysis: Include full analysis in results
         max_workers: Maximum concurrent workers
-        
+
     Returns:
         Dictionary with batch validation results
     """
@@ -366,4 +382,4 @@ def validate_batch_files(
         fail_fast=fail_fast,
         include_analysis=include_analysis,
     )
-    return result.to_dict() 
+    return result.to_dict()
