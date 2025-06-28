@@ -323,7 +323,7 @@ class Bip85Command(BaseCommand):
         """Handle hex entropy generation."""
         try:
             # Validate byte count
-            if not (16 <= args.bytes <= 64):
+            if not 16 <= args.bytes <= 64:
                 raise ValueError("Byte count must be between 16 and 64")
 
             hex_entropy = apps.derive_hex_entropy(
@@ -351,7 +351,7 @@ class Bip85Command(BaseCommand):
         """Handle password generation."""
         try:
             # Validate password length
-            if not (10 <= args.length <= 128):
+            if not 10 <= args.length <= 128:
                 raise ValueError("Password length must be between 10 and 128")
 
             password = apps.derive_password(

@@ -1,10 +1,8 @@
 """Backup verification module for comprehensive SLIP-39 backup testing."""
 
 import logging
-import os
 import tempfile
 import time
-from pathlib import Path
 from typing import (
     Any,
     Dict,
@@ -33,83 +31,74 @@ class BackupVerificationResult:
         self.errors: List[str] = []
         self.warnings: List[str] = []
         self.recommendations: List[str] = []
-        self.performance_metrics: Dict[str, float] = {}
+        self.timing_data: Dict[str, float] = {}
         self.overall_score: int = 0
-        self.total_duration_ms: float = 0.0
-        self.timestamp: Optional[str] = None
+        self.is_valid: bool = False
 
-    def add_test_result(
-        self, test_name: str, success: bool, details: Dict[str, Any]
-    ) -> None:
-        """Add a test result to the verification."""
+    def add_test_result(self, test_name: str, result: Dict[str, Any]) -> None:
+        """Add a test result."""
         self.tests_performed.append(test_name)
-        self.test_results[test_name] = {
-            "success": success,
-            "details": details,
-            "timestamp": time.time(),
-        }
+        self.test_results[test_name] = result
 
-    def add_error(self, error: str) -> None:
-        """Add an error to the results."""
-        self.errors.append(error)
+        if not result.get("passed", False):
+            self.errors.append(f"{test_name}: {result.get('error', 'Unknown error')}")
+
+    def add_timing(self, operation: str, duration: float) -> None:
+        """Add timing data for an operation."""
+        self.timing_data[operation] = duration
 
     def add_warning(self, warning: str) -> None:
-        """Add a warning to the results."""
+        """Add a warning message."""
         self.warnings.append(warning)
 
     def add_recommendation(self, recommendation: str) -> None:
-        """Add a recommendation to the results."""
+        """Add a recommendation."""
         self.recommendations.append(recommendation)
 
-    def calculate_score(self) -> int:
-        """Calculate overall score based on test results."""
-        if not self.test_results:
-            return 0
+    def calculate_score(self) -> None:
+        """Calculate overall backup verification score."""
+        if not self.tests_performed:
+            self.overall_score = 0
+            return
 
-        total_tests = len(self.test_results)
-        successful_tests = sum(
-            1 for result in self.test_results.values() if result["success"]
+        passed_tests = sum(
+            1 for test in self.test_results.values() if test.get("passed", False)
         )
+        total_tests = len(self.tests_performed)
 
-        # Base score from test success rate
-        base_score = int((successful_tests / total_tests) * 100)
+        base_score = (passed_tests / total_tests) * 100
 
-        # Deduct points for errors and warnings
-        error_penalty = min(len(self.errors) * 10, 30)
-        warning_penalty = min(len(self.warnings) * 5, 20)
+        # Deduct points for warnings
+        warning_penalty = len(self.warnings) * 5
+        self.overall_score = max(0, int(base_score - warning_penalty))
 
-        final_score = max(0, base_score - error_penalty - warning_penalty)
-        self.overall_score = final_score
-        return final_score
+        self.is_valid = self.overall_score >= 70
 
-    def get_status(self) -> str:
-        """Get overall status based on score."""
-        score = self.overall_score if self.overall_score > 0 else self.calculate_score()
-
-        if score >= 90:
+    def get_status_level(self) -> str:
+        """Get status level based on score."""
+        if self.overall_score >= 90:
             return "excellent"
-        elif score >= 80:
+        if self.overall_score >= 80:
             return "good"
-        elif score >= 70:
+        if self.overall_score >= 70:
             return "acceptable"
-        elif score >= 50:
+        if self.overall_score >= 50:
             return "poor"
-        else:
-            return "fail"
+        return "fail"
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert result to dictionary format."""
         return {
+            "is_valid": self.is_valid,
+            "overall_score": self.overall_score,
+            "status_level": self.get_status_level(),
             "tests_performed": self.tests_performed,
             "test_results": self.test_results,
             "errors": self.errors,
             "warnings": self.warnings,
             "recommendations": self.recommendations,
-            "performance_metrics": self.performance_metrics,
-            "overall_score": self.overall_score,
-            "overall_status": self.get_status(),
-            "total_duration_ms": self.total_duration_ms,
-            "timestamp": self.timestamp or time.time(),
+            "timing_data": self.timing_data,
+            "mode": "backup_verification",
         }
 
 
@@ -121,7 +110,7 @@ class BackupVerifier:
         mnemonic: str,
         shard_files: Optional[List[str]] = None,
         group_config: str = "3-of-5",
-        iterations: int = 10,
+        iterations: int = 5,
         stress_test: bool = False,
     ):
         """Initialize backup verifier."""
@@ -130,49 +119,39 @@ class BackupVerifier:
         self.group_config = group_config
         self.iterations = iterations
         self.stress_test = stress_test
-        self.temp_dir: Optional[str] = None
+        self.temp_dir = None
         self.result = BackupVerificationResult()
 
     def __enter__(self):
         """Enter context manager."""
-        import shutil  # pylint: disable=import-outside-toplevel
-
-        self.temp_dir = tempfile.mkdtemp(prefix="sseed_backup_verification_")
-        logger.debug("Created temporary directory: %s", self.temp_dir)
+        self.temp_dir = tempfile.mkdtemp(prefix="backup_verification_")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit context manager and cleanup."""
-        if self.temp_dir and os.path.exists(self.temp_dir):
-            import shutil  # pylint: disable=import-outside-toplevel
+        """Exit context manager."""
+        if self.temp_dir:
+            import shutil
 
-            shutil.rmtree(self.temp_dir)
-            logger.debug("Cleaned up temporary directory: %s", self.temp_dir)
+            try:
+                shutil.rmtree(self.temp_dir)
+            except Exception as e:
+                logger.warning("Failed to cleanup temp directory: %s", e)
 
-    def verify_backup_integrity(
-        self,
-        mnemonic: str,
-        shard_files: Optional[List[str]] = None,
-        group_config: str = "3-of-5",
-        iterations: int = 10,
-        stress_test: bool = False,
-    ) -> BackupVerificationResult:
+    def verify_backup_integrity(self) -> BackupVerificationResult:
         """Perform comprehensive backup verification."""
-        start_time = time.time()
-
         try:
             # Test 1: Validate original mnemonic
-            self._test_original_mnemonic_validation()
+            self._test_original_mnemonic()
 
-            # Test 2: Validate existing shard files (if provided)
-            if shard_files:
-                self._test_existing_shard_files()
+            # Test 2: Verify existing shard files (if provided)
+            if self.shard_files:
+                self._test_existing_shards()
 
             # Test 3: Round-trip backup verification
             self._test_round_trip_backup()
 
             # Test 4: Multiple iteration testing
-            if iterations > 1:
+            if self.iterations > 1:
                 self._test_multiple_iterations()
 
             # Test 5: Shard combination testing
@@ -181,121 +160,85 @@ class BackupVerifier:
             # Test 6: Entropy consistency verification
             self._test_entropy_consistency()
 
-            # Calculate final score and status
+            # Calculate final score and recommendations
             self.result.calculate_score()
-
-            # Add performance metrics
-            self.result.total_duration_ms = (time.time() - start_time) * 1000
-
-            # Generate recommendations
             self._generate_recommendations()
 
             return self.result
 
         except Exception as e:
-            logger.error("Backup verification failed: %s", str(e))
-            self.result.add_error(f"Verification failed: {e}")
-            self.result.total_duration_ms = (time.time() - start_time) * 1000
+            logger.error("Backup verification failed: %s", e)
+            self.result.add_test_result(
+                "verification", {"passed": False, "error": str(e)}
+            )
+            self.result.calculate_score()
             return self.result
 
-    def _test_original_mnemonic_validation(self) -> None:
-        """Test original mnemonic validation."""
-        test_name = "original_mnemonic_validation"
+    def _test_original_mnemonic(self) -> None:
+        """Test original mnemonic validity."""
         start_time = time.time()
-
         try:
-            # Validate the original mnemonic
             is_valid = validate_mnemonic(self.mnemonic)
+            duration = time.time() - start_time
 
-            details = {
-                "mnemonic_valid": is_valid,
-                "word_count": len(self.mnemonic.split()),
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
+            self.result.add_test_result(
+                "original_mnemonic",
+                {
+                    "passed": is_valid,
+                    "duration": duration,
+                    "details": "Original mnemonic validation",
+                },
+            )
+            self.result.add_timing("mnemonic_validation", duration)
 
-            if is_valid:
-                self.result.add_test_result(test_name, True, details)
-            else:
-                self.result.add_test_result(test_name, False, details)
-                self.result.add_error("Original mnemonic failed validation")
+            if not is_valid:
+                self.result.add_warning("Original mnemonic failed validation")
 
         except Exception as e:
-            details = {
-                "error": str(e),
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
-            self.result.add_test_result(test_name, False, details)
-            self.result.add_error(f"Original mnemonic validation failed: {e}")
+            self.result.add_test_result(
+                "original_mnemonic", {"passed": False, "error": str(e)}
+            )
 
-    def _test_existing_shard_files(self) -> None:
-        """Test existing shard files if provided."""
-        test_name = "existing_shard_files"
+    def _test_existing_shards(self) -> None:
+        """Test existing shard files."""
         start_time = time.time()
-
         try:
-            if not self.shard_files:
-                self.result.add_warning("No existing shard files provided for testing")
-                return
-
-            # Read and validate each shard file
-            valid_shards = []
+            shard_mnemonics = []
             for shard_file in self.shard_files:
-                try:
-                    shard_content = read_mnemonic_from_file(shard_file)
-                    if shard_content:
-                        valid_shards.append(shard_content)
-                except Exception as e:
-                    self.result.add_error(
-                        f"Failed to read shard file {shard_file}: {e}"
-                    )
+                shard_mnemonic = read_mnemonic_from_file(shard_file)
+                shard_mnemonics.append(shard_mnemonic)
 
-            # Test reconstruction from existing shards
-            if len(valid_shards) >= 3:  # Minimum threshold for typical SLIP-39
-                try:
-                    reconstructed = reconstruct_mnemonic_from_shards(valid_shards)
-                    reconstruction_success = reconstructed == self.mnemonic
+            # Try to reconstruct from existing shards
+            reconstructed = reconstruct_mnemonic_from_shards(shard_mnemonics)
+            duration = time.time() - start_time
 
-                    details = {
-                        "shard_files_count": len(self.shard_files),
-                        "valid_shards_count": len(valid_shards),
-                        "reconstruction_success": reconstruction_success,
-                        "duration_ms": (time.time() - start_time) * 1000,
-                    }
+            # Verify reconstruction matches original
+            matches_original = reconstructed.strip() == self.mnemonic.strip()
 
-                    self.result.add_test_result(
-                        test_name, reconstruction_success, details
-                    )
+            self.result.add_test_result(
+                "existing_shards",
+                {
+                    "passed": matches_original,
+                    "duration": duration,
+                    "shard_count": len(shard_mnemonics),
+                    "reconstructed_matches": matches_original,
+                },
+            )
+            self.result.add_timing("shard_reconstruction", duration)
 
-                    if not reconstruction_success:
-                        self.result.add_error(
-                            "Existing shards failed to reconstruct original mnemonic"
-                        )
-
-                except Exception as e:
-                    details = {
-                        "error": str(e),
-                        "duration_ms": (time.time() - start_time) * 1000,
-                    }
-                    self.result.add_test_result(test_name, False, details)
-                    self.result.add_error(f"Shard reconstruction failed: {e}")
-            else:
+            if not matches_original:
                 self.result.add_warning(
-                    f"Insufficient shards for testing: {len(valid_shards)} < 3"
+                    "Existing shards do not reconstruct to original mnemonic"
                 )
 
         except Exception as e:
-            details = {
-                "error": str(e),
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
-            self.result.add_test_result(test_name, False, details)
-            self.result.add_error(f"Existing shard file testing failed: {e}")
+            self.result.add_test_result(
+                "existing_shards", {"passed": False, "error": str(e)}
+            )
 
     def _test_round_trip_backup(self) -> None:
         """Test complete round-trip backup process."""
-        test_name = "round_trip_backup"
         start_time = time.time()
-
         try:
             # Parse group configuration
             group_threshold, groups = self._parse_group_config(self.group_config)
@@ -305,121 +248,129 @@ class BackupVerifier:
             shards = create_slip39_shards(
                 self.mnemonic, group_threshold=group_threshold, groups=groups
             )
-            generation_time = (time.time() - generation_start) * 1000
+            generation_time = time.time() - generation_start
 
             # Write shards to temporary files
             io_start = time.time()
             shard_files = []
             for i, shard in enumerate(shards):
-                shard_file = os.path.join(self.temp_dir, f"shard_{i+1}.txt")
+                shard_file = f"{self.temp_dir}/shard_{i}.txt"
                 write_mnemonic_to_file(shard, shard_file)
                 shard_files.append(shard_file)
-            io_time = (time.time() - io_start) * 1000
+            io_time = time.time() - io_start
 
-            # Read shards back from files
+            # Read shards back
             read_start = time.time()
             read_shards = []
             for shard_file in shard_files:
                 shard_content = read_mnemonic_from_file(shard_file)
                 read_shards.append(shard_content)
-            read_time = (time.time() - read_start) * 1000
+            read_time = time.time() - read_start
 
             # Reconstruct mnemonic
             reconstruction_start = time.time()
-            reconstructed = reconstruct_mnemonic_from_shards(
-                read_shards[:group_threshold]
-            )
-            reconstruction_time = (time.time() - reconstruction_start) * 1000
+            reconstructed = reconstruct_mnemonic_from_shards(read_shards)
+            reconstruction_time = time.time() - reconstruction_start
+
+            total_duration = time.time() - start_time
 
             # Verify reconstruction
-            success = reconstructed == self.mnemonic
+            matches_original = reconstructed.strip() == self.mnemonic.strip()
 
-            details = {
-                "shards_generated": len(shards),
-                "files_written": len(shard_files),
-                "files_read": len(read_shards),
-                "reconstruction_success": success,
-                "generation_time_ms": generation_time,
-                "io_time_ms": io_time,
-                "read_time_ms": read_time,
-                "reconstruction_time_ms": reconstruction_time,
-                "total_duration_ms": (time.time() - start_time) * 1000,
-            }
+            self.result.add_test_result(
+                "round_trip_backup",
+                {
+                    "passed": matches_original,
+                    "duration": total_duration,
+                    "generation_time": generation_time,
+                    "io_time": io_time,
+                    "read_time": read_time,
+                    "reconstruction_time": reconstruction_time,
+                    "shard_count": len(shards),
+                    "matches_original": matches_original,
+                },
+            )
 
-            self.result.add_test_result(test_name, success, details)
+            self.result.add_timing("total_round_trip", total_duration)
+            self.result.add_timing("shard_generation", generation_time)
+            self.result.add_timing("file_io", io_time + read_time)
 
-            if not success:
-                self.result.add_error(
-                    "Round-trip backup failed: reconstructed mnemonic doesn't match original"
+            if not matches_original:
+                self.result.add_warning(
+                    "Round-trip backup failed to reconstruct original mnemonic"
                 )
 
         except Exception as e:
-            details = {
-                "error": str(e),
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
-            self.result.add_test_result(test_name, False, details)
-            self.result.add_error(f"Round-trip backup testing failed: {e}")
+            self.result.add_test_result(
+                "round_trip_backup", {"passed": False, "error": str(e)}
+            )
 
     def _test_multiple_iterations(self) -> None:
         """Test multiple backup iterations for consistency."""
-        test_name = "multiple_iterations"
         start_time = time.time()
-
         try:
-            group_threshold, groups = self._parse_group_config(self.group_config)
             successful_iterations = 0
+            iteration_times = []
 
-            for iteration in range(self.iterations):
+            for i in range(self.iterations):
                 try:
-                    # Generate shards for this iteration
+                    iteration_start = time.time()
+
+                    # Parse group configuration
+                    group_threshold, groups = self._parse_group_config(
+                        self.group_config
+                    )
+
+                    # Generate and test shards
                     shards = create_slip39_shards(
                         self.mnemonic, group_threshold=group_threshold, groups=groups
                     )
+                    reconstructed = reconstruct_mnemonic_from_shards(shards)
 
-                    # Test reconstruction
-                    reconstructed = reconstruct_mnemonic_from_shards(
-                        shards[:group_threshold]
-                    )
+                    iteration_time = time.time() - iteration_start
+                    iteration_times.append(iteration_time)
 
-                    if reconstructed == self.mnemonic:
+                    if reconstructed.strip() == self.mnemonic.strip():
                         successful_iterations += 1
 
                 except Exception as e:
-                    logger.debug("Iteration %d failed: %s", iteration + 1, str(e))
+                    logger.warning("Iteration %d failed: %s", i, e)
 
+            total_duration = time.time() - start_time
             success_rate = (successful_iterations / self.iterations) * 100
+            avg_iteration_time = (
+                sum(iteration_times) / len(iteration_times) if iteration_times else 0
+            )
 
-            details = {
-                "total_iterations": self.iterations,
-                "successful_iterations": successful_iterations,
-                "success_rate": success_rate,
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
+            self.result.add_test_result(
+                "multiple_iterations",
+                {
+                    "passed": success_rate >= 95,  # 95% success rate required
+                    "duration": total_duration,
+                    "iterations": self.iterations,
+                    "successful_iterations": successful_iterations,
+                    "success_rate": success_rate,
+                    "average_iteration_time": avg_iteration_time,
+                },
+            )
 
-            success = success_rate >= 95  # 95% success rate threshold
-
-            self.result.add_test_result(test_name, success, details)
+            self.result.add_timing("multi_iteration_test", total_duration)
 
             if success_rate < 100:
                 self.result.add_warning(
-                    f"Some iterations failed: {success_rate:.1f}% success rate"
+                    f"Only {success_rate:.1f}% of iterations successful"
                 )
 
         except Exception as e:
-            details = {
-                "error": str(e),
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
-            self.result.add_test_result(test_name, False, details)
-            self.result.add_error(f"Multiple iteration testing failed: {e}")
+            self.result.add_test_result(
+                "multiple_iterations", {"passed": False, "error": str(e)}
+            )
 
     def _test_shard_combinations(self) -> None:
-        """Test different combinations of shards for reconstruction."""
-        test_name = "shard_combinations"
+        """Test different shard combinations."""
         start_time = time.time()
-
         try:
+            # Parse group configuration
             group_threshold, groups = self._parse_group_config(self.group_config)
 
             # Generate shards
@@ -428,108 +379,85 @@ class BackupVerifier:
             )
 
             # Test minimum threshold
-            min_threshold_success = False
-            try:
-                reconstructed = reconstruct_mnemonic_from_shards(
-                    shards[:group_threshold]
-                )
-                min_threshold_success = reconstructed == self.mnemonic
-            except Exception as e:
-                logger.debug("Minimum threshold test failed: %s", str(e))
+            threshold = groups[0][0]  # Get threshold from first group
+            min_shards = shards[:threshold]
+            reconstructed_min = reconstruct_mnemonic_from_shards(min_shards)
+            min_success = reconstructed_min.strip() == self.mnemonic.strip()
 
             # Test with all shards
-            all_shards_success = False
-            try:
-                reconstructed = reconstruct_mnemonic_from_shards(shards)
-                all_shards_success = reconstructed == self.mnemonic
-            except Exception as e:
-                logger.debug("All shards test failed: %s", str(e))
+            reconstructed_all = reconstruct_mnemonic_from_shards(shards)
+            all_success = reconstructed_all.strip() == self.mnemonic.strip()
 
-            details = {
-                "total_shards": len(shards),
-                "group_threshold": group_threshold,
-                "min_threshold_success": min_threshold_success,
-                "all_shards_success": all_shards_success,
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
+            duration = time.time() - start_time
 
-            success = min_threshold_success and all_shards_success
+            self.result.add_test_result(
+                "shard_combinations",
+                {
+                    "passed": min_success and all_success,
+                    "duration": duration,
+                    "threshold_test": min_success,
+                    "all_shards_test": all_success,
+                    "threshold": threshold,
+                    "total_shards": len(shards),
+                },
+            )
 
-            self.result.add_test_result(test_name, success, details)
+            self.result.add_timing("shard_combination_test", duration)
 
-            if not min_threshold_success:
-                self.result.add_error("Minimum threshold shard combination failed")
-            if not all_shards_success:
-                self.result.add_error("All shards combination failed")
+            if not min_success:
+                self.result.add_warning("Minimum threshold reconstruction failed")
+            if not all_success:
+                self.result.add_warning("All shards reconstruction failed")
 
         except Exception as e:
-            details = {
-                "error": str(e),
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
-            self.result.add_test_result(test_name, False, details)
-            self.result.add_error(f"Shard combination testing failed: {e}")
+            self.result.add_test_result(
+                "shard_combinations", {"passed": False, "error": str(e)}
+            )
 
     def _test_entropy_consistency(self) -> None:
-        """Test entropy consistency across multiple operations."""
-        test_name = "entropy_consistency"
+        """Test entropy consistency across operations."""
         start_time = time.time()
-
         try:
-            group_threshold, groups = self._parse_group_config(self.group_config)
-
-            # Generate multiple sets of shards
+            # Generate multiple shard sets and verify consistency
             shard_sets = []
-            for i in range(3):  # Test 3 sets
+            for i in range(3):  # Generate 3 sets for comparison
                 try:
+                    group_threshold, groups = self._parse_group_config(
+                        self.group_config
+                    )
                     shards = create_slip39_shards(
                         self.mnemonic, group_threshold=group_threshold, groups=groups
                     )
-                    shard_sets.append(shards)
+                    reconstructed = reconstruct_mnemonic_from_shards(shards)
+                    shard_sets.append(reconstructed.strip())
                 except Exception as e:
-                    logger.debug("Shard set %d generation failed: %s", i + 1, str(e))
+                    logger.warning("Entropy test iteration %d failed: %s", i, e)
 
-            # Test reconstruction from each set
-            consistent_reconstructions = 0
-            for i, shards in enumerate(shard_sets):
-                try:
-                    reconstructed = reconstruct_mnemonic_from_shards(
-                        shards[:group_threshold]
-                    )
-                    if reconstructed == self.mnemonic:
-                        consistent_reconstructions += 1
-                except Exception as e:
-                    logger.debug("Reconstruction from set %d failed: %s", i + 1, str(e))
+            # Check consistency
+            all_consistent = all(
+                shard_set == self.mnemonic.strip() for shard_set in shard_sets
+            )
+            duration = time.time() - start_time
 
-            consistency_rate = (
-                (consistent_reconstructions / len(shard_sets)) * 100
-                if shard_sets
-                else 0
+            self.result.add_test_result(
+                "entropy_consistency",
+                {
+                    "passed": all_consistent,
+                    "duration": duration,
+                    "test_iterations": len(shard_sets),
+                    "consistent_results": all_consistent,
+                },
             )
 
-            details = {
-                "shard_sets_generated": len(shard_sets),
-                "consistent_reconstructions": consistent_reconstructions,
-                "consistency_rate": consistency_rate,
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
+            self.result.add_timing("entropy_consistency_test", duration)
 
-            success = consistency_rate >= 95
-
-            self.result.add_test_result(test_name, success, details)
-
-            if consistency_rate < 100:
-                self.result.add_warning(
-                    f"Entropy consistency issues: {consistency_rate:.1f}% consistency rate"
-                )
+            if not all_consistent:
+                self.result.add_warning("Entropy consistency test failed")
 
         except Exception as e:
-            details = {
-                "error": str(e),
-                "duration_ms": (time.time() - start_time) * 1000,
-            }
-            self.result.add_test_result(test_name, False, details)
-            self.result.add_error(f"Entropy consistency testing failed: {e}")
+            self.result.add_test_result(
+                "entropy_consistency", {"passed": False, "error": str(e)}
+            )
 
     def _parse_group_config(self, config: str) -> tuple:
         """Parse group configuration string."""
@@ -537,54 +465,59 @@ class BackupVerifier:
             # Parse "3-of-5" format
             parts = config.split("-of-")
             if len(parts) != 2:
-                raise ValueError(f"Invalid group configuration format: {config}")
+                raise ValueError(f"Invalid group config format: {config}")
 
             threshold = int(parts[0])
             total = int(parts[1])
 
-            if threshold > total:
-                raise ValueError(
-                    f"Threshold ({threshold}) cannot be greater than total ({total})"
-                )
-
-            # Return in format expected by create_slip39_shards
             return 1, [(threshold, total)]  # Single group configuration
 
         except Exception as e:
-            logger.error("Failed to parse group configuration '%s': %s", config, str(e))
-            # Default fallback
-            return 1, [(3, 5)]
+            logger.error("Failed to parse group config: %s", e)
+            return 1, [(3, 5)]  # Default fallback
 
     def _generate_recommendations(self) -> None:
         """Generate recommendations based on test results."""
-        # Analyze test results and add recommendations
-        failed_tests = [
-            name
-            for name, result in self.result.test_results.items()
-            if not result["success"]
-        ]
+        try:
+            if self.result.overall_score >= 90:
+                self.result.add_recommendation(
+                    "Backup verification passed with excellent results"
+                )
+            elif self.result.overall_score >= 70:
+                self.result.add_recommendation(
+                    "Backup verification passed but consider improvements"
+                )
+            else:
+                self.result.add_recommendation(
+                    "Backup verification failed - review and fix issues"
+                )
 
-        if failed_tests:
-            self.result.add_recommendation(
-                f"Address failed tests: {', '.join(failed_tests)}"
-            )
+            # Performance recommendations
+            total_time = sum(self.result.timing_data.values())
+            if total_time > 10:  # More than 10 seconds
+                self.result.add_recommendation(
+                    "Consider optimizing backup process for better performance"
+                )
 
-        if self.result.overall_score < 80:
-            self.result.add_recommendation(
-                "Consider regenerating backup with different parameters"
-            )
+            # Iteration recommendations
+            if "multiple_iterations" in self.result.test_results:
+                success_rate = self.result.test_results["multiple_iterations"].get(
+                    "success_rate", 0
+                )
+                if success_rate < 100:
+                    self.result.add_recommendation(
+                        "Investigate consistency issues with backup process"
+                    )
 
-        if len(self.result.warnings) > 2:
-            self.result.add_recommendation(
-                "Review warnings and consider backup quality improvements"
-            )
+        except Exception as e:
+            logger.error("Failed to generate recommendations: %s", e)
 
 
 def verify_backup_integrity(
     mnemonic: str,
     shard_files: Optional[List[str]] = None,
     group_config: str = "3-of-5",
-    iterations: int = 10,
+    iterations: int = 5,
     stress_test: bool = False,
 ) -> Dict[str, Any]:
     """Verify backup integrity with comprehensive testing."""
@@ -596,13 +529,13 @@ def verify_backup_integrity(
             iterations=iterations,
             stress_test=stress_test,
         ) as verifier:
-            result = verifier.verify_backup_integrity(
-                mnemonic, shard_files, group_config, iterations, stress_test
-            )
+            result = verifier.verify_backup_integrity()
             return result.to_dict()
-
     except Exception as e:
-        logger.error("Backup verification failed: %s", str(e))
-        error_result = BackupVerificationResult()
-        error_result.add_error(f"Backup verification failed: {e}")
-        return error_result.to_dict()
+        logger.error("Backup verification failed: %s", e)
+        return {
+            "is_valid": False,
+            "mode": "backup_verification",
+            "error": str(e),
+            "overall_score": 0,
+        }

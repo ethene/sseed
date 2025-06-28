@@ -1,7 +1,7 @@
-"""Batch validation for multiple mnemonic files.
+"""Batch validation functionality for processing multiple files concurrently.
 
-This module provides efficient batch validation capabilities for processing
-multiple mnemonic files concurrently with pattern matching and result aggregation.
+This module provides efficient batch processing capabilities for validating
+multiple mnemonic files with configurable concurrency and error handling.
 """
 
 import glob
@@ -17,7 +17,6 @@ from typing import (
     Dict,
     List,
     Optional,
-    Tuple,
 )
 
 from ..exceptions import (

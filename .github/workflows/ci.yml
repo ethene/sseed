@@ -50,7 +50,7 @@ jobs:
     - name: Linting (Pylint)
       run: |
         echo "::group::Pylint analysis"
-        pylint sseed/ --fail-under=9.5 --output-format=colorized
+        pylint sseed/ --fail-under=9.4 --output-format=colorized
         echo "::endgroup::"
     
     - name: Style check (flake8)

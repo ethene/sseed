@@ -88,7 +88,9 @@ def generate_mnemonic(
 
         >>> # Spanish - 12 words with custom entropy
         >>> from bip_utils import Bip39Languages
-        >>> custom_entropy = b'\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f\\x10'
+        >>> custom_entropy = (
+        ...     b'\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f\\x10'
+        ... )
         >>> mnemonic_es = generate_mnemonic(Bip39Languages.SPANISH, 12, custom_entropy)
         >>> len(mnemonic_es.split())
         12
@@ -335,8 +337,8 @@ def get_mnemonic_entropy(
         # Validate before entropy extraction
         if not validate_mnemonic(normalized_mnemonic, language):
             raise MnemonicError(
-                "Cannot extract entropy from invalid mnemonic",
-                context={"language": str(language)},
+                "Invalid mnemonic: failed checksum validation",
+                context={"validation_type": "checksum", "language": str(language)},
             )
 
         # Extract entropy using BIP-39 decoder
@@ -571,4 +573,6 @@ def get_language_code_from_bip_enum(bip_language: Bip39Languages) -> str:
         Language code string (e.g., "en", "es", "fr")
     """
     lang_info = get_language_by_bip_enum(bip_language)
+    return lang_info.code
+
     return lang_info.code

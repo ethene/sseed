@@ -173,12 +173,13 @@ def parse_group_config(group_config: str) -> tuple[int, list[tuple[int, int]]]:
 
         return group_threshold, groups
 
-    except Exception as e:
-        error_msg = f"Failed to parse group configuration '{group_config}': {e}"
-        logger.error(error_msg)
-        raise ValidationError(
-            error_msg, context={"config": group_config, "error": str(e)}
-        ) from e
+    except (ValueError, TypeError, AttributeError) as e:
+        logger.error("Failed to parse group specification: %s", e)
+        raise ValueError(f"Invalid group specification format: {e}") from e
+
+    except (IndexError, KeyError) as e:
+        logger.error("Group specification parsing error: %s", e)
+        raise ValueError(f"Malformed group specification: {e}") from e
 
 
 def reconstruct_mnemonic_from_shards(
@@ -372,3 +373,4 @@ def get_shard_info(shard: str) -> dict[str, Any]:
         error_msg = f"Failed to extract shard information: {e}"
         logger.error(error_msg)
         raise ShardError(error_msg, context={"original_error": str(e)}) from e
+

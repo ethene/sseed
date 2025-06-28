@@ -93,7 +93,7 @@ def validate_bip85_parameters(
             value=length,
         )
 
-    if not (0 <= length <= 0xFFFFFFFF):
+    if not 0 <= length <= 0xFFFFFFFF:
         raise Bip85ValidationError(
             f"Length must be 0-4294967295, got {length}",
             parameter="length",
@@ -109,7 +109,7 @@ def validate_bip85_parameters(
             value=index,
         )
 
-    if not (0 <= index < 2**31):
+    if not 0 <= index < 2**31:
         raise Bip85ValidationError(
             f"Index must be 0 to 2147483647, got {index}",
             parameter="index",
@@ -162,16 +162,17 @@ def _validate_application_specific_parameters(application: int, length: int) -> 
             )
 
     elif application == 128:  # Hex
-        if not (16 <= length <= 64):
+        if not 16 <= length <= 64:
             raise Bip85ValidationError(
-                f"Hex length must be 16-64 bytes, got {length}",
+                f"Invalid hex length: {length}",
                 parameter="length",
                 value=length,
                 valid_range="16 to 64 bytes",
             )
+        return length
 
     elif application == 9999:  # Password (non-standard)
-        if not (10 <= length <= 128):
+        if not 10 <= length <= 128:
             raise Bip85ValidationError(
                 f"Password length must be 10-128 characters, got {length}",
                 parameter="length",
@@ -306,7 +307,7 @@ def calculate_entropy_bytes_needed(application: int, length: int) -> int:
         return 64  # Always 512 bits = 64 bytes
 
     elif application == 128:  # Hex
-        if not (16 <= length <= 64):
+        if not 16 <= length <= 64:
             raise Bip85ValidationError(
                 f"Invalid hex length: {length}",
                 parameter="length",
@@ -318,7 +319,7 @@ def calculate_entropy_bytes_needed(application: int, length: int) -> int:
     elif application == 9999:  # Password
         # For passwords, we need enough entropy to generate the characters
         # Use length bytes as a reasonable approximation
-        if not (10 <= length <= 128):
+        if not 10 <= length <= 128:
             raise Bip85ValidationError(
                 f"Invalid password length: {length}",
                 parameter="length",
@@ -347,7 +348,7 @@ def validate_derivation_index_range(
     Raises:
         Bip85ValidationError: If index is out of range.
     """
-    if not (0 <= index < 2**31):
+    if not 0 <= index < 2**31:
         raise Bip85ValidationError(
             f"Index must be 0 to 2147483647, got {index}",
             parameter="index",
@@ -392,3 +393,4 @@ def format_parameter_summary(
         "derivation_path": format_bip85_path(application, length, index),
         "entropy_bytes": calculate_entropy_bytes_needed(application, length),
     }
+

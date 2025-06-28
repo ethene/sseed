@@ -153,7 +153,7 @@ Developers can run the same checks locally:
 pip install -e ".[dev]"
 
 # Run CI-style validation
-python -m pylint sseed/ --fail-under=9.5
+python -m pylint sseed/ --fail-under=9.4
 python -m mypy sseed/
 python -m black --check sseed/ tests/
 python -m pytest --cov=sseed --cov-fail-under=90

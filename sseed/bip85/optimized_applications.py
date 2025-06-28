@@ -84,7 +84,7 @@ class OptimizedBip85Applications:
 
             # Language validation (typically fast, minimal caching benefit)
             try:
-                lang_info = validate_language_code(language)
+                _lang_info = validate_language_code(language)
             except Exception:
                 available = ", ".join(get_supported_language_codes())
                 raise Bip85ValidationError(
@@ -403,7 +403,7 @@ class OptimizedBip85Applications:
 
             # Validate language once
             try:
-                lang_info = validate_language_code(language)
+                _lang_info = validate_language_code(language)
             except Exception:
                 available = ", ".join(get_supported_language_codes())
                 raise Bip85ValidationError(

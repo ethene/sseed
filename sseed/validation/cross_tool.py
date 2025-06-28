@@ -1,14 +1,14 @@
-"""Cross-tool compatibility testing framework for mnemonic validation.
+"""Cross-tool compatibility validation for mnemonic testing.
 
-This module provides compatibility testing with external wallet tools,
-leveraging the existing cross-tool testing infrastructure from the test suite.
+This module provides functionality to test mnemonic compatibility across
+different tools and implementations, ensuring cross-platform compatibility.
 """
 
 import logging
 import os
 import subprocess
 import tempfile
-from pathlib import Path
+import time
 from typing import (
     Any,
     Dict,
@@ -18,13 +18,6 @@ from typing import (
 )
 
 from ..bip39 import get_mnemonic_entropy
-from ..exceptions import ValidationError
-from ..file_operations.readers import read_mnemonic_from_file
-from ..file_operations.writers import write_mnemonic_to_file
-from ..slip39_operations import (
-    create_slip39_shards,
-    reconstruct_mnemonic_from_shards,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +73,6 @@ class CrossToolTester:
         Returns:
             CrossToolCompatibilityResult with compatibility analysis
         """
-        import time
-
         result = CrossToolCompatibilityResult()
         result.timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
 
@@ -116,7 +107,9 @@ class CrossToolTester:
         self._generate_recommendations(result)
 
         logger.info(
-            f"Cross-tool compatibility testing completed: score={result.compatibility_score}, status={result.overall_status}"
+            "Cross-tool compatibility testing completed: score=%s, status=%s",
+            result.compatibility_score,
+            result.overall_status,
         )
 
         return result
@@ -142,13 +135,13 @@ class CrossToolTester:
     def _is_shamir_cli_available(self) -> bool:
         """Check if the official Trezor shamir CLI tool is available."""
         try:
-            returncode, stdout, stderr = self._run_command("shamir --help")
+            returncode, stdout, _stderr = self._run_command("shamir --help")
             return returncode == 0 and "create" in stdout and "recover" in stdout
         except Exception:
             return False
 
     def _test_tool_compatibility(
-        self, mnemonic: str, tool_name: str, tool_info: Dict[str, Any]
+        self, mnemonic: str, _tool_name: str, tool_info: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Test compatibility with a specific tool."""
         if tool_info["type"] == "shamir_cli":
@@ -160,7 +153,7 @@ class CrossToolTester:
             }
 
     def _test_shamir_cli_compatibility(
-        self, mnemonic: str, tool_info: Dict[str, Any]
+        self, mnemonic: str, _tool_info: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Test compatibility with Trezor shamir CLI tool."""
         try:
@@ -317,7 +310,7 @@ class CrossToolTester:
                 except Exception:
                     pass
 
-    def _test_entropy_verification(self, mnemonic: str) -> Dict[str, Any]:
+    def _test_entropy_verification(self, _mnemonic: str) -> Dict[str, Any]:
         """Test entropy verification: shamir create → sseed restore."""
         temp_files = []
 
@@ -369,7 +362,7 @@ class CrossToolTester:
 
             # Save shards to files for sseed
             shard_files = []
-            for i, shard in enumerate(shard_lines[:2]):  # Use first 2 shards
+            for _i, shard in enumerate(shard_lines[:2]):  # Use first 2 shards
                 shard_file = tempfile.mktemp(suffix=".txt")
                 temp_files.append(shard_file)
                 with open(shard_file, "w") as f:

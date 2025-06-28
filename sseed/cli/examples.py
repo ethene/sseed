@@ -1,288 +1,282 @@
-"""Examples display for CLI commands.
+"""
+Command-line examples and help system for SSeed.
 
-Provides comprehensive usage examples for all sseed commands with multi-language support.
+This module provides comprehensive examples and usage patterns for all SSeed commands,
+including advanced features like BIP85 deterministic entropy and SLIP-39 secret sharing.
 """
 
-import argparse
-
-# Define exit code locally to avoid circular import
-EXIT_SUCCESS = 0
+import sys
+from typing import Any
 
 
-def show_examples(_: argparse.Namespace) -> int:
-    """Show comprehensive usage examples for all commands.
+def _print_section(title: str, content: str) -> None:
+    """Print a formatted section with title and content."""
+    print(f"\n{title}")
+    print("=" * len(title))
+    print(content)
 
-    Args:
-        _: Parsed command line arguments (unused).
 
-    Returns:
-        Always returns EXIT_SUCCESS (0).
-    """
-    print("🔐 SSeed Usage Examples")
-    print("=" * 40)
-    print()
+def _get_basic_examples() -> str:
+    """Get basic command examples."""
+    return """
+🔐 GENERATE SECURE MNEMONIC
+  sseed gen                           # 24-word English mnemonic
+  sseed gen -w 12                     # 12-word mnemonic
+  sseed gen -l es                     # Spanish mnemonic
+  sseed gen -o backup.txt             # Save to file
 
-    print("📝 Basic Generation:")
-    print("   sseed gen                              # Generate to stdout (English)")
-    print("   sseed gen -o wallet.txt                # Generate to file")
-    print("   sseed gen --show-entropy               # Show entropy alongside")
-    print()
+🌱 GENERATE MASTER SEED
+  sseed seed                          # From stdin
+  sseed seed -i mnemonic.txt          # From file
+  sseed seed -m "word1 word2..."      # Direct input
+  sseed seed --hex                    # Hex output format
 
-    print("🌍 Multi-Language Generation:")
-    print("   sseed gen -l en                        # English (default)")
-    print("   sseed gen -l es -o spanish.txt         # Spanish mnemonic")
-    print("   sseed gen -l fr -o french.txt          # French mnemonic")
-    print("   sseed gen -l zh-cn -o chinese.txt      # Chinese Simplified")
-    print("   sseed gen -l zh-tw -o traditional.txt  # Chinese Traditional")
-    print("   sseed gen -l ko -o korean.txt          # Korean mnemonic")
-    print("   sseed gen -l it -o italian.txt         # Italian mnemonic")
-    print("   sseed gen -l pt -o portuguese.txt      # Portuguese mnemonic")
-    print("   sseed gen -l cs -o czech.txt           # Czech mnemonic")
-    print()
+🎯 BIP85 DETERMINISTIC ENTROPY
+  sseed bip85 bip39 -w 12 -n 0        # Child BIP39 mnemonic
+  sseed bip85 hex -b 32 -n 1          # 32-byte hex entropy
+  sseed bip85 password -l 20 -n 2     # 20-char password
 
-    print("🌱 Master Seed Generation (BIP-39 → BIP-32):")
-    print("   sseed seed -i wallet.txt --hex         # Generate 512-bit master seed")
-    print(
-        "   sseed seed -i wallet.txt -p 'passphrase' --hex  # With passphrase (25th word)"
-    )
-    print("   sseed seed -i wallet.txt --iterations 4096 --hex # Higher security")
-    print("   sseed gen | sseed seed --hex           # Generate and derive seed")
-    print()
+🧩 SLIP-39 SECRET SHARING
+  sseed shard -g 3-of-5               # 3-of-5 sharing
+  sseed shard -g 2-of-3,2-of-5        # Multi-group
+  sseed restore shard*.txt            # Restore from shards
 
-    print("🔗 Sharding (SLIP-39) with Language Detection:")
-    print("   sseed shard -i wallet.txt -g 3-of-5             # Auto-detects language")
-    print("   sseed shard -i spanish.txt -g '2:(2-of-3,3-of-5)' # Multi-group Spanish")
-    print(
-        "   sseed shard -i chinese.txt --separate            # Separate files with Chinese"
-    )
-    print("   cat korean.txt | sseed shard -g 2-of-3           # Korean from stdin")
-    print()
+🔍 MNEMONIC VALIDATION
+  sseed validate                      # Basic validation
+  sseed validate --mode advanced     # Deep analysis
+  sseed validate --batch "*.txt"     # Batch validation
+"""
 
-    print("🔄 Restoration with Auto-Detection:")
-    print("   sseed restore shard1.txt shard2.txt shard3.txt  # Auto-detects language")
-    print("   sseed restore spanish_shard*.txt --show-entropy  # Spanish with entropy")
-    print("   sseed restore chinese_shards/*.txt -o restored.txt # Chinese to file")
-    print()
 
-    print("🎯 BIP85 Deterministic Entropy Derivation:")
-    print("   # Generate child BIP39 mnemonics")
-    print("   sseed bip85 bip39 -i master.txt -w 12 -n 0      # 12-word child mnemonic")
-    print("   sseed bip85 bip39 -i master.txt -w 24 -l es -n 1 # Spanish 24-word child")
-    print("   sseed bip85 bip39 -i master.txt -w 15 -l zh-cn -n 2 # Chinese child")
-    print()
-    print("   # Generate hex entropy")
-    print("   sseed bip85 hex -i master.txt -b 32 -n 0        # 32 bytes hex entropy")
-    print("   sseed bip85 hex -i master.txt -b 24 -u -n 1     # 24 bytes uppercase")
-    print("   sseed bip85 hex -i master.txt -b 16 -n 5        # 16 bytes for keys")
-    print()
-    print("   # Generate passwords")
-    print(
-        "   sseed bip85 password -i master.txt -l 20 -c base64 -n 0  # Base64 password"
-    )
-    print(
-        "   sseed bip85 password -i master.txt -l 30 -c base85 -n 1  # Base85 password"
-    )
-    print(
-        "   sseed bip85 password -i master.txt -l 16 -c alphanumeric -n 2 # Alphanumeric"
-    )
-    print(
-        "   sseed bip85 password -i master.txt -l 25 -c ascii -n 3    # Full ASCII set"
-    )
-    print()
+def _get_advanced_examples() -> str:
+    """Get advanced usage examples."""
+    return """
+🔧 CUSTOM ENTROPY SOURCES
+  # Dice entropy (6-sided dice)
+  sseed gen --dice "1,2,3,4,5,6,1,2,3..."
 
-    print("🔐 Advanced BIP85 Workflows:")
-    print("   # Master seed → Child wallets workflow")
-    print(
-        "   sseed gen -o master.txt                         # Generate master mnemonic"
-    )
-    print(
-        "   sseed bip85 bip39 -i master.txt -w 12 -n 0 -o wallet1.txt  # Child wallet 1"
-    )
-    print(
-        "   sseed bip85 bip39 -i master.txt -w 12 -n 1 -o wallet2.txt  # Child wallet 2"
-    )
-    print(
-        "   sseed bip85 bip39 -i master.txt -w 12 -n 2 -o wallet3.txt  # Child wallet 3"
-    )
-    print()
-    print("   # Multi-language child wallet generation")
-    print("   sseed bip85 bip39 -i master.txt -w 24 -l en -n 0 -o english_wallet.txt")
-    print("   sseed bip85 bip39 -i master.txt -w 24 -l es -n 1 -o spanish_wallet.txt")
-    print(
-        "   sseed bip85 bip39 -i master.txt -w 24 -l zh-cn -n 2 -o chinese_wallet.txt"
-    )
-    print()
-    print("   # BIP85 child + SLIP39 sharding combination")
-    print("   sseed bip85 bip39 -i master.txt -w 12 -n 0 | sseed shard -g 3-of-5")
-    print("   sseed bip85 bip39 -i master.txt -w 24 -l es -n 1 | sseed shard -g 2-of-3")
-    print()
-    print("   # Application-specific entropy")
-    print(
-        "   sseed bip85 hex -i master.txt -b 32 -n 0 -o app1_key.hex  # App 1 key material"
-    )
-    print(
-        "   sseed bip85 hex -i master.txt -b 32 -n 1 -o app2_key.hex  # App 2 key material"
-    )
-    print(
-        "   sseed bip85 password -i master.txt -l 32 -n 0 -o app_password.txt # App password"
-    )
-    print()
+  # Hex entropy
+  sseed gen --hex-entropy "a1b2c3d4e5f6..."
 
-    print("🔍 Mnemonic Validation & Analysis:")
-    print("   # Basic validation")
-    print(
-        "   echo 'clarify off only today...' | sseed validate    # Validate from stdin"
-    )
-    print("   sseed validate -i wallet.txt                        # Validate from file")
-    print("   sseed validate 'clarify off only today...'          # Direct validation")
-    print()
-    print("   # Advanced validation modes")
-    print("   sseed validate -i wallet.txt --mode advanced        # Deep analysis")
-    print("   sseed validate -i wallet.txt --mode entropy         # Entropy analysis")
-    print("   sseed validate -i wallet.txt --mode compatibility   # Cross-tool testing")
-    print(
-        "   sseed validate -i wallet.txt --mode backup          # Backup verification"
-    )
-    print()
-    print("   # Backup verification workflows")
-    print("   sseed validate -i original.txt --mode backup \\")
-    print("     --shard-files 'shard*.txt' --group-config '3-of-5'")
-    print("   sseed validate -i wallet.txt --mode backup \\")
-    print("     --iterations 10 --stress-test                    # Stress testing")
-    print()
-    print("   # Batch validation")
-    print("   sseed validate --batch 'wallets/*.txt'              # Validate directory")
-    print("   sseed validate --batch wallets/ --mode advanced     # Advanced batch")
-    print("   sseed validate --batch 'backup*.txt' --json         # JSON batch output")
-    print()
-    print("   # Automation-friendly usage")
-    print("   sseed validate -i wallet.txt --json | jq '.overall_status'")
-    print("   sseed validate -i wallet.txt --quiet                # Exit code only")
-    print("   sseed validate --batch wallets/ --json \\")
-    print("     | jq '.summary.success_rate'                     # Batch success rate")
-    print()
+  # Combined with custom word count
+  sseed gen -w 18 --dice "1,2,3,4,5,6..."
 
-    print("📋 Information:")
-    print("   sseed version                          # Version info")
-    print("   sseed version --json                   # JSON format")
-    print("   sseed examples                         # This help")
-    print()
+🌍 MULTI-LANGUAGE SUPPORT
+  sseed gen -l zh-cn                  # Chinese Simplified
+  sseed gen -l ko                     # Korean
+  sseed gen -l cs                     # Czech
+  sseed seed -l auto                  # Auto-detect language
 
-    print("🚀 Complete Multi-Language Workflows:")
-    print("   # Full workflow: Generate → Shard → Restore (Spanish)")
-    print("   sseed gen -l es -o master_es.txt")
-    print("   sseed shard -i master_es.txt -g 3-of-5 --separate")
-    print("   sseed restore shard_*.txt -o recovered_es.txt")
-    print()
+🎯 ADVANCED BIP85 PATTERNS
+  # Generate multiple child wallets
+  for i in {0..9}; do
+    sseed bip85 bip39 -w 24 -n $i -o "wallet_$i.txt"
+  done
 
-    print("   # Mixed language handling (auto-detection)")
-    print("   sseed gen -l zh-cn -o chinese.txt")
-    print("   sseed shard -i chinese.txt -g 2-of-3 --separate")
-    print("   sseed restore chinese_shard_*.txt --show-entropy")
-    print()
+  # Generate passwords for different services
+  sseed bip85 password -l 16 -n 0 -c alphanumeric  # Service 1
+  sseed bip85 password -l 32 -n 1 -c base64        # Service 2
 
-    print("   # Multi-language entropy verification")
-    print("   sseed gen -l ko --show-entropy -o korean.txt")
-    print("   sseed restore korean_shards/*.txt --show-entropy")
-    print()
+🔗 ADVANCED SLIP-39 CONFIGURATIONS
+  # Corporate backup (multiple groups)
+  sseed shard -g "2-of-3,3-of-5,1-of-1" -i master.txt
 
-    print("   # International secure distribution")
-    print("   sseed gen -l fr | sseed shard -g '2:(2-of-3,2-of-3)' --separate")
-    print()
+  # Personal backup with recovery options
+  sseed shard -g "2-of-3" --group-names "personal,backup,recovery"
+"""
 
-    print("   # Seed derivation across languages")
-    print("   sseed gen -l it -o italian.txt")
-    print("   sseed seed -i italian.txt -p -o seed_italian.hex")
-    print()
 
-    print("🔐 Advanced Validation & Security Workflows:")
-    print("   # Complete wallet validation pipeline")
-    print("   sseed gen -o new_wallet.txt")
-    print("   sseed validate -i new_wallet.txt --mode advanced --verbose")
-    print("   sseed validate -i new_wallet.txt --mode backup --iterations 5")
-    print()
-    print("   # Multi-wallet batch security audit")
-    print("   sseed validate --batch 'production_wallets/*.txt' \\")
-    print("     --mode advanced --json -o audit_report.json")
-    print()
-    print("   # Backup integrity verification workflow")
-    print("   sseed shard -i master.txt -g 3-of-5 --separate")
-    print("   sseed validate -i master.txt --mode backup \\")
-    print("     --shard-files 'shard_*.txt' --stress-test")
-    print()
-    print("   # Cross-tool compatibility verification")
-    print("   sseed validate -i wallet.txt --mode compatibility --verbose")
-    print()
+def _get_validation_examples() -> str:
+    """Get validation examples."""
+    return """
+🔍 MNEMONIC VALIDATION & ANALYSIS
 
-    print("🌍 Language Support Reference:")
-    print("   en       English (default)")
-    print("   es       Spanish (Español)")
-    print("   fr       French (Français)")
-    print("   it       Italian (Italiano)")
-    print("   pt       Portuguese (Português)")
-    print("   cs       Czech (Čeština)")
-    print("   zh-cn    Chinese Simplified (简体中文)")
-    print("   zh-tw    Chinese Traditional (繁體中文)")
-    print("   ko       Korean (한국어)")
-    print()
+Basic Validation:
+  sseed validate -m "abandon ability able..."     # Direct input
+  sseed validate -i wallet.txt                   # From file
+  echo "word1 word2..." | sseed validate         # From stdin
 
-    print("🎯 BIP85 Applications Reference:")
-    print("   bip39    Generate BIP39 mnemonic phrases in any language")
-    print("            • Word counts: 12, 15, 18, 21, 24")
-    print("            • Languages: All 9 BIP-39 languages supported")
-    print("            • Index: 0 to 2³¹-1 for different child wallets")
-    print()
-    print("   hex      Generate raw entropy as hexadecimal")
-    print("            • Byte lengths: 16-64 bytes")
-    print("            • Case: lowercase (default) or uppercase (-u)")
-    print("            • Use: Key material, seeds, random data")
-    print()
-    print("   password Generate passwords with various character sets")
-    print("            • base64: URL-safe base64 (20-86 chars)")
-    print("            • base85: ASCII85 encoding (10-80 chars)")
-    print("            • alphanumeric: A-Z, a-z, 0-9 (10-128 chars)")
-    print("            • ascii: Full ASCII printable set (10-128 chars)")
-    print()
+Advanced Validation Modes:
+  sseed validate --mode basic                    # Checksum + format
+  sseed validate --mode advanced                 # Deep analysis + scoring
+  sseed validate --mode entropy                  # Entropy quality analysis
+  sseed validate --mode compatibility            # Cross-tool testing
+  sseed validate --mode backup                   # Backup verification
 
-    print("🔍 Validation Modes Reference:")
-    print("   basic        Standard BIP-39 validation (format, language, checksum)")
-    print("                • Fast validation for everyday use")
-    print("                • Language auto-detection")
-    print("                • Checksum verification")
-    print()
-    print("   advanced     Deep analysis with entropy and pattern detection")
-    print("                • Entropy quality scoring (0-100)")
-    print("                • Weak pattern detection")
-    print("                • Security recommendations")
-    print()
-    print("   entropy      Specialized entropy analysis and quality metrics")
-    print("                • Detailed entropy breakdown")
-    print("                • Randomness quality assessment")
-    print("                • Entropy source analysis")
-    print()
-    print("   compatibility Cross-tool compatibility testing")
-    print("                • External tool integration tests")
-    print("                • Standard compliance verification")
-    print("                • Interoperability validation")
-    print()
-    print("   backup       Comprehensive backup verification")
-    print("                • Round-trip backup testing")
-    print("                • Shard combination validation")
-    print("                • Stress testing with multiple iterations")
-    print("                • Entropy consistency verification")
-    print()
+Backup Verification Workflows:
+  # Test existing SLIP-39 shards
+  sseed validate --mode backup --shard-files shard1.txt shard2.txt shard3.txt
 
-    print("📚 Tips & Best Practices:")
-    print("   • Use separate files (--separate) for safer shard distribution")
-    print("   • Always verify with --show-entropy for critical operations")
-    print("   • Store shards in different secure locations")
-    print("   • Test recovery before relying on shards")
-    print("   • Use passphrases for additional security layer")
-    print("   • Language is auto-detected for restore/shard/seed operations")
-    print("   • Validate mnemonics before using them in production")
-    print("   • Use batch validation for auditing multiple wallets")
-    print("   • JSON output enables automation and integration")
-    print("   • Backup verification ensures shard integrity")
-    print("   • Advanced validation provides security insights")
+  # Stress test backup process
+  sseed validate --mode backup --group-config "3-of-5" --iterations 20 --stress-test
 
-    return EXIT_SUCCESS
+  # Comprehensive backup validation
+  sseed validate --mode backup -i master.txt --group-config "2-of-3" --iterations 10
+
+Batch Validation Patterns:
+  sseed validate --batch "wallets/*.txt"         # Validate all wallet files
+  sseed validate --batch "**/*.mnemonic" --recursive  # Recursive search
+  sseed validate --batch "*.txt" --workers 8     # Parallel processing
+
+Automation-Friendly Usage:
+  # JSON output for scripting
+  sseed validate --mode advanced --json -i wallet.txt
+
+  # Exit codes for CI/CD
+  sseed validate -i wallet.txt && echo "Valid" || echo "Invalid"
+
+  # Batch validation with JSON summary
+  sseed validate --batch "*.txt" --json -o validation_report.json
+"""
+
+
+def _get_automation_examples() -> str:
+    """Get automation examples."""
+    return """
+🤖 AUTOMATION & SCRIPTING
+
+Pipeline Examples:
+  # Generate → Validate → Backup
+  sseed gen -o master.txt
+  sseed validate -i master.txt --mode advanced
+  sseed shard -g 3-of-5 -i master.txt -o backup/
+
+  # BIP85 Child Wallet Generation
+  for i in {0..4}; do
+    sseed bip85 bip39 -w 12 -n $i | sseed validate --mode advanced
+  done
+
+JSON Processing:
+  # Extract validation score
+  SCORE=$(sseed validate --mode advanced --json -i wallet.txt | jq '.overall_score')
+
+  # Check if wallet is valid
+  sseed validate --json -i wallet.txt | jq -r '.is_valid'
+
+  # Get entropy quality metrics
+  sseed validate --mode entropy --json -i wallet.txt | jq '.entropy_analysis'
+
+CI/CD Integration:
+  # Quality gate in CI
+  sseed validate --mode advanced -i wallet.txt
+  if [ $? -eq 0 ]; then
+    echo "✅ Wallet validation passed"
+  else
+    echo "❌ Wallet validation failed"
+    exit 1
+  fi
+
+Backup Verification Automation:
+  # Automated backup testing
+  sseed validate --mode backup --json -i master.txt \\
+    --group-config "3-of-5" --iterations 10 \\
+    -o backup_verification_report.json
+"""
+
+
+def _get_security_examples() -> str:
+    """Get security examples."""
+    return """
+🛡️ SECURITY BEST PRACTICES
+
+Air-Gapped Usage:
+  # Offline generation (no network calls)
+  sseed gen -o secure_wallet.txt
+  sseed validate -i secure_wallet.txt --mode advanced
+
+  # Verify entropy quality
+  sseed validate -i secure_wallet.txt --mode entropy
+
+Secure Backup Workflows:
+  # Generate master → Create shares → Verify integrity
+  sseed gen -o master.txt
+  sseed shard -g 3-of-5 -i master.txt -o shares/
+  sseed validate --mode backup --shard-files shares/*.txt
+
+Memory-Safe Operations:
+  # Use files instead of command line arguments
+  echo "abandon ability able..." > temp_mnemonic.txt
+  sseed validate -i temp_mnemonic.txt
+  shred -u temp_mnemonic.txt  # Secure deletion
+
+Cross-Tool Validation:
+  # Verify compatibility with other tools
+  sseed validate --mode compatibility -i wallet.txt
+
+  # Advanced entropy analysis
+  sseed validate --mode entropy -i wallet.txt --json | jq '.entropy_analysis'
+"""
+
+
+def _get_reference_info() -> str:
+    """Get reference information."""
+    return """
+🔍 VALIDATION MODES REFERENCE
+
+Mode: basic
+- Purpose: Standard mnemonic validation
+- Checks: BIP-39 checksum, wordlist compliance, format validation
+- Output: Pass/fail with basic metadata
+- Use case: Quick verification of mnemonic validity
+
+Mode: advanced
+- Purpose: Comprehensive mnemonic analysis
+- Checks: All basic checks + entropy scoring + pattern detection
+- Output: 0-100 quality score with detailed analysis
+- Use case: Security auditing and quality assessment
+
+Mode: entropy
+- Purpose: Specialized entropy quality analysis
+- Checks: Randomness testing, distribution analysis, weakness detection
+- Output: Entropy metrics and quality indicators
+- Use case: Verifying randomness quality of generated mnemonics
+
+Mode: compatibility
+- Purpose: Cross-tool compatibility verification
+- Checks: Compatibility with external BIP-39/SLIP-39 implementations
+- Output: Compatibility report with external tool results
+- Use case: Integration testing and interoperability verification
+
+Mode: backup
+- Purpose: Backup integrity and recovery testing
+- Checks: Round-trip testing, shard validation, stress testing
+- Output: Comprehensive backup verification report
+- Use case: Validating backup processes and recovery procedures
+
+EXIT CODES:
+  0  - Success (validation passed)
+  1  - Validation failed or errors occurred
+  130 - Interrupted by user (Ctrl+C)
+
+PERFORMANCE CHARACTERISTICS:
+  Basic mode:        <50ms per validation
+  Advanced mode:     <200ms per validation
+  Entropy mode:      <100ms per validation
+  Compatibility mode: <500ms per validation (external tools)
+  Backup mode:       <2s per validation (depends on iterations)
+"""
+
+
+def show_examples(_args: Any) -> int:
+    """Show comprehensive examples and usage patterns."""
+    try:
+        print("🌟 SSeed - Comprehensive Examples & Usage Guide")
+        print("=" * 50)
+
+        _print_section("📚 BASIC COMMANDS", _get_basic_examples())
+        _print_section("🚀 ADVANCED USAGE", _get_advanced_examples())
+        _print_section("🔍 VALIDATION & ANALYSIS", _get_validation_examples())
+        _print_section("🤖 AUTOMATION & SCRIPTING", _get_automation_examples())
+        _print_section("🛡️ SECURITY WORKFLOWS", _get_security_examples())
+        _print_section("📖 REFERENCE", _get_reference_info())
+
+        print("\n" + "=" * 50)
+        print("💡 For detailed help on any command: sseed <command> --help")
+        print("📚 Full documentation: https://github.com/your-repo/sseed")
+        print("🐛 Report issues: https://github.com/your-repo/sseed/issues")
+
+        return 0
+
+    except Exception as e:
+        print(f"Error displaying examples: {e}", file=sys.stderr)
+        return 1

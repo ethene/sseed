@@ -13,19 +13,10 @@ from typing import (
     Optional,
 )
 
-from ..bip39 import (
-    get_mnemonic_entropy,
-    validate_mnemonic,
-)
+from ..bip39 import get_mnemonic_entropy
 from ..bip85.security import get_security_hardening
-from ..entropy.custom import (
-    EntropyQuality,
-    validate_entropy_quality,
-)
-from ..exceptions import (
-    CryptoError,
-    ValidationError,
-)
+from ..entropy.custom import validate_entropy_quality
+from ..exceptions import ValidationError
 from ..languages import (
     SUPPORTED_LANGUAGES,
     detect_mnemonic_language,
@@ -225,7 +216,8 @@ class MnemonicAnalyzer:
                     )
                     result.language_check["mismatch"] = True
                     result.warnings.append(
-                        f"Language mismatch: detected {detected_lang_info.name}, expected {expected_lang_info.name if expected_lang_info else expected_language}"
+                        f"Language mismatch: detected {detected_lang_info.name}, "
+                        f"expected {expected_lang_info.name if expected_lang_info else expected_language}"
                     )
                 else:
                     result.language_check["mismatch"] = False

@@ -45,8 +45,12 @@ Example:
     >>> from sseed.bip85.applications import Bip85Applications
     >>>
     >>> # Generate master seed from mnemonic (production should use secure methods)
-    >>> test_mnemonic = "install scatter logic circle pencil average fall shoe quantum disease suspect usage"
-    >>> master_seed = hashlib.pbkdf2_hmac('sha512', test_mnemonic.encode('utf-8'), b'mnemonic', 2048, 64)
+    >>> test_mnemonic = (
+    ...     "install scatter logic circle pencil average fall shoe quantum disease suspect usage"
+    ... )
+    >>> master_seed = hashlib.pbkdf2_hmac(
+    ...     'sha512', test_mnemonic.encode('utf-8'), b'mnemonic', 2048, 64
+    ... )
     >>>
     >>> # Create BIP85 applications instance
     >>> apps = Bip85Applications()
@@ -170,7 +174,7 @@ def encode_bip85_path(application: int, length: int, index: int) -> bytes:
         )
 
         # Validate parameters
-        if not (0 <= application <= 0xFFFFFFFF):
+        if not 0 <= application <= 0xFFFFFFFF:
             raise Bip85ValidationError(
                 f"Application must be 0-4294967295, got {application}",
                 parameter="application",
@@ -178,7 +182,7 @@ def encode_bip85_path(application: int, length: int, index: int) -> bytes:
                 valid_range="0 to 4294967295",
             )
 
-        if not (0 <= length <= 0xFFFFFFFF):
+        if not 0 <= length <= 0xFFFFFFFF:
             raise Bip85ValidationError(
                 f"Length must be 0-4294967295, got {length}",
                 parameter="length",
@@ -186,7 +190,7 @@ def encode_bip85_path(application: int, length: int, index: int) -> bytes:
                 valid_range="0 to 4294967295",
             )
 
-        if not (0 <= index < 2**31):
+        if not 0 <= index < 2**31:
             raise Bip85ValidationError(
                 f"Index must be 0 to 2147483647, got {index}",
                 parameter="index",
@@ -270,7 +274,7 @@ def derive_bip85_entropy(
         log_security_event(f"BIP85: Entropy derivation initiated for index {index}")
 
         # Validate output length
-        if not (1 <= output_bytes <= 64):
+        if not 1 <= output_bytes <= 64:
             raise Bip85ValidationError(
                 f"Output bytes must be 1-64, got {output_bytes}",
                 parameter="output_bytes",
@@ -425,7 +429,7 @@ def derive_bip85_bip39_entropy(
         )
 
         # Validate output length
-        if not (1 <= output_bytes <= 64):
+        if not 1 <= output_bytes <= 64:
             raise Bip85ValidationError(
                 f"Output bytes must be 1-64, got {output_bytes}",
                 parameter="output_bytes",
@@ -564,7 +568,10 @@ def validate_master_seed_format(master_seed: bytes) -> Tuple[bool, str]:
         True
     """
     if not isinstance(master_seed, bytes):
-        return False, f"Master seed must be bytes, got {type(master_seed).__name__}"  # type: ignore[unreachable]
+        return (
+            False,
+            f"Master seed must be bytes, got {type(master_seed).__name__}",
+        )  # type: ignore[unreachable]
 
     if len(master_seed) != 64:
         return False, f"Master seed must be 64 bytes, got {len(master_seed)}"
@@ -603,6 +610,13 @@ def convert_hex_to_bytes(master_seed_str: str) -> bytes:
             "Master seed contains invalid hexadecimal characters",
             parameter="master_seed",
             value=(
+                master_seed_str[:50] + "..."
+                if len(master_seed_str) > 50
+                else master_seed_str
+            ),
+            valid_range="Valid hexadecimal string (0-9, a-f, A-F)",
+        ) from e
+
                 master_seed_str[:50] + "..."
                 if len(master_seed_str) > 50
                 else master_seed_str

@@ -67,13 +67,6 @@ def _lazy_load_validate_command() -> Type[BaseCommand]:
     return ValidateCommand
 
 
-def _lazy_load_validate_command() -> Type[BaseCommand]:
-    """Lazy load ValidateCommand."""
-    from .validate import ValidateCommand  # pylint: disable=import-outside-toplevel
-
-    return ValidateCommand
-
-
 # Command registry with lazy loaders - maps command names to loader functions
 _COMMAND_LOADERS: Dict[str, Callable[[], Type[BaseCommand]]] = {
     "gen": _lazy_load_gen_command,
@@ -229,6 +222,15 @@ def handle_bip85_command(args: Any) -> int:
     return _handler(args)
 
 
+def handle_validate_command(args: Any) -> int:
+    """Lazy wrapper for validate command handler."""
+    from .validate import (
+        handle_validate_command as _handler,  # pylint: disable=import-outside-toplevel
+    )
+
+    return _handler(args)
+
+
 # Backward compatibility - lazy class access
 def __getattr__(name: str) -> Any:
     """Support for direct class imports with lazy loading."""
@@ -246,6 +248,12 @@ __all__ = [
     "handle_seed_command",
     "handle_version_command",
     "handle_bip85_command",
+    "handle_validate_command",
     # Note: Command classes are available via __getattr__ for lazy loading
-    # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand", "VersionCommand", "Bip85Command"
+    # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand",
+    # "VersionCommand", "Bip85Command"
+]
+
+    # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand",
+    # "VersionCommand", "Bip85Command"
 ]

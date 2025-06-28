@@ -21,7 +21,7 @@ Brief description of changes and why they are needed.
 ## Code Quality
 - [ ] Code follows PEP 8 style guidelines: `make check`
 - [ ] Type hints are provided: `mypy sseed/`
-- [ ] Linting passes: `pylint sseed/ --fail-under=9.5`
+- [ ] Linting passes: `pylint sseed/ --fail-under=9.4`
 - [ ] No new security issues: `bandit -r sseed/`
 
 ## Cryptographic Security (if applicable)

@@ -9,8 +9,6 @@ import logging
 from typing import (
     Any,
     Dict,
-    List,
-    Optional,
 )
 
 logger = logging.getLogger(__name__)
@@ -90,7 +88,7 @@ class ValidationFormatter:
         status_symbol = symbolize(cls._get_quality_level(overall_score))
         status_color = cls._get_status_color(overall_status)
 
-        lines.append(colorize(f"🔍 Mnemonic Validation Report", "bold"))
+        lines.append(colorize("🔍 Mnemonic Validation Report", "bold"))
         lines.append("=" * 40)
         lines.append(
             f"{status_symbol} Overall Score: {colorize(str(overall_score), status_color)}/100"
@@ -228,8 +226,8 @@ class ValidationFormatter:
 
             return (
                 f"{symbol} Batch Validation: "
-                f"{colorize(f'{summary.get('passed_files', 0)}/{summary.get('total_files', 0)}', status_color)} passed "
-                f"({colorize(f'{success_rate:.1f}%', status_color)} success rate)"
+                f"{colorize(f'{summary.get('passed_files', 0)}/{summary.get('total_files', 0)}', status_color)} "
+                f"passed ({colorize(f'{success_rate:.1f}%', status_color)} success rate)"
             )
         else:
             # Single validation result
@@ -239,7 +237,10 @@ class ValidationFormatter:
             status_symbol = symbolize(cls._get_quality_level(overall_score))
             status_color = cls._get_status_color(overall_status)
 
-            return f"{status_symbol} Score: {colorize(str(overall_score), status_color)}/100 ({colorize(overall_status.title(), status_color)})"
+            return (
+                f"{status_symbol} Score: {colorize(str(overall_score), status_color)}/100 "
+                f"({colorize(overall_status.title(), status_color)})"
+            )
 
     @classmethod
     def _format_batch_text(
@@ -273,7 +274,7 @@ class ValidationFormatter:
 
         # Summary statistics
         total_files = summary.get("total_files", 0)
-        processed_files = summary.get("processed_files", 0)
+        _processed_files = summary.get("processed_files", 0)
         passed_files = summary.get("passed_files", 0)
         failed_files = summary.get("failed_files", 0)
         error_files = summary.get("error_files", 0)
@@ -436,3 +437,4 @@ def format_validation_output(
         return formatter.format_text(
             results, verbose=verbose, use_colors=use_colors, use_symbols=use_symbols
         )
+
