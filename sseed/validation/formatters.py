@@ -224,10 +224,16 @@ class ValidationFormatter:
                 else "warning" if success_rate >= 70 else "fail"
             )
 
+            # Format file counts to avoid f-string quote conflicts
+            passed_files = summary.get("passed_files", 0)
+            total_files = summary.get("total_files", 0)
+            file_ratio = f"{passed_files}/{total_files}"
+            success_percent = f"{success_rate:.1f}%"
+
             return (
                 f"{symbol} Batch Validation: "
-                f"{colorize(f'{summary.get('passed_files', 0)}/{summary.get('total_files', 0)}', status_color)} "
-                f"passed ({colorize(f'{success_rate:.1f}%', status_color)} success rate)"
+                f"{colorize(file_ratio, status_color)} "
+                f"passed ({colorize(success_percent, status_color)} success rate)"
             )
         else:
             # Single validation result
