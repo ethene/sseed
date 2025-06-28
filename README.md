@@ -14,9 +14,9 @@
 ## ✨ Features
 
 - 🌍 **Multi-Language BIP-39 Support** - Generate and restore mnemonics in 9 languages with automatic detection
-- 🔐 **Generate secure 24-word BIP-39 mnemonics** with cryptographically secure entropy
+- 🔐 **Generate secure BIP-39 mnemonics** with flexible word counts (12, 15, 18, 21, or 24 words) using cryptographically secure entropy
 - 🌱 **Generate master seeds from mnemonics** using PBKDF2-HMAC-SHA512 per BIP-39 specification
-- 🎯 **BIP85 deterministic entropy derivation** - specification-compliant implementation with official test vector compatibility
+- 🎯 **BIP85 deterministic entropy derivation** - unlimited child wallets, passwords, and keys from single master
 - 🔄 **Split secrets using SLIP-39** with flexible group/threshold configurations
 - 🔧 **Reconstruct mnemonics from shards** with integrity validation
 - 🚫 **100% offline operation** - zero network calls, air-gapped security
@@ -52,7 +52,7 @@ SSeed supports all 9 official BIP-39 languages with automatic detection:
 
 ## ✨ Key Features
 
-- **🔐 Secure Generation**: 24-word BIP-39 mnemonics using cryptographic entropy
+- **🔐 Secure Generation**: BIP-39 mnemonics with flexible word counts (12, 15, 18, 21, 24) using cryptographic entropy
 - **🌍 Multi-Language**: Generate and restore in 9 languages with auto-detection
 - **🎯 BIP85 Deterministic Entropy**: Generate unlimited child wallets, passwords, and hex entropy from one master seed
 - **🧩 SLIP-39 Sharding**: Split mnemonics into threshold-based secret shares
@@ -291,7 +291,7 @@ make build             # Build distribution packages
 | `sseed version` | Show version and system info | `sseed version --json` |
 | `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -l es -o backup.txt` |
 | `sseed seed` | Generate BIP-32 master seed from BIP-39 mnemonic | `sseed seed -i mnemonic.txt --hex` |
-| `sseed bip85` | Generate BIP85 deterministic entropy | `sseed bip85 bip39 -w 12 -n 0` |
+| `sseed bip85` | Generate BIP85 deterministic entropy | `sseed bip85 bip39 --words 12 --index 0` |
 | `sseed shard` | Split into SLIP-39 shards | `sseed shard -g 3-of-5 -i seed.txt` |
 | `sseed restore` | Reconstruct from shards | `sseed restore shard*.txt` |
 

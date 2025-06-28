@@ -6,43 +6,57 @@ This document outlines the step-by-step implementation plan for **Requirement CL
 
 ## Current State Analysis
 
-### Existing Validation Infrastructure
+### Existing Validation Infrastructure ✅
 
 SSeed already has a robust validation foundation:
 
 1. **Core Validation Modules** (`sseed/validation/`):
-   - `crypto.py`: BIP-39 checksum validation with language support
-   - `input.py`: Mnemonic word format and structure validation
-   - `structure.py`: SLIP-39 group threshold and shard integrity validation
+   - `crypto.py`: BIP-39 checksum validation with language support (117 lines)
+   - `input.py`: Mnemonic word format and structure validation (132 lines)  
+   - `structure.py`: SLIP-39 group threshold and shard integrity validation (63+ lines)
+   - `__init__.py`: Unified exports for backward compatibility
 
-2. **Security Validation** (`sseed/bip85/security.py`):
-   - `validate_entropy_quality()`: Entropy quality analysis with chi-square tests
-   - `validate_master_seed_entropy()`: Master seed validation
-   - Pattern detection for weak entropy
+2. **Advanced Security Validation** (`sseed/bip85/security.py`):
+   - `SecurityHardening.validate_entropy_quality()`: Entropy quality analysis with chi-square tests
+   - `_has_weak_patterns()`: Pattern detection for weak entropy (all zeros, repeating, sequential)
+   - `_passes_chi_square_test()`: Statistical randomness testing
+   - `validate_entropy_security()`: Public interface function
 
-3. **Multi-Language Support** (`sseed/languages.py`):
+3. **Custom Entropy Quality Analysis** (`sseed/entropy/custom.py`):
+   - `EntropyQuality` class: 0-100 scoring system with warnings and recommendations
+   - `validate_entropy_quality()`: Comprehensive entropy analysis (249+ lines)
+   - `_analyze_patterns()`, `_analyze_distribution()`, `_analyze_weakness_signatures()`: Detailed analysis functions
+   - Pattern detection for repeating sequences, distribution analysis, weakness signatures
+
+4. **Multi-Language Support** (`sseed/languages.py`):
    - Automatic language detection for 9 BIP-39 languages
    - Language-specific word validation
 
-4. **Cross-Tool Compatibility** (`tests/test_shamir_cli_compatibility.py`):
-   - Existing compatibility tests with Trezor's official shamir CLI
-   - Framework for cross-tool testing
+5. **Cross-Tool Compatibility Framework** (`tests/test_shamir_cli_compatibility.py`):
+   - Existing compatibility tests with Trezor's official shamir CLI (453 lines)
+   - Framework for cross-tool testing with `is_shamir_cli_available()` detection
+   - Mathematical equivalence verification between tools
+   - Entropy round-trip testing infrastructure
 
-5. **CLI Architecture** (`sseed/cli/`):
-   - Modular command structure with lazy loading
-   - Base command class with common patterns
+6. **CLI Architecture** (`sseed/cli/`):
+   - Modular command structure with lazy loading (`commands/__init__.py`)
+   - `BaseCommand` class with common patterns (`base.py`)
+   - Error handling system (`error_handling.py`)
+   - Argument parser with subcommands (`parser.py`)
 
 ### Missing Components for B.3
 
 1. **CLI Command**: No `validate` command exists
-2. **Deep Analysis Engine**: No comprehensive analysis reporting
+2. **Deep Analysis Engine**: No comprehensive analysis reporting (need to integrate existing components)
 3. **Batch Processing**: No batch validation framework
 4. **JSON Output**: No structured validation reporting
 5. **Backup Verification**: No full round-trip testing automation
 
-## Implementation Plan
+## Updated Implementation Plan
 
-### Phase 1: Core Validate Command Structure (Week 1)
+Based on the current codebase analysis, here's the step-by-step implementation plan:
+
+### Phase 1: Core Validate Command Structure (Days 1-2)
 
 #### Step 1.1: Create Validate Command Base
 **File**: `sseed/cli/commands/validate.py`
@@ -58,7 +72,7 @@ SSeed already has a robust validation foundation:
 
 **Dependencies**: 
 - `sseed.cli.base.BaseCommand`
-- Standard argparse module
+- Existing validation modules
 
 **Code Structure**:
 ```python
@@ -84,74 +98,75 @@ class ValidateCommand(BaseCommand):
 **File**: `sseed/cli/commands/__init__.py`
 
 **Changes needed**:
-1. Add lazy loader function for ValidateCommand
-2. Add "validate" to _COMMAND_LOADERS dictionary
-3. Add _load_validate_command method to LazyCommandRegistry
-4. Add validate command handler function
+1. Add `_lazy_load_validate_command()` function
+2. Add "validate" to `_COMMAND_LOADERS` dictionary
+3. Add `_load_validate_command()` method to `LazyCommandRegistry`
+4. Add `handle_validate_command()` wrapper function
 
 **Impact**: Enables `python -m sseed validate --help` to work
 
-### Phase 2: Deep Validation Engine (Week 2)
+### Phase 2: Deep Analysis Integration (Days 3-4)
 
-#### Step 2.1: Create Deep Analysis Module
-**File**: `sseed/validation/deep_analysis.py`
+#### Step 2.1: Create Unified Analysis Module
+**File**: `sseed/validation/analysis.py`
 
-**Purpose**: Comprehensive entropy and mnemonic analysis engine
+**Purpose**: Integrate existing validation components into comprehensive analysis engine
 
 **Key Components**:
-- `EntropyAnalyzer`: Entropy quality scoring, pattern detection
-- `MnemonicAnalyzer`: Deep mnemonic validation with security analysis
-- Integration with existing `sseed.bip85.security` module
+- `MnemonicAnalyzer`: Orchestrates all validation types
+- Integration with existing `sseed.entropy.custom.validate_entropy_quality()`
+- Integration with existing `sseed.bip85.security.SecurityHardening`
+- Language detection integration
 
 **Features Implemented**:
-- Entropy quality scoring (0-100 scale)
-- Weak pattern detection (all zeros, sequential, repeating)
-- Chi-square randomness testing
-- Language detection integration
+- Unified 0-100 scoring system (leveraging existing `EntropyQuality`)
+- Deep mnemonic validation with security analysis
+- Language detection and validation
+- Entropy extraction and quality analysis
 - Security recommendations
 
 **Dependencies**:
-- `sseed.bip85.security.get_security_hardening()`
 - `sseed.validation.crypto.validate_mnemonic_checksum()`
+- `sseed.validation.input.validate_mnemonic_words()`
+- `sseed.entropy.custom.validate_entropy_quality()`
+- `sseed.bip85.security.validate_entropy_security()`
 - `sseed.languages.detect_mnemonic_language()`
 - `sseed.bip39.get_mnemonic_entropy()`
 
 **Interface**:
 ```python
-def validate_mnemonic_deep(mnemonic: str) -> Dict[str, Any]:
-    """Public interface returning comprehensive validation results"""
+def analyze_mnemonic_comprehensive(mnemonic: str) -> Dict[str, Any]:
+    """Comprehensive mnemonic analysis using existing validation infrastructure"""
 ```
 
-#### Step 2.2: Create Cross-Tool Compatibility Module  
+#### Step 2.2: Enhance Cross-Tool Compatibility Module  
 **File**: `sseed/validation/cross_tool.py`
 
-**Purpose**: Test interoperability with external BIP-39/SLIP-39 tools
+**Purpose**: Extend existing cross-tool testing framework
 
 **Key Components**:
 - `CrossToolTester`: Framework for testing external tool compatibility
-- Trezor shamir CLI integration (based on existing tests)
-- BIP-39 tool compatibility testing
-- Tool availability detection
+- Integration with existing `tests/test_shamir_cli_compatibility.py` logic
+- Automatic detection of available external tools
 
 **Features Implemented**:
-- Automatic detection of available external tools
+- Leverage existing `is_shamir_cli_available()` function
 - SLIP-39 round-trip testing with Trezor shamir CLI
 - BIP-39 compatibility verification
 - Error handling for missing tools
 
 **Dependencies**:
 - `sseed.slip39_operations.generate_slip39_shares()`
-- Existing `tests/test_shamir_cli_compatibility.py` logic
+- Existing cross-tool testing logic from `tests/test_shamir_cli_compatibility.py`
 - External tools: `shamir` CLI (optional)
-- Standard library: `subprocess`, `tempfile`
 
 **Interface**:
 ```python
 def test_cross_tool_compatibility(mnemonic: str) -> Dict[str, Any]:
-    """Public interface returning compatibility test results"""
+    """Test compatibility with external tools using existing framework"""
 ```
 
-### Phase 3: Batch Processing and Backup Verification (Week 3)
+### Phase 3: Batch Processing and Output Formatting (Days 5-6)
 
 #### Step 3.1: Create Batch Validation Module
 **File**: `sseed/validation/batch.py`
@@ -171,8 +186,8 @@ def test_cross_tool_compatibility(mnemonic: str) -> Dict[str, Any]:
 - Individual file error isolation
 
 **Dependencies**:
-- `sseed.file_operations.read_mnemonic_from_file()`
-- `sseed.validation.deep_analysis.validate_mnemonic_deep()`
+- `sseed.file_operations.readers.read_mnemonic_from_file()`
+- `sseed.validation.analysis.analyze_mnemonic_comprehensive()`
 - Standard library: `glob`, `concurrent.futures`, `pathlib`
 
 **Interface**:
@@ -181,56 +196,7 @@ def validate_batch_files(pattern: str, **kwargs) -> Dict[str, Any]:
     """Public interface for batch validation"""
 ```
 
-#### Step 3.2: Create Backup Verification Module
-**File**: `sseed/validation/backup_verification.py`
-
-**Purpose**: Verify backup integrity through comprehensive testing
-
-**Key Components**:
-- `BackupVerifier`: Full cycle backup testing
-- Round-trip validation (generate → shard → restore → verify)
-- Existing shard file verification
-- Stress testing with multiple iterations
-
-**Features Implemented**:
-- Complete backup cycle testing
-- Shard combination validation
-- Entropy consistency verification
-- Performance stress testing
-- Integration with existing SLIP-39 operations
-
-**Dependencies**:
-- `sseed.slip39_operations.generate_slip39_shares()`
-- `sseed.slip39_operations.reconstruct_mnemonic()`
-- `sseed.bip39.validate_mnemonic()`
-
-**Interface**:
-```python
-def verify_backup_integrity(mnemonic: str, shard_files: Optional[List[str]] = None) -> Dict[str, Any]:
-    """Public interface for backup verification"""
-```
-
-### Phase 4: Command Implementation and Output Formatting (Week 4)
-
-#### Step 4.1: Complete Validate Command Handler
-**File**: `sseed/cli/commands/validate.py` (complete implementation)
-
-**Purpose**: Implement the main command logic with all validation modes
-
-**Key Features**:
-- Single vs batch validation routing
-- Conditional validation based on flags
-- Result aggregation from all modules
-- Exit code determination based on validation results
-- Error handling and user feedback
-
-**Implementation Areas**:
-- `_handle_single_validation()`: Single mnemonic processing
-- `_handle_batch_validation()`: Batch file processing  
-- `_validate_mnemonic()`: Core validation orchestration
-- Result compilation and exit code logic
-
-#### Step 4.2: Create Output Formatters
+#### Step 3.2: Create Output Formatters
 **File**: `sseed/validation/formatters.py`
 
 **Purpose**: Format validation results for different output types
@@ -258,7 +224,56 @@ class ValidationFormatter:
     def format_summary(results: Dict[str, Any]) -> str:
 ```
 
-### Phase 5: Testing and Integration (Week 5)
+### Phase 4: Backup Verification and Command Implementation (Days 7-8)
+
+#### Step 4.1: Create Backup Verification Module
+**File**: `sseed/validation/backup_verification.py`
+
+**Purpose**: Verify backup integrity through comprehensive testing
+
+**Key Components**:
+- `BackupVerifier`: Full cycle backup testing
+- Round-trip validation (generate → shard → restore → verify)
+- Existing shard file verification
+- Stress testing with multiple iterations
+
+**Features Implemented**:
+- Complete backup cycle testing
+- Shard combination validation
+- Entropy consistency verification
+- Performance stress testing
+- Integration with existing SLIP-39 operations
+
+**Dependencies**:
+- `sseed.slip39_operations.generate_slip39_shares()`
+- `sseed.slip39_operations.reconstruct_mnemonic()`
+- `sseed.validation.crypto.validate_mnemonic_checksum()`
+
+**Interface**:
+```python
+def verify_backup_integrity(mnemonic: str, shard_files: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Public interface for backup verification"""
+```
+
+#### Step 4.2: Complete Validate Command Handler
+**File**: `sseed/cli/commands/validate.py` (complete implementation)
+
+**Purpose**: Implement the main command logic with all validation modes
+
+**Key Features**:
+- Single vs batch validation routing
+- Conditional validation based on flags
+- Result aggregation from all modules
+- Exit code determination based on validation results
+- Error handling and user feedback
+
+**Implementation Areas**:
+- `_handle_single_validation()`: Single mnemonic processing
+- `_handle_batch_validation()`: Batch file processing  
+- `_validate_mnemonic()`: Core validation orchestration
+- Result compilation and exit code logic
+
+### Phase 5: Testing and Integration (Days 9-10)
 
 #### Step 5.1: Create Comprehensive Unit Tests
 **File**: `tests/test_validate_command.py`
@@ -296,7 +311,7 @@ class ValidationFormatter:
 - `test_cli_validate_json()`: JSON output format
 - `test_cli_validate_errors()`: Error handling
 
-### Phase 6: Documentation and CLI Help (Week 6)
+### Phase 6: Documentation and CLI Help (Days 11-12)
 
 #### Step 6.1: Update CLI Help and Examples
 **File**: `sseed/cli/examples.py` (add validate examples)
@@ -323,21 +338,21 @@ class ValidationFormatter:
 
 ### New Files to Create
 
-1. **`sseed/cli/commands/validate.py`** - Main validate command (427 lines estimated)
-2. **`sseed/validation/deep_analysis.py`** - Deep validation engine (312 lines estimated)
-3. **`sseed/validation/cross_tool.py`** - Cross-tool compatibility (245 lines estimated)  
-4. **`sseed/validation/batch.py`** - Batch processing (198 lines estimated)
-5. **`sseed/validation/backup_verification.py`** - Backup verification (267 lines estimated)
-6. **`sseed/validation/formatters.py`** - Output formatting (156 lines estimated)
-7. **`tests/test_validate_command.py`** - Unit tests (389 lines estimated)
-8. **`tests/test_validate_integration.py`** - Integration tests (234 lines estimated)
-9. **`capabilities/advanced-validation.md`** - Documentation (156 lines estimated)
+1. **`sseed/cli/commands/validate.py`** - Main validate command (400+ lines estimated)
+2. **`sseed/validation/analysis.py`** - Unified analysis engine (250+ lines estimated)
+3. **`sseed/validation/cross_tool.py`** - Cross-tool compatibility (200+ lines estimated)  
+4. **`sseed/validation/batch.py`** - Batch processing (180+ lines estimated)
+5. **`sseed/validation/backup_verification.py`** - Backup verification (220+ lines estimated)
+6. **`sseed/validation/formatters.py`** - Output formatting (150+ lines estimated)
+7. **`tests/test_validate_command.py`** - Unit tests (350+ lines estimated)
+8. **`tests/test_validate_integration.py`** - Integration tests (200+ lines estimated)
+9. **`capabilities/advanced-validation.md`** - Documentation (150+ lines estimated)
 
 ### Files to Modify
 
-1. **`sseed/cli/commands/__init__.py`** - Register new validate command (8 lines added)
-2. **`sseed/validation/__init__.py`** - Export new validation functions (12 lines added)
-3. **`sseed/cli/examples.py`** - Add validate command examples (34 lines added)
+1. **`sseed/cli/commands/__init__.py`** - Register new validate command (15 lines added)
+2. **`sseed/validation/__init__.py`** - Export new validation functions (10 lines added)
+3. **`sseed/cli/examples.py`** - Add validate command examples (30 lines added)
 
 ### External Dependencies
 
@@ -351,16 +366,16 @@ class ValidationFormatter:
 
 ## Implementation Timeline
 
-| Week | Phase | Key Deliverables | Lines of Code |
-|------|-------|------------------|---------------|
-| 1 | Command Structure | validate.py skeleton, registration | ~150 |
-| 2 | Core Engine | Deep analysis, cross-tool modules | ~557 |
-| 3 | Batch & Backup | Batch processing, backup verification | ~465 |
-| 4 | CLI Implementation | Complete handler, output formatting | ~583 |
-| 5 | Testing | Unit and integration tests | ~623 |
-| 6 | Documentation | CLI help, examples, capabilities doc | ~190 |
+| Day | Phase | Key Deliverables | Lines of Code |
+|-----|-------|------------------|---------------|
+| 1-2 | Command Structure | validate.py skeleton, registration | ~200 |
+| 3-4 | Analysis Integration | analysis.py, cross_tool.py | ~450 |
+| 5-6 | Batch & Formatting | batch.py, formatters.py | ~330 |
+| 7-8 | Backup & Implementation | backup_verification.py, complete handler | ~620 |
+| 9-10 | Testing | Unit and integration tests | ~550 |
+| 11-12 | Documentation | CLI help, examples, capabilities doc | ~180 |
 
-**Total Estimated**: ~2,568 lines of new code + modifications to existing files
+**Total Estimated**: ~2,330 lines of new code + modifications to existing files
 
 ## Success Criteria
 
@@ -413,4 +428,4 @@ sseed validate --batch "wallets/*.txt" --format json
 sseed validate -i wallet.txt --deep --format json | jq '.analysis.entropy_score'
 ```
 
-This implementation plan provides a comprehensive, production-ready advanced validation system that significantly enhances SSeed's professional capabilities while maintaining its automation-first design philosophy and Unix-style composability. 
+This implementation plan leverages SSeed's existing robust validation infrastructure while adding comprehensive analysis capabilities that significantly enhance its professional utility and automation-first design philosophy. 

@@ -60,6 +60,20 @@ def _lazy_load_bip85_command() -> Type[BaseCommand]:
     return Bip85Command
 
 
+def _lazy_load_validate_command() -> Type[BaseCommand]:
+    """Lazy load ValidateCommand."""
+    from .validate import ValidateCommand  # pylint: disable=import-outside-toplevel
+
+    return ValidateCommand
+
+
+def _lazy_load_validate_command() -> Type[BaseCommand]:
+    """Lazy load ValidateCommand."""
+    from .validate import ValidateCommand  # pylint: disable=import-outside-toplevel
+
+    return ValidateCommand
+
+
 # Command registry with lazy loaders - maps command names to loader functions
 _COMMAND_LOADERS: Dict[str, Callable[[], Type[BaseCommand]]] = {
     "gen": _lazy_load_gen_command,
@@ -68,6 +82,7 @@ _COMMAND_LOADERS: Dict[str, Callable[[], Type[BaseCommand]]] = {
     "seed": _lazy_load_seed_command,
     "version": _lazy_load_version_command,
     "bip85": _lazy_load_bip85_command,
+    "validate": _lazy_load_validate_command,
 }
 
 # Cache for loaded commands to avoid repeated imports
@@ -87,6 +102,7 @@ class LazyCommandRegistry:
             "seed": self._load_seed_command,
             "version": self._load_version_command,
             "bip85": self._load_bip85_command,
+            "validate": self._load_validate_command,
         }
 
     def __getitem__(self, name: str) -> Any:
@@ -146,6 +162,12 @@ class LazyCommandRegistry:
         from .bip85 import Bip85Command  # pylint: disable=import-outside-toplevel
 
         return Bip85Command
+
+    def _load_validate_command(self) -> Any:
+        """Load the validate command class."""
+        from .validate import ValidateCommand  # pylint: disable=import-outside-toplevel
+
+        return ValidateCommand
 
 
 # Global command registry instance
