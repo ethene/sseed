@@ -31,6 +31,7 @@ def create_test_args(**kwargs):
         "language": None,
         "strict": False,
         "check_entropy": False,
+        "output": None,
     }
     defaults.update(kwargs)
     return Namespace(**defaults)
@@ -71,10 +72,10 @@ class TestValidateCommand:
         assert result == 0  # Success
 
         # Check that validation results were populated
-        assert self.command.validation_results["overall_status"] == "pass"
-        assert "format" in self.command.validation_results["checks"]
-        assert "language" in self.command.validation_results["checks"]
-        assert "checksum" in self.command.validation_results["checks"]
+        assert self.command.validation_results["is_valid"] is True
+        assert self.command.validation_results["mode"] == "basic"
+        assert self.command.validation_results["language"] == "en"
+        assert self.command.validation_results["word_count"] == 12
 
     def test_basic_validation_invalid_mnemonic(self):
         """Test basic validation with an invalid mnemonic."""
@@ -86,7 +87,7 @@ class TestValidateCommand:
         assert result == 1  # Failure
 
         # Check that validation results show failure
-        assert self.command.validation_results["overall_status"] == "fail"
+        assert self.command.validation_results["is_valid"] is False
 
     def test_advanced_validation_mode(self):
         """Test advanced validation mode."""

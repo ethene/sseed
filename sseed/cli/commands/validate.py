@@ -177,6 +177,9 @@ class ValidateCommand(BaseCommand):
             else:
                 raise ValidationError(f"Unknown validation mode: {args.mode}")
 
+            # Store results for testing
+            self.validation_results = result
+
             # Output results
             self._output_results(result, args)
 
