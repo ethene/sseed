@@ -205,18 +205,21 @@ class CrossToolTester:
 
         try:
             # Create temporary mnemonic file
-            mnemonic_file = tempfile.mktemp(suffix=".txt")
-            temp_files.append(mnemonic_file)
-
-            with open(mnemonic_file, "w") as f:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete=False
+            ) as f:
                 f.write(mnemonic)
+                mnemonic_file = f.name
+            temp_files.append(mnemonic_file)
 
             # Extract original entropy for comparison
             original_entropy_bytes = get_mnemonic_entropy(mnemonic)
             original_entropy_hex = original_entropy_bytes.hex()
 
-            # Create shards with sseed
-            shard_prefix = tempfile.mktemp(prefix="compat_test_shards_")
+            # Create shards with sseed (use a secure temp directory)
+            temp_dir = tempfile.mkdtemp(prefix="compat_test_")
+            shard_prefix = os.path.join(temp_dir, "shards")
+            temp_files.append(temp_dir)  # Will cleanup directory
             returncode, stdout, stderr = self._run_command(
                 f"sseed shard -i {mnemonic_file} -g 2-of-3 --separate -o {shard_prefix}"
             )
@@ -302,13 +305,18 @@ class CrossToolTester:
                 "message": f"Round-trip test failed: {str(e)}",
             }
         finally:
-            # Cleanup temporary files
-            for temp_file in temp_files:
+            # Cleanup temporary files and directories
+            for temp_path in temp_files:
                 try:
-                    if os.path.exists(temp_file):
-                        os.unlink(temp_file)
-                except Exception:
-                    pass
+                    if os.path.exists(temp_path):
+                        if os.path.isdir(temp_path):
+                            import shutil
+
+                            shutil.rmtree(temp_path)
+                        else:
+                            os.unlink(temp_path)
+                except Exception as e:
+                    logger.warning("Failed to cleanup temp path %s: %s", temp_path, e)
 
     def _test_entropy_verification(self, _mnemonic: str) -> Dict[str, Any]:
         """Test entropy verification: shamir create → sseed restore."""
@@ -363,10 +371,12 @@ class CrossToolTester:
             # Save shards to files for sseed
             shard_files = []
             for _i, shard in enumerate(shard_lines[:2]):  # Use first 2 shards
-                shard_file = tempfile.mktemp(suffix=".txt")
-                temp_files.append(shard_file)
-                with open(shard_file, "w") as f:
+                with tempfile.NamedTemporaryFile(
+                    mode="w", suffix=".txt", delete=False
+                ) as f:
                     f.write(shard)
+                    shard_file = f.name
+                temp_files.append(shard_file)
                 shard_files.append(shard_file)
 
             # Restore with sseed
@@ -427,13 +437,18 @@ class CrossToolTester:
                 "message": f"Entropy verification test failed: {str(e)}",
             }
         finally:
-            # Cleanup temporary files
-            for temp_file in temp_files:
+            # Cleanup temporary files and directories
+            for temp_path in temp_files:
                 try:
-                    if os.path.exists(temp_file):
-                        os.unlink(temp_file)
-                except Exception:
-                    pass
+                    if os.path.exists(temp_path):
+                        if os.path.isdir(temp_path):
+                            import shutil
+
+                            shutil.rmtree(temp_path)
+                        else:
+                            os.unlink(temp_path)
+                except Exception as e:
+                    logger.warning("Failed to cleanup temp path %s: %s", temp_path, e)
 
     def _calculate_compatibility_score(
         self, result: CrossToolCompatibilityResult
@@ -511,8 +526,12 @@ class CrossToolTester:
     ) -> Tuple[int, str, str]:
         """Run a command and return the result."""
         try:
+            # Split command to avoid shell=True security issue
+            import shlex
+
+            cmd_args = shlex.split(cmd)
             result = subprocess.run(
-                cmd, shell=True, capture_output=True, text=True, input=input_text
+                cmd_args, capture_output=True, text=True, input=input_text
             )
             return result.returncode, result.stdout, result.stderr
         except Exception as e:
