@@ -127,6 +127,9 @@ class GenCommand(BaseCommand):
         words = getattr(
             args, "words", 24
         )  # Default to 24 words for backward compatibility
+        
+        # Initialize entropy_source to avoid unbound variable warning
+        entropy_source = "unknown"
 
         logger.info(
             "Starting mnemonic generation (language: %s, words: %d)",
@@ -201,9 +204,6 @@ class GenCommand(BaseCommand):
                 )
 
                 required_bytes = word_count_to_entropy_bytes(words)
-                entropy_source = (
-                    "unknown"  # Initialize to avoid potential unbound variable
-                )
 
                 try:
                     if entropy_hex:

@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2025-06-29T06:38:58Z",
+  "generated_at": "2025-06-29T06:42:02Z",
   "metrics": {
     "_totals": {
-      "CONFIDENCE.HIGH": 7,
+      "CONFIDENCE.HIGH": 2,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 1,
-      "SEVERITY.LOW": 3,
-      "SEVERITY.MEDIUM": 3,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 2,
+      "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 9466,
+      "loc": 9482,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -562,15 +562,15 @@
       "skipped_tests": 0
     },
     "sseed/validation/cross_tool.py": {
-      "CONFIDENCE.HIGH": 7,
+      "CONFIDENCE.HIGH": 2,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 1,
-      "SEVERITY.LOW": 3,
-      "SEVERITY.MEDIUM": 3,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 2,
+      "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 442,
+      "loc": 458,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -649,109 +649,7 @@
       "test_name": "blacklist"
     },
     {
-      "code": "207             # Create temporary mnemonic file\n208             mnemonic_file = tempfile.mktemp(suffix=\".txt\")\n209             temp_files.append(mnemonic_file)\n",
-      "col_offset": 28,
-      "end_col_offset": 58,
-      "filename": "sseed/validation/cross_tool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 377,
-        "link": "https://cwe.mitre.org/data/definitions/377.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Use of insecure and deprecated function (mktemp).",
-      "line_number": 208,
-      "line_range": [
-        208
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/blacklists/blacklist_calls.html#b306-mktemp-q",
-      "test_id": "B306",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "218             # Create shards with sseed\n219             shard_prefix = tempfile.mktemp(prefix=\"compat_test_shards_\")\n220             returncode, stdout, stderr = self._run_command(\n",
-      "col_offset": 27,
-      "end_col_offset": 72,
-      "filename": "sseed/validation/cross_tool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 377,
-        "link": "https://cwe.mitre.org/data/definitions/377.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Use of insecure and deprecated function (mktemp).",
-      "line_number": 219,
-      "line_range": [
-        219
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/blacklists/blacklist_calls.html#b306-mktemp-q",
-      "test_id": "B306",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "309                         os.unlink(temp_file)\n310                 except Exception:\n311                     pass\n312 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "sseed/validation/cross_tool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 310,
-      "line_range": [
-        310,
-        311
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "365             for _i, shard in enumerate(shard_lines[:2]):  # Use first 2 shards\n366                 shard_file = tempfile.mktemp(suffix=\".txt\")\n367                 temp_files.append(shard_file)\n",
-      "col_offset": 29,
-      "end_col_offset": 59,
-      "filename": "sseed/validation/cross_tool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 377,
-        "link": "https://cwe.mitre.org/data/definitions/377.html"
-      },
-      "issue_severity": "MEDIUM",
-      "issue_text": "Use of insecure and deprecated function (mktemp).",
-      "line_number": 366,
-      "line_range": [
-        366
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/blacklists/blacklist_calls.html#b306-mktemp-q",
-      "test_id": "B306",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "434                         os.unlink(temp_file)\n435                 except Exception:\n436                     pass\n437 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "sseed/validation/cross_tool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 435,
-      "line_range": [
-        435,
-        436
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "514             result = subprocess.run(\n515                 cmd, shell=True, capture_output=True, text=True, input=input_text\n516             )\n517             return result.returncode, result.stdout, result.stderr\n518         except Exception as e:\n",
+      "code": "532             cmd_args = shlex.split(cmd)\n533             result = subprocess.run(\n534                 cmd_args, capture_output=True, text=True, input=input_text\n535             )\n536             return result.returncode, result.stdout, result.stderr\n",
       "col_offset": 21,
       "end_col_offset": 13,
       "filename": "sseed/validation/cross_tool.py",
@@ -760,17 +658,17 @@
         "id": 78,
         "link": "https://cwe.mitre.org/data/definitions/78.html"
       },
-      "issue_severity": "HIGH",
-      "issue_text": "subprocess call with shell=True identified, security issue.",
-      "line_number": 515,
+      "issue_severity": "LOW",
+      "issue_text": "subprocess call - check for execution of untrusted input.",
+      "line_number": 533,
       "line_range": [
-        514,
-        515,
-        516
+        533,
+        534,
+        535
       ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/plugins/b602_subprocess_popen_with_shell_equals_true.html",
-      "test_id": "B602",
-      "test_name": "subprocess_popen_with_shell_equals_true"
+      "more_info": "https://bandit.readthedocs.io/en/1.8.5/plugins/b603_subprocess_without_shell_equals_true.html",
+      "test_id": "B603",
+      "test_name": "subprocess_without_shell_equals_true"
     }
   ]
 }
