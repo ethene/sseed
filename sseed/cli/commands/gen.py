@@ -127,7 +127,7 @@ class GenCommand(BaseCommand):
         words = getattr(
             args, "words", 24
         )  # Default to 24 words for backward compatibility
-        
+
         # Initialize entropy_source to avoid unbound variable warning
         entropy_source = "unknown"
 
