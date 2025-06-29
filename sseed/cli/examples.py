@@ -260,7 +260,7 @@ PERFORMANCE CHARACTERISTICS:
 def show_examples(_args: Any) -> int:
     """Show comprehensive examples and usage patterns."""
     try:
-        print("🌟 SSeed - Comprehensive Examples & Usage Guide")
+        print("🔐 SSeed Usage Examples")
         print("=" * 50)
 
         _print_section("📚 BASIC COMMANDS", _get_basic_examples())

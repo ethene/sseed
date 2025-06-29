@@ -29,31 +29,24 @@ class TestCLIExamples(unittest.TestCase):
 
         # Test that output contains expected sections
         self.assertIn("🔐 SSeed Usage Examples", output)
-        self.assertIn("📝 Basic Generation:", output)
-        self.assertIn("🔗 Sharding (SLIP-39) with Language Detection:", output)
-        self.assertIn("🔄 Restoration with Auto-Detection:", output)
-        self.assertIn("🌱 Master Seed Generation (BIP-39 → BIP-32):", output)
-        self.assertIn("📋 Information:", output)
-        self.assertIn("🚀 Complete Multi-Language Workflows:", output)
-        self.assertIn("📚 Tips & Best Practices:", output)
+        self.assertIn("📚 BASIC COMMANDS", output)
+        self.assertIn("🚀 ADVANCED USAGE", output)
+        self.assertIn("🔍 VALIDATION & ANALYSIS", output)
+        self.assertIn("🤖 AUTOMATION & SCRIPTING", output)
+        self.assertIn("🛡️ SECURITY WORKFLOWS", output)
+        self.assertIn("📖 REFERENCE", output)
 
         # Test specific commands are mentioned
         self.assertIn("sseed gen", output)
         self.assertIn("sseed shard", output)
         self.assertIn("sseed restore", output)
         self.assertIn("sseed seed", output)
-        self.assertIn("sseed version", output)
-        self.assertIn("sseed examples", output)
+        self.assertIn("sseed validate", output)
+        self.assertIn("sseed bip85", output)
 
         # Test that help guidance is included
         self.assertIn("--help", output)
-        self.assertIn("--show-entropy", output)
-        self.assertIn("--separate", output)
-
-        # Test that best practices are mentioned
-        self.assertIn("different secure locations", output)
-        self.assertIn("Test recovery", output)
-        self.assertIn("passphrases", output)
+        self.assertIn("--mode", output)
 
     def test_show_examples_return_value(self):
         """Test that show_examples returns the correct exit code."""

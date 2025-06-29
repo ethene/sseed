@@ -337,7 +337,7 @@ def get_mnemonic_entropy(
         # Validate before entropy extraction
         if not validate_mnemonic(normalized_mnemonic, language):
             raise MnemonicError(
-                "Invalid mnemonic: failed checksum validation",
+                "Cannot extract entropy from invalid mnemonic",
                 context={"validation_type": "checksum", "language": str(language)},
             )
 
