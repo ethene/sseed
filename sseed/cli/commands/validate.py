@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class ValidateCommand(BaseCommand):
     """Advanced validation command with multiple validation modes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             name="validate",
             help_text="Comprehensive validation of mnemonics, backups, and entropy",
@@ -132,11 +132,11 @@ class ValidateCommand(BaseCommand):
             help="Enable stress testing for backup verification",
         )
 
-    def handle(self, args) -> int:
+    def handle(self, args: argparse.Namespace) -> int:
         """Handle the validate command execution."""
         return self.execute(args)
 
-    def execute(self, args) -> int:
+    def execute(self, args: argparse.Namespace) -> int:
         """Execute the validate command."""
         try:
             # Handle batch processing
@@ -157,7 +157,7 @@ class ValidateCommand(BaseCommand):
                 self._error(f"Validation failed: {e}")
             return 1
 
-    def _single_validation(self, args) -> int:
+    def _single_validation(self, args: argparse.Namespace) -> int:
         """Handle single mnemonic validation."""
         try:
             # Get mnemonic input
@@ -214,7 +214,9 @@ class ValidateCommand(BaseCommand):
                 "word_count": len(mnemonic.split()),
             }
 
-    def _advanced_validation(self, mnemonic: str, args) -> Dict[str, Any]:
+    def _advanced_validation(
+        self, mnemonic: str, args: argparse.Namespace
+    ) -> Dict[str, Any]:
         """Perform advanced mnemonic validation."""
         try:
             from sseed.validation import validate_mnemonic_advanced
@@ -223,7 +225,9 @@ class ValidateCommand(BaseCommand):
         except ImportError:
             return self._basic_validation(mnemonic, args)
 
-    def _entropy_validation(self, mnemonic: str, args) -> Dict[str, Any]:
+    def _entropy_validation(
+        self, mnemonic: str, args: argparse.Namespace
+    ) -> Dict[str, Any]:
         """Perform entropy-focused validation."""
         try:
             from sseed.validation import validate_mnemonic_entropy
@@ -232,7 +236,9 @@ class ValidateCommand(BaseCommand):
         except ImportError:
             return self._basic_validation(mnemonic, args)
 
-    def _compatibility_validation(self, mnemonic: str, args) -> Dict[str, Any]:
+    def _compatibility_validation(
+        self, mnemonic: str, args: argparse.Namespace
+    ) -> Dict[str, Any]:
         """Perform cross-tool compatibility validation."""
         try:
             from sseed.validation import validate_mnemonic_compatibility
@@ -241,7 +247,9 @@ class ValidateCommand(BaseCommand):
         except ImportError:
             return self._basic_validation(mnemonic, args)
 
-    def _backup_validation(self, mnemonic: str, args) -> Dict[str, Any]:
+    def _backup_validation(
+        self, mnemonic: str, args: argparse.Namespace
+    ) -> Dict[str, Any]:
         """Perform backup verification validation."""
         try:
             from sseed.validation.backup_verification import verify_backup_integrity
@@ -264,7 +272,7 @@ class ValidateCommand(BaseCommand):
                 "message": str(e),
             }
 
-    def _batch_validation(self, args) -> int:
+    def _batch_validation(self, args: argparse.Namespace) -> int:
         """Handle batch validation of multiple files."""
         try:
             from sseed.validation.batch import validate_batch_files
@@ -300,7 +308,7 @@ class ValidateCommand(BaseCommand):
             logger.error("Batch validation failed: %s", str(e))
             raise ValidationError(f"Batch validation error: {e}") from e
 
-    def _output_results(self, result: Dict[str, Any], args) -> None:
+    def _output_results(self, result: Dict[str, Any], args: argparse.Namespace) -> None:
         """Output validation results."""
         try:
             from sseed.validation.formatters import format_validation_output
@@ -332,13 +340,14 @@ class ValidateCommand(BaseCommand):
 
         return 0
 
-    def handle_input(self, args) -> str:
+    def handle_input(self, args: argparse.Namespace, input_arg: str = "") -> str:
         """Handle input from various sources."""
         if args.mnemonic:
             return args.mnemonic.strip()
 
         if args.input:
-            return read_mnemonic_from_file(args.input)
+            result = read_mnemonic_from_file(args.input)
+            return str(result)
 
         # Read from stdin
         if not sys.stdin.isatty():

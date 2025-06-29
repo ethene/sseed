@@ -9,6 +9,11 @@ This module provides comprehensive validation functionality organized by concern
 All functions are re-exported for backward compatibility with existing code.
 """
 
+from typing import (
+    Any,
+    Dict,
+)
+
 # Import all functions from the modular structure
 from sseed.validation.crypto import validate_mnemonic_checksum
 from sseed.validation.input import (
@@ -30,7 +35,7 @@ from sseed.validation.structure import (
 try:
     from sseed.validation.analysis import (
         MnemonicAnalysisResult,
-        SecurityAnalyzer,
+        MnemonicAnalyzer,
         analyze_mnemonic_comprehensive,
     )
 
@@ -102,6 +107,11 @@ __all__ = [
     "validate_group_threshold",
     "detect_duplicate_shards",
     "validate_shard_integrity",
+    # Convenience CLI validation functions
+    "validate_mnemonic_basic",
+    "validate_mnemonic_advanced",
+    "validate_mnemonic_entropy",
+    "validate_mnemonic_compatibility",
 ]
 
 # Add Phase 2 functions if available
@@ -110,7 +120,7 @@ if _ANALYSIS_AVAILABLE:
         [
             "analyze_mnemonic_comprehensive",
             "MnemonicAnalysisResult",
-            "SecurityAnalyzer",
+            "MnemonicAnalyzer",
         ]
     )
 
@@ -152,6 +162,69 @@ if _BACKUP_VERIFICATION_AVAILABLE:
             "BackupVerificationResult",
         ]
     )
+
+
+# Convenience validation functions for CLI
+def validate_mnemonic_basic(mnemonic: str) -> Dict[str, Any]:
+    """Basic mnemonic validation."""
+    from ..bip39 import validate_mnemonic
+    from ..languages import detect_mnemonic_language
+
+    detected_lang = detect_mnemonic_language(mnemonic)
+    is_valid = validate_mnemonic(mnemonic)
+
+    return {
+        "is_valid": is_valid,
+        "mode": "basic",
+        "language": detected_lang.code if detected_lang else "unknown",
+        "word_count": len(mnemonic.split()),
+    }
+
+
+def validate_mnemonic_advanced(mnemonic: str) -> Dict[str, Any]:
+    """Advanced mnemonic validation with analysis."""
+    if _ANALYSIS_AVAILABLE:
+        return analyze_mnemonic_comprehensive(mnemonic)
+    else:
+        return validate_mnemonic_basic(mnemonic)
+
+
+def validate_mnemonic_entropy(mnemonic: str) -> Dict[str, Any]:
+    """Entropy-focused validation."""
+    from ..bip39 import get_mnemonic_entropy
+    from ..entropy.custom import validate_entropy_quality
+
+    basic_result = validate_mnemonic_basic(mnemonic)
+    if basic_result["is_valid"]:
+        try:
+            entropy_bytes = get_mnemonic_entropy(mnemonic)
+            entropy_result = validate_entropy_quality(entropy_bytes)
+            basic_result.update(
+                {
+                    "mode": "entropy",
+                    "entropy_analysis": (
+                        entropy_result.to_dict()
+                        if hasattr(entropy_result, "to_dict")
+                        else {}
+                    ),
+                }
+            )
+        except Exception as e:
+            basic_result["warnings"] = [f"Entropy analysis failed: {e}"]
+
+    return basic_result
+
+
+def validate_mnemonic_compatibility(mnemonic: str) -> Dict[str, Any]:
+    """Cross-tool compatibility validation."""
+    if _CROSS_TOOL_AVAILABLE:
+        return test_cross_tool_compatibility(mnemonic)
+    else:
+        result = validate_mnemonic_basic(mnemonic)
+        result["mode"] = "compatibility"
+        result["warnings"] = ["Cross-tool compatibility testing not available"]
+        return result
+
 
 # Module availability flags
 ANALYSIS_AVAILABLE = _ANALYSIS_AVAILABLE

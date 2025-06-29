@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(conda activate:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(make:*)",
+      "Bash(touch:*)",
+      "Bash(git push:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git tag:*)"
+    ],
+    "deny": []
+  }
+}

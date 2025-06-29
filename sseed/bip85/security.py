@@ -23,9 +23,7 @@ from sseed.logging_config import (
     log_security_event,
 )
 
-from .exceptions import (
-    Bip85ValidationError,
-)
+from .exceptions import Bip85ValidationError
 
 logger = get_logger(__name__)
 
@@ -369,14 +367,6 @@ def secure_clear_memory(data: bytes) -> None:
 def audit_bip85_security() -> Dict[str, Any]:
     """Audit BIP85 security configuration."""
     return get_security_hardening().audit_security_state()
-
-
-def _calculate_chi_square_test(
-    _entropy_bytes: bytes, _significance_level: float = 0.05
-) -> Tuple[bool, float]:
-    """Calculate chi-square test for entropy randomness."""
-    # Implementation placeholder
-    return True, 0.0
 
 
 def _calculate_chi_square_test(

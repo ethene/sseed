@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class BackupVerificationResult:
     """Container for backup verification results with comprehensive analysis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize backup verification result."""
         self.tests_performed: List[str] = []
         self.test_results: Dict[str, Any] = {}
@@ -119,15 +119,15 @@ class BackupVerifier:
         self.group_config = group_config
         self.iterations = iterations
         self.stress_test = stress_test
-        self.temp_dir = None
+        self.temp_dir: Optional[str] = None
         self.result = BackupVerificationResult()
 
-    def __enter__(self):
+    def __enter__(self) -> "BackupVerifier":
         """Enter context manager."""
         self.temp_dir = tempfile.mkdtemp(prefix="backup_verification_")
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Exit context manager."""
         if self.temp_dir:
             import shutil
