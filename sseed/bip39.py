@@ -574,5 +574,3 @@ def get_language_code_from_bip_enum(bip_language: Bip39Languages) -> str:
     """
     lang_info = get_language_by_bip_enum(bip_language)
     return lang_info.code
-
-    return lang_info.code

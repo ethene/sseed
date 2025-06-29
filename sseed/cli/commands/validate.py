@@ -342,12 +342,11 @@ class ValidateCommand(BaseCommand):
 
     def handle_input(self, args: argparse.Namespace, input_arg: str = "") -> str:
         """Handle input from various sources."""
-        if args.mnemonic:
-            return args.mnemonic.strip()
+        if hasattr(args, 'mnemonic') and args.mnemonic:
+            return str(args.mnemonic).strip()
 
-        if args.input:
-            result = read_mnemonic_from_file(args.input)
-            return str(result)
+        if hasattr(args, 'input') and args.input:
+            return read_mnemonic_from_file(args.input)
 
         # Read from stdin
         if not sys.stdin.isatty():

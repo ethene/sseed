@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class BatchValidationResult:
     """Results of batch validation operation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.total_files: int = 0
         self.processed_files: int = 0
         self.passed_files: int = 0

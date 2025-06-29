@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class CrossToolCompatibilityResult:
     """Results of cross-tool compatibility testing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.overall_status: str = "unknown"
         self.timestamp: str = ""
         self.tools_tested: List[str] = []
@@ -60,7 +60,7 @@ class CrossToolCompatibilityResult:
 class CrossToolTester:
     """Framework for testing external tool compatibility."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.available_tools = self._detect_available_tools()
         logger.info(f"Detected available tools: {list(self.available_tools.keys())}")
 

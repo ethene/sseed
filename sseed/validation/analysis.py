@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class MnemonicAnalysisResult:
     """Results of comprehensive mnemonic analysis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.overall_score: int = 0
         self.overall_status: str = "unknown"
         self.timestamp: str = ""
@@ -85,7 +85,7 @@ class MnemonicAnalysisResult:
 class MnemonicAnalyzer:
     """Comprehensive mnemonic analyzer integrating all validation components."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.security_hardening = get_security_hardening()
 
     def analyze_comprehensive(
@@ -361,7 +361,7 @@ class MnemonicAnalyzer:
             words = mnemonic.strip().split()
 
             # Check for repeated words
-            word_counts = {}
+            word_counts: Dict[str, int] = {}
             for word in words:
                 word_counts[word] = word_counts.get(word, 0) + 1
 

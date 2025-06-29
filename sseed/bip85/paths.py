@@ -169,7 +169,6 @@ def _validate_application_specific_parameters(application: int, length: int) -> 
                 value=length,
                 valid_range="16 to 64 bytes",
             )
-        return length
 
     elif application == 9999:  # Password (non-standard)
         if not 10 <= length <= 128:
