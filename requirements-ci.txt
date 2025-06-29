@@ -1,0 +1,39 @@
+# Production dependencies
+bip-utils>=2.9.3
+slip39>=13.1.0
+
+# Testing framework
+pytest>=8.3.4
+pytest-asyncio>=0.23.5
+pytest-cov>=4.1.0
+pytest-xdist>=3.6.1
+pytest-html>=4.1.1
+pytest-benchmark>=4.0.0
+hypothesis>=6.112.0
+coverage[toml]>=7.3.0
+
+# Code quality and linting
+pylint>=3.0.0
+mypy>=1.16.1
+flake8>=7.0.0
+black>=25.1.0
+isort>=5.13.0
+ruff>=0.12.0
+
+# Security tools
+bandit>=1.8.5
+safety>=3.0.0
+pip-audit>=2.6.0
+
+# Build and distribution
+build>=1.0.0
+twine>=4.0.0
+wheel>=0.42.0
+setuptools>=69.0.0
+
+# Performance monitoring
+psutil>=5.9.0
+memory-profiler>=0.61.0
+
+# Cross-tool compatibility testing (optional)
+shamir-mnemonic[cli]>=0.3.0

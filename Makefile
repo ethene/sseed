@@ -131,10 +131,9 @@ ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@python -m bandit -r sseed/ -f json -o bandit-report.json --configfile pyproject.toml
 	@python -m bandit -r sseed/ -f txt --configfile pyproject.toml
 	@echo "7️⃣ Dependency security check (Safety)..."
-	@echo "   Creating requirements.txt for safety check..."
-	@python -m pip freeze > requirements.txt 2>/dev/null || true
-	@python -m safety check -r requirements.txt --save-json safety-report.json 2>/dev/null || true
-	@python -m safety check -r requirements.txt 2>/dev/null || echo "⚠️  Safety check completed with warnings"
+	@echo "   Using clean requirements for safety check..."
+	@python -m safety check -r requirements-ci.txt --json --output safety-report.json 2>/dev/null || true
+	@python -m safety check -r requirements-ci.txt 2>/dev/null || echo "⚠️  Safety check completed with warnings"
 	@echo "8️⃣ Running tests with coverage..."
 	@python -m pytest \
 		--cov=sseed \
