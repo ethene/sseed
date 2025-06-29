@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2025-06-29T06:42:02Z",
+  "generated_at": "2025-06-29T06:50:33Z",
   "metrics": {
     "_totals": {
-      "CONFIDENCE.HIGH": 2,
+      "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
+      "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 9482,
+      "loc": 9480,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -232,7 +232,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 277,
+      "loc": 275,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -562,12 +562,12 @@
       "skipped_tests": 0
     },
     "sseed/validation/cross_tool.py": {
-      "CONFIDENCE.HIGH": 2,
+      "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
       "SEVERITY.HIGH": 0,
-      "SEVERITY.LOW": 2,
+      "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 458,
@@ -627,48 +627,5 @@
       "skipped_tests": 0
     }
   },
-  "results": [
-    {
-      "code": "8 import os\n9 import subprocess\n10 import tempfile\n",
-      "col_offset": 0,
-      "end_col_offset": 17,
-      "filename": "sseed/validation/cross_tool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with the subprocess module.",
-      "line_number": 9,
-      "line_range": [
-        9
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/blacklists/blacklist_imports.html#b404-import-subprocess",
-      "test_id": "B404",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "532             cmd_args = shlex.split(cmd)\n533             result = subprocess.run(\n534                 cmd_args, capture_output=True, text=True, input=input_text\n535             )\n536             return result.returncode, result.stdout, result.stderr\n",
-      "col_offset": 21,
-      "end_col_offset": 13,
-      "filename": "sseed/validation/cross_tool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 533,
-      "line_range": [
-        533,
-        534,
-        535
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.8.5/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    }
-  ]
+  "results": []
 }

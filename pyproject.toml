@@ -157,6 +157,8 @@ exclude_dirs = ["tests", "scripts"]
 skips = [
     "B107",  # Test for hardcoded password default - false positive for empty passphrase default in BIP-39
     "B105",  # Test for hardcoded password string - false positive for empty passphrase strings
+    "B404",  # subprocess import - acceptable for cross-tool compatibility testing
+    "B603",  # subprocess without shell=True - using shlex.split() for security
 ]
 
 [tool.bandit.assert_used]

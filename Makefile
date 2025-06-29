@@ -128,7 +128,7 @@ ci-test: ## Run CI-style tests (same as GitHub Actions)
 	@echo "5️⃣ Type checking (MyPy)..."
 	@python -m mypy sseed/ --show-error-codes --show-error-context
 	@echo "6️⃣ Security analysis (Bandit)..."
-	@python -m bandit -r sseed/ -f json -o bandit-report.json --configfile pyproject.toml 2>/dev/null || true
+	@python -m bandit -r sseed/ -f json -o bandit-report.json --configfile pyproject.toml
 	@python -m bandit -r sseed/ -f txt --configfile pyproject.toml
 	@echo "7️⃣ Dependency security check (Safety)..."
 	@echo "   Creating requirements.txt for safety check..."

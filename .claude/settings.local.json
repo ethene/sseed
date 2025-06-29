@@ -13,7 +13,9 @@
       "Bash(git commit:*)",
       "Bash(git ls-tree:*)",
       "Bash(git tag:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(bandit:*)",
+      "Bash(echo \"Exit code: $?\")"
     ],
     "deny": []
   }
