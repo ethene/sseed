@@ -464,7 +464,7 @@ sphinxcontrib-serializinghtml @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5
 spyder @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_a1lvdtwuwb/croot/spyder_1730211301494/work
 spyder-kernels @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_e5s78wusn5/croot/spyder-kernels_1728674004841/work
 SQLAlchemy @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_01cju3wjt6/croot/sqlalchemy_1736565049324/work
-sse-starlette==2.1.3
+sse-starlette==2.3.6
 sseed==1.10.0
 stack-data @ file:///opt/conda/conda-bld/stack_data_1646927590127/work
 starlette==0.41.3
