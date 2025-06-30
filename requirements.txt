@@ -392,7 +392,7 @@ python-json-logger @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000
 python-lsp-black @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_82mkiw3l7w/croot/python-lsp-black_1709232912184/work
 python-lsp-jsonrpc @ file:///croot/python-lsp-jsonrpc_1708962872556/work
 python-lsp-server @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_97kzjqcrqq/croot/python-lsp-server_1726696853833/work
-python-multipart==0.0.18
+python-multipart==0.0.20
 python-slugify @ file:///tmp/build/80754af9/python-slugify_1620405669636/work
 python-snappy @ file:///Users/builder/cbouss/perseverance-python-buildout/croot/python-snappy_1699262253505/work
 pytoolconfig @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_c0c43xm9fv/croot/pytoolconfig_1701728714940/work
