@@ -473,7 +473,7 @@ stevedore==5.4.1
 storage3==0.11.3
 streamlit @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_85y1xtkrkg/croot/streamlit_1732614529897/work
 StrEnum==0.4.15
-supabase==2.13.0
+supabase==2.16.0
 supabase-mcp-server==0.2.1
 supafunc==0.9.3
 superqt @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_b31h3zxxnq/croot/superqt_1726836444151/work
