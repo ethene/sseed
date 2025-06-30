@@ -285,7 +285,7 @@ openbb-intrinio==1.3.5
 openbb-multpl==1.0.5
 openbb-nasdaq==1.3.5
 openbb-news==1.3.5
-openbb-oecd==1.3.5
+openbb-oecd==1.4.1
 openbb-platform-api==1.0.4
 openbb-polygon==1.3.5
 openbb-quantitative==1.3.5
