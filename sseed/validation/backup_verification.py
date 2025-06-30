@@ -53,7 +53,7 @@ class BackupVerificationResult:
         self.test_type: str = "backup_verification"  # Default test type
 
     def add_test_result(
-        self, test_name: str, status: str, details: Dict[str, Any] = None
+        self, test_name: str, status: str, details: Optional[Dict[str, Any]] = None
     ) -> None:
         """Add a test result."""
         if details is None:
@@ -144,7 +144,7 @@ class BackupVerifier:
 
     def __init__(
         self,
-        mnemonic: str = None,
+        mnemonic: Optional[str] = None,
         shard_files: Optional[List[str]] = None,
         group_config: str = "3-of-5",
         iterations: int = 5,
@@ -177,11 +177,11 @@ class BackupVerifier:
 
     def verify_backup_integrity(
         self,
-        mnemonic: str = None,
+        mnemonic: Optional[str] = None,
         shard_files: Optional[List[str]] = None,
-        group_config: str = None,
-        iterations: int = None,
-        stress_test: bool = None,
+        group_config: Optional[str] = None,
+        iterations: Optional[int] = None,
+        stress_test: Optional[bool] = None,
     ) -> BackupVerificationResult:
         """Perform comprehensive backup verification."""
         # Handle optional parameters - use provided values or fall back to instance values
@@ -232,12 +232,17 @@ class BackupVerifier:
             return self.result
 
     def _test_original_mnemonic(
-        self, mnemonic: str = None, result: BackupVerificationResult = None
+        self,
+        mnemonic: Optional[str] = None,
+        result: Optional[BackupVerificationResult] = None,
     ) -> None:
         """Test original mnemonic validity."""
         # Handle both signatures - parameterless and with parameters
         test_mnemonic = mnemonic if mnemonic is not None else self.mnemonic
         test_result = result if result is not None else self.result
+
+        if test_mnemonic is None:
+            raise RuntimeError("Mnemonic not provided for original mnemonic test")
 
         start_time = time.time()
         try:
@@ -271,6 +276,9 @@ class BackupVerifier:
 
     def _test_existing_shards(self) -> None:
         """Test existing shard files."""
+        if self.mnemonic is None:
+            raise RuntimeError("Mnemonic not provided for existing shards test")
+
         start_time = time.time()
         try:
             shard_mnemonics = []
@@ -287,6 +295,7 @@ class BackupVerifier:
 
             self.result.add_test_result(
                 "existing_shards",
+                "passed" if matches_original else "failed",
                 {
                     "passed": matches_original,
                     "duration": duration,
@@ -308,9 +317,9 @@ class BackupVerifier:
 
     def _test_round_trip_backup(
         self,
-        mnemonic: str = None,
-        group_config: str = None,
-        result: BackupVerificationResult = None,
+        mnemonic: Optional[str] = None,
+        group_config: Optional[str] = None,
+        result: Optional[BackupVerificationResult] = None,
     ) -> None:
         """Test complete round-trip backup process."""
         # Handle optional parameters
@@ -319,6 +328,9 @@ class BackupVerifier:
             group_config if group_config is not None else self.group_config
         )
         test_result = result if result is not None else self.result
+
+        if test_mnemonic is None:
+            raise RuntimeError("Mnemonic not provided for round-trip backup test")
 
         start_time = time.time()
         try:
@@ -335,6 +347,8 @@ class BackupVerifier:
             # Write shards to temporary files
             io_start = time.time()
             shard_files = []
+            if self.temp_dir is None:
+                raise RuntimeError("Temporary directory not initialized")
             for i, shard in enumerate(shards):
                 shard_file = str(self.temp_dir / f"shard_{i}.txt")
                 write_mnemonic_to_file(shard, shard_file)
@@ -361,6 +375,7 @@ class BackupVerifier:
 
             test_result.add_test_result(
                 "round_trip_backup",
+                "passed" if matches_original else "failed",
                 {
                     "passed": matches_original,
                     "duration": total_duration,
@@ -390,10 +405,10 @@ class BackupVerifier:
 
     def _test_multiple_iterations(
         self,
-        mnemonic: str = None,
-        group_config: str = None,
-        iterations: int = None,
-        result: BackupVerificationResult = None,
+        mnemonic: Optional[str] = None,
+        group_config: Optional[str] = None,
+        iterations: Optional[int] = None,
+        result: Optional[BackupVerificationResult] = None,
     ) -> None:
         """Test multiple backup iterations for consistency."""
         # Handle optional parameters
@@ -403,6 +418,9 @@ class BackupVerifier:
         )
         test_iterations = iterations if iterations is not None else self.iterations
         test_result = result if result is not None else self.result
+
+        if test_mnemonic is None:
+            raise RuntimeError("Mnemonic not provided for multiple iterations test")
 
         start_time = time.time()
         try:
@@ -441,6 +459,7 @@ class BackupVerifier:
 
             test_result.add_test_result(
                 "multiple_iterations",
+                "passed" if success_rate >= 95 else "failed",
                 {
                     "passed": success_rate >= 95,  # 95% success rate required
                     "duration": total_duration,
@@ -466,9 +485,9 @@ class BackupVerifier:
 
     def _test_shard_combinations(
         self,
-        mnemonic: str = None,
-        group_config: str = None,
-        result: BackupVerificationResult = None,
+        mnemonic: Optional[str] = None,
+        group_config: Optional[str] = None,
+        result: Optional[BackupVerificationResult] = None,
     ) -> None:
         """Test different shard combinations."""
         # Handle optional parameters
@@ -477,6 +496,9 @@ class BackupVerifier:
             group_config if group_config is not None else self.group_config
         )
         test_result = result if result is not None else self.result
+
+        if test_mnemonic is None:
+            raise RuntimeError("Mnemonic not provided for shard combinations test")
 
         start_time = time.time()
         try:
@@ -502,6 +524,7 @@ class BackupVerifier:
 
             test_result.add_test_result(
                 "shard_combinations",
+                "passed" if (min_success and all_success) else "failed",
                 {
                     "passed": min_success and all_success,
                     "duration": duration,
@@ -527,6 +550,9 @@ class BackupVerifier:
 
     def _test_entropy_consistency(self) -> None:
         """Test entropy consistency across operations."""
+        if self.mnemonic is None:
+            raise RuntimeError("Mnemonic not provided for entropy consistency test")
+
         start_time = time.time()
         try:
             # Generate multiple shard sets and verify consistency
@@ -552,6 +578,7 @@ class BackupVerifier:
 
             self.result.add_test_result(
                 "entropy_consistency",
+                "passed" if all_consistent else "failed",
                 {
                     "passed": all_consistent,
                     "duration": duration,

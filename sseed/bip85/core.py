@@ -65,6 +65,7 @@ import hashlib
 import hmac
 import struct
 from typing import (
+    Any,
     Optional,
     Tuple,
 )
@@ -552,7 +553,7 @@ def format_bip85_derivation_path(application: int, length: int, index: int) -> s
     return f"m/{BIP85_PURPOSE}'/{application}'/{length}'/{index}'"
 
 
-def validate_master_seed_format(master_seed: bytes) -> Tuple[bool, str]:
+def validate_master_seed_format(master_seed: Any) -> Tuple[bool, str]:
     """Validate master seed format and length.
 
     Args:
