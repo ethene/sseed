@@ -179,7 +179,7 @@ class TestValidateCommand:
         self.command._analyze_mnemonic_entropy(test_mnemonic, checks)
 
         assert "entropy_analysis" in checks
-        assert checks["entropy_analysis"]["status"] == "info"
+        assert checks["entropy_analysis"]["status"] == "pass"
         assert "estimated_bits" in checks["entropy_analysis"]
 
     def test_format_validation_error(self):

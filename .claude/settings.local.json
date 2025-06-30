@@ -15,7 +15,10 @@
       "Bash(git tag:*)",
       "Bash(grep:*)",
       "Bash(bandit:*)",
-      "Bash(echo \"Exit code: $?\")"
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(pip install:*)",
+      "Bash(ls:*)",
+      "Bash(echo:*)"
     ],
     "deny": []
   }

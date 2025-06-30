@@ -569,7 +569,7 @@ def validate_master_seed_format(master_seed: bytes) -> Tuple[bool, str]:
     """
     if not isinstance(master_seed, bytes):
         return False, f"Master seed must be bytes, got {type(master_seed).__name__}"
-    
+
     if len(master_seed) != 64:
         return False, f"Master seed must be 64 bytes, got {len(master_seed)}"
 

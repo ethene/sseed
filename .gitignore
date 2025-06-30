@@ -292,3 +292,7 @@ docs/build/
 scratch/
 playground/
 experiments/ 
+# Test reports (can be large)
+pytest-report.html
+pytest-results.xml
+seed.txt
