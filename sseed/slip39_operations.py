@@ -320,12 +320,12 @@ def validate_slip39_shard(shard: str) -> bool:
 
             return is_valid
 
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError) as e:
             logger.warning("SLIP-39 shard validation failed: %s", e)
             log_security_event(f"SLIP-39 shard validation failed: {e}")
             return False
 
-    except Exception as e:
+    except (ValueError, TypeError, AttributeError) as e:
         logger.error("Error during SLIP-39 shard validation: %s", e)
         log_security_event(f"SLIP-39 shard validation error: {e}")
         return False

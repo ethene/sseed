@@ -84,7 +84,9 @@ def hex_to_entropy(
         # Check length requirements
         if len(entropy_bytes) < required_bytes:
             # Pad with secure random if insufficient
-            from .core import generate_entropy_bytes
+            from .core import (  # pylint: disable=import-outside-toplevel
+                generate_entropy_bytes,
+            )
 
             padding_needed = required_bytes - len(entropy_bytes)
             padding = generate_entropy_bytes(padding_needed)
@@ -122,7 +124,7 @@ def hex_to_entropy(
         raise
 
 
-def dice_to_entropy(
+def dice_to_entropy(  # pylint: disable=too-many-locals
     dice_rolls: str, required_bytes: int, skip_quality_check: bool = False
 ) -> bytes:
     """Convert dice rolls to entropy bytes using established cryptographic methods.

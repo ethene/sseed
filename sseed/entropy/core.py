@@ -153,7 +153,7 @@ def secure_delete_variable(*variables: Any) -> None:
                 for i, _ in enumerate(var):
                     var[i] = 0
 
-        except Exception as e:
+        except (TypeError, AttributeError, ValueError) as e:
             logger.warning("Could not securely overwrite variable: %s", e)
 
         # Delete the variable reference

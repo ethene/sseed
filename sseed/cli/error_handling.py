@@ -61,7 +61,7 @@ def handle_common_errors(
                 logger.error("Validation error during %s: %s", operation_name, e)
                 print(f"Validation error: {e}", file=sys.stderr)
                 return EXIT_VALIDATION_ERROR
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error("Unexpected error during %s: %s", operation_name, e)
                 print(f"Unexpected error: {e}", file=sys.stderr)
                 return EXIT_CRYPTO_ERROR
@@ -78,7 +78,9 @@ def handle_top_level_errors(func: Callable[..., int]) -> Callable[..., int]:
     """
 
     @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> int:
+    def wrapper(  # pylint: disable=too-many-return-statements
+        *args: Any, **kwargs: Any
+    ) -> int:
         try:
             return func(*args, **kwargs)
         except KeyboardInterrupt:
@@ -102,7 +104,7 @@ def handle_top_level_errors(func: Callable[..., int]) -> Callable[..., int]:
             logger.error("sseed error: %s", e)
             print(f"Error: {e}", file=sys.stderr)
             return EXIT_USAGE_ERROR
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.exception("Unexpected error: %s", e)
             print(f"Unexpected error: {e}", file=sys.stderr)
             return EXIT_CRYPTO_ERROR

@@ -70,7 +70,9 @@ def detect_file_format(file_path: str) -> str:
         raise FileError(error_msg) from e
 
 
-def validate_file_structure(file_path: str) -> Tuple[bool, Optional[str]]:
+def validate_file_structure(  # pylint: disable=too-many-return-statements
+    file_path: str,
+) -> Tuple[bool, Optional[str]]:
     """Validate file structure and return error message if invalid.
 
     Args:
@@ -105,7 +107,7 @@ def validate_file_structure(file_path: str) -> Tuple[bool, Optional[str]]:
 
     except UnicodeDecodeError:
         return False, f"File is not valid UTF-8: {file_path}"
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         return False, f"Error validating file structure: {e}"
 
 
@@ -187,7 +189,7 @@ def validate_utf8_encoding(file_path: str) -> Tuple[bool, Optional[str]]:
         return True, None
     except UnicodeDecodeError as e:
         return False, f"Invalid UTF-8 encoding: {e}"
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         return False, f"Error reading file: {e}"
 
 
@@ -217,5 +219,5 @@ def check_file_permissions(file_path: str) -> Tuple[bool, Optional[str]]:
 
     except PermissionError:
         return False, f"Permission denied reading file: {file_path}"
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         return False, f"Error checking file permissions: {e}"

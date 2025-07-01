@@ -114,7 +114,11 @@ class GenCommand(BaseCommand):
         self.add_entropy_display_argument(parser)
 
     @handle_common_errors("generation")
-    def handle(self, args: argparse.Namespace) -> int:
+    def handle(
+        self, args: argparse.Namespace
+    ) -> (
+        int
+    ):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-nested-blocks
         """Handle the 'gen' command with custom entropy support.
 
         Args:
@@ -192,13 +196,15 @@ class GenCommand(BaseCommand):
                 entropy_analysis = False
 
             if entropy_hex or entropy_dice:
-                from sseed.bip39 import word_count_to_entropy_bytes
-                from sseed.entropy import (
+                from sseed.bip39 import (  # pylint: disable=import-outside-toplevel
+                    word_count_to_entropy_bytes,
+                )
+                from sseed.entropy import (  # pylint: disable=import-outside-toplevel
                     dice_to_entropy,
                     hex_to_entropy,
                     validate_entropy_quality,
                 )
-                from sseed.exceptions import (
+                from sseed.exceptions import (  # pylint: disable=import-outside-toplevel
                     EntropyError,
                     ValidationError,
                 )
@@ -273,7 +279,7 @@ class GenCommand(BaseCommand):
                 except (EntropyError, ValidationError) as e:
                     print(f"❌ Custom entropy error: {e}")
                     return 1
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught
                     print(f"❌ Unexpected error processing custom entropy: {e}")
                     logger.error("Custom entropy processing failed: %s", e)
                     return 1

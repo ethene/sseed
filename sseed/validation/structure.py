@@ -4,6 +4,8 @@ This module handles validation of SLIP-39 structure elements including
 group thresholds, shard collections, and duplicate detection.
 """
 
+# pylint: disable=cyclic-import
+
 import re
 from typing import (
     List,

@@ -1,4 +1,5 @@
 """Restore command implementation.
+# pylint: disable=too-many-locals,import-outside-toplevel
 
 Restores mnemonics from SLIP-39 shards with automatic language detection.
 """

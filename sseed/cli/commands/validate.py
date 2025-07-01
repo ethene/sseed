@@ -1,4 +1,5 @@
 """
+# pylint: disable=import-outside-toplevel,broad-exception-caught,too-many-branches,line-too-long,unused-variable,no-else-return,redefined-outer-name,no-member
 Advanced validation command for comprehensive mnemonic and backup verification.
 
 This module provides the `sseed validate` command with multiple validation modes:
@@ -301,7 +302,7 @@ class ValidateCommand(BaseCommand):
 
             result = verify_backup_integrity(
                 mnemonic=mnemonic,
-                shard_files=args.shard_files,  # Pass None if not provided, don't convert to empty list
+                shard_files=args.shard_files,  # Pass None if not provided
                 group_config=args.group_config or "3-of-5",
                 iterations=args.iterations,
                 stress_test=args.stress_test,
@@ -548,7 +549,7 @@ class ValidateCommand(BaseCommand):
         if word_count == 0 and hasattr(args, "mnemonic") and args.mnemonic:
             word_count = len(args.mnemonic.split())
 
-            # For compatibility mode, if we fell back to basic validation, we need to actually validate
+            # For compatibility mode, if we fell back to basic validation, validate
             if mode == "compatibility" and not is_valid:
                 from sseed.bip39 import validate_mnemonic
                 from sseed.languages import detect_mnemonic_language
@@ -710,7 +711,7 @@ class ValidateCommand(BaseCommand):
             if mnemonic:
                 words = mnemonic.split()
                 word_count = len(words)
-                # Standard BIP39 entropy calculation: 11 bits per word, except last word has 11-checksum_bits
+                # Standard BIP39 entropy calculation: 11 bits per word minus checksum
                 if word_count in [12, 15, 18, 21, 24]:
                     entropy_bits = (word_count * 11) - (
                         word_count // 3

@@ -277,6 +277,6 @@ def show_examples(_args: Any) -> int:
 
         return 0
 
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         print(f"Error displaying examples: {e}", file=sys.stderr)
         return 1

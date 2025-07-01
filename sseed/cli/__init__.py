@@ -1,5 +1,7 @@
 """CLI package with lazy loading for better performance."""
 
+# pylint: disable=import-outside-toplevel
+
 import argparse
 from typing import (
     Any,

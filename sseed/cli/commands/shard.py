@@ -1,4 +1,5 @@
 """Shard command implementation.
+# pylint: disable=too-many-branches
 
 Splits BIP-39 mnemonics into SLIP-39 threshold shards with automatic language detection.
 """

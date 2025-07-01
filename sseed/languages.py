@@ -260,7 +260,7 @@ def get_language_by_bip_enum(bip_enum: Bip39Languages) -> LanguageInfo:
 
 
 @lru_cache(maxsize=256)
-def _calculate_language_score(
+def _calculate_language_score(  # pylint: disable=too-many-locals
     words_tuple: Tuple[str, ...], language_code: str
 ) -> float:
     """Calculate confidence score for a language given a set of words.
@@ -425,7 +425,7 @@ def detect_mnemonic_language(mnemonic: str) -> Optional[LanguageInfo]:
     return None
 
 
-def validate_mnemonic_words_for_language(
+def validate_mnemonic_words_for_language(  # pylint: disable=too-many-return-statements
     words: List[str], language_info: LanguageInfo
 ) -> bool:
     """Validate that words match the character patterns for a specific language.

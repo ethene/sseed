@@ -195,6 +195,10 @@ def validate_mnemonic(mnemonic: str, language: Optional[Bip39Languages] = None) 
         True
     """
     try:
+        # Handle empty input gracefully
+        if not mnemonic or not mnemonic.strip():
+            return False
+
         # Normalize input
         normalized_mnemonic = _normalize_mnemonic(mnemonic)
 
@@ -231,7 +235,7 @@ def validate_mnemonic(mnemonic: str, language: Optional[Bip39Languages] = None) 
 
         return is_valid
 
-    except Exception as error:
+    except Exception as error:  # pylint: disable=broad-exception-caught
         logger.debug("Mnemonic validation error: %s", error)
         return False
 

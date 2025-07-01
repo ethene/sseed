@@ -1,4 +1,5 @@
 """BIP85 command implementation.
+# pylint: disable=broad-exception-caught
 
 Generate deterministic entropy from master seeds using BIP85 specification.
 Supports BIP39 mnemonics, hex entropy, and passwords in multiple formats.

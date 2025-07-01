@@ -118,7 +118,7 @@ class VersionCommand(BaseCommand):
                 print("   PyPI:       https://pypi.org/project/sseed/")
                 print("   Issues:     https://github.com/ethene/sseed/issues")
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error("Error displaying version information: %s", e)
             print(f"Error: Failed to gather version information: {e}", file=sys.stderr)
             return EXIT_USAGE_ERROR

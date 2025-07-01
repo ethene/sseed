@@ -1,4 +1,5 @@
 """Seed command implementation.
+# pylint: disable=too-many-branches
 
 Derives master seeds from mnemonics using BIP-39 with automatic language detection.
 """

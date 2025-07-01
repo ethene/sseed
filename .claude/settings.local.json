@@ -18,7 +18,21 @@
       "Bash(echo \"Exit code: $?\")",
       "Bash(pip install:*)",
       "Bash(ls:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(awk:*)",
+      "Bash(--cov=sseed )",
+      "Bash(--cov-report=term-missing )",
+      "Bash(--cov-report=xml )",
+      "Bash(--cov-report=html )",
+      "Bash(--cov-fail-under=85 )",
+      "Bash(--junit-xml=pytest-results.xml )",
+      "Bash(--html=pytest-report.html )",
+      "Bash(--self-contained-html )",
+      "Bash(-v )",
+      "Bash(--tb=short )",
+      "Bash(--strict-markers )",
+      "Bash(--disable-warnings )",
+      "Bash(tests/)"
     ],
     "deny": []
   }

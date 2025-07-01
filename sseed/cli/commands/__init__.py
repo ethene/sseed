@@ -4,6 +4,8 @@ Provides command discovery and registration system for modular CLI architecture.
 Implements lazy loading to improve CLI startup performance.
 """
 
+# pylint: disable=import-outside-toplevel
+
 from typing import (
     Any,
     Callable,
