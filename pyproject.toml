@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sseed"
-version = "1.11.2"
+version = "1.11.3"
 description = "Offline BIP39/SLIP39 CLI Tool for secure cryptocurrency seed management"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -128,7 +128,7 @@ force_grid_wrap = 2
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "1.11.3"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "D", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
@@ -138,7 +138,7 @@ ignore = ["D100", "D104", "D107", "EM101", "EM102", "TRY003", "TRY300", "TRY400"
 convention = "google"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "1.11.3"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
