@@ -21,7 +21,6 @@ class TestMainEntry:
             [sys.executable, "-m", "sseed", "--help"],
             capture_output=True,
             text=True,
-            cwd="/Users/dmitrystakhin/Library/CloudStorage/Dropbox/work/slip39",
         )
         # Should show help and exit cleanly
         assert result.returncode == 0

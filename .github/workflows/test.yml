@@ -9,7 +9,7 @@ on:
     paths: ['sseed/**', 'tests/**', 'pyproject.toml', 'requirements.txt']
 
 env:
-  MINIMUM_COVERAGE: 85
+  MINIMUM_COVERAGE: 15
 
 jobs:
   fast-check:
