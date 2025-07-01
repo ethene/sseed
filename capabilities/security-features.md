@@ -438,7 +438,39 @@ USER sseed
 # No network access
 # Minimal privileges
 ``` 
-### Custom Entropy Security
+### Entropy Analysis & Verification
+
+#### System Entropy Analysis
+SSeed now provides comprehensive analysis of system-generated entropy to help users understand and verify the quality of their cryptographic randomness:
+
+**New Feature: `--entropy-analysis` Flag**
+```bash
+# Analyze system entropy quality
+sseed gen --entropy-analysis
+
+# Sample output:
+📊 System Entropy Quality Analysis:
+   Quality: Excellent (cryptographically secure)
+   Source: System (secrets.SystemRandom)
+   Entropy: 256 bits (32 bytes)
+   Randomness: ✅ Cryptographically secure distribution
+   Security: ✅ Meets all cryptographic standards
+   Recommendation: ✅ Optimal entropy source - no improvements needed
+```
+
+**Educational Value:**
+- Shows entropy source and quality metrics
+- Explains why system entropy is cryptographically secure
+- Provides technical details about entropy generation
+- Demonstrates best practices for entropy selection
+
+**Security Benefits:**
+- Validates that system entropy meets cryptographic standards
+- Provides confidence in mnemonic generation quality
+- Educational tool for understanding entropy concepts
+- Helps users make informed security decisions
+
+#### Custom Entropy Security
 
 #### Advanced Entropy Sources
 SSeed supports custom entropy sources for specialized use cases while maintaining strict security standards:

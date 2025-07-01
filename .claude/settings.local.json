@@ -32,7 +32,20 @@
       "Bash(--tb=short )",
       "Bash(--strict-markers )",
       "Bash(--disable-warnings )",
-      "Bash(tests/)"
+      "Bash(tests/)",
+      "Bash(gh release:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(gh run watch:*)",
+      "Bash(pip index versions:*)",
+      "Bash(gh run view:*)",
+      "Bash(curl:*)",
+      "Bash(source:*)",
+      "Bash(sseed:*)",
+      "Bash(PYTHONPATH=/Users/dmitrystakhin/Library/CloudStorage/Dropbox/work/slip39 python -c \"\nimport sseed.cli.commands.gen\nfrom argparse import Namespace\nfrom sseed.languages import get_language_by_code\n\n# Create mock args\nargs = Namespace()\nargs.output = None\nargs.words = 12\nargs.language = 'en'\nargs.entropy_hex = None\nargs.entropy_dice = None\nargs.allow_weak = False\nargs.force = False\nargs.entropy_analysis = True\nargs.show_entropy = False\n\n# Test the command\ngen_cmd = sseed.cli.commands.gen.GenCommand()\nresult = gen_cmd.handle(args)\nprint(f'Exit code: {result}')\n\")",
+      "Bash(pip uninstall:*)",
+      "Bash(sed:*)",
+      "Bash(pytest:*)"
     ],
     "deny": []
   }

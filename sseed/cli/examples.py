@@ -61,6 +61,20 @@ def _get_advanced_examples() -> str:
   # Combined with custom word count
   sseed gen -w 18 --dice "1,2,3,4,5,6..."
 
+🔬 ENTROPY ANALYSIS & VERIFICATION
+  # Analyze system entropy quality
+  sseed gen --entropy-analysis
+
+  # Analyze custom entropy sources
+  sseed gen --entropy-hex "a1b2c3..." --entropy-analysis
+  sseed gen --entropy-dice "1,2,3,4,5,6..." --entropy-analysis
+
+  # Combined entropy analysis and display
+  sseed gen --entropy-analysis --show-entropy
+
+  # Validate existing mnemonic entropy
+  sseed validate --mode entropy -i wallet.txt
+
 🌍 MULTI-LANGUAGE SUPPORT
   sseed gen -l zh-cn                  # Chinese Simplified
   sseed gen -l ko                     # Korean

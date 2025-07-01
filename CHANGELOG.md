@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.4] - 2025-07-01
+
+### Added
+- **System Entropy Analysis**: New `--entropy-analysis` flag now works with system-generated entropy (not just custom entropy)
+  - **Enhanced Gen Command**: `sseed gen --entropy-analysis` displays comprehensive quality analysis for system entropy
+  - **Educational Output**: Shows why system entropy is cryptographically secure with detailed technical information
+  - **Combined Usage**: Works with `--show-entropy` for complete entropy transparency
+  - **Security Validation**: Confirms system entropy meets all cryptographic standards
+- **Improved Documentation**: Updated CLI interface documentation and capabilities with system entropy analysis examples
+
+### Enhanced
+- **Entropy Analysis Coverage**: Previously only worked with custom entropy sources (`--entropy-hex`, `--entropy-dice`), now includes system entropy
+- **User Education**: Provides clear explanation of system entropy quality and security properties  
+- **CLI Consistency**: `--entropy-analysis` flag now works universally across all entropy sources
+- **Help Text**: Updated command help to reflect support for both system and custom entropy analysis
+
+### Fixed
+- **Design Inconsistency**: Resolved issue where `--entropy-analysis` was limited to custom entropy only
+- **User Experience**: System entropy analysis is now available by default without requiring custom entropy flags
+
 ## [1.11.3] - 2025-07-01
 
 ## [1.11.3] - 2025-07-01

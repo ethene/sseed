@@ -1,5 +1,7 @@
 """
-# pylint: disable=import-outside-toplevel,broad-exception-caught,too-many-branches,line-too-long,unused-variable,no-else-return,redefined-outer-name,no-member
+# pylint: disable=import-outside-toplevel,too-many-branches,inconsistent-return-statements
+# Note: import-outside-toplevel is used for lazy loading to improve startup performance
+# Note: too-many-branches is acceptable for CLI commands with multiple validation modes
 Advanced validation command for comprehensive mnemonic and backup verification.
 
 This module provides the `sseed validate` command with multiple validation modes:
@@ -22,7 +24,11 @@ from typing import (
 
 from sseed.file_operations.readers import read_mnemonic_from_file
 
-from ...exceptions import ValidationError
+from ...exceptions import (
+    FileError,
+    MnemonicError,
+    ValidationError,
+)
 from ..base import BaseCommand
 from ..error_handling import handle_top_level_errors
 
@@ -151,12 +157,19 @@ class ValidateCommand(BaseCommand):
         except KeyboardInterrupt:
             logger.info("Validation interrupted by user")
             return 130  # Standard exit code for SIGINT
-        except Exception as e:
+        except (ValidationError, MnemonicError, FileError) as e:
             logger.error("Validation failed: %s", e)
             if args.json:
                 self._output_json_error(str(e))
             else:
                 self._error(f"Validation failed: {e}")
+            return 1
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Unexpected validation error: %s", e)
+            if args.json:
+                self._output_json_error(f"Unexpected error: {e}")
+            else:
+                self._error(f"Unexpected validation error: {e}")
             return 1
 
     def _single_validation(self, args: argparse.Namespace) -> int:
@@ -188,12 +201,19 @@ class ValidateCommand(BaseCommand):
             # Return exit code
             return self._get_exit_code(result, args.strict)
 
-        except Exception as e:
+        except (ValidationError, MnemonicError, FileError) as e:
             logger.error("Single validation failed: %s", e)
             if args.json:
                 self._output_json_error(str(e))
             else:
                 self._error(f"Validation failed: {e}")
+            return 1
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Unexpected single validation error: %s", e)
+            if args.json:
+                self._output_json_error(f"Unexpected error: {e}")
+            else:
+                self._error(f"Unexpected validation error: {e}")
             return 1
 
     def _basic_validation(
@@ -209,7 +229,9 @@ class ValidateCommand(BaseCommand):
         except ImportError:
             # Fallback implementation
             from sseed.bip39 import validate_mnemonic
-            from sseed.languages import detect_mnemonic_language
+            from sseed.languages import (  # pylint: disable=redefined-outer-name
+                detect_mnemonic_language,
+            )
 
             detected_lang = detect_mnemonic_language(mnemonic)
             is_valid = validate_mnemonic(mnemonic)
@@ -332,8 +354,15 @@ class ValidateCommand(BaseCommand):
 
             return {}  # Return empty dict so assertFalse(result) passes
 
-        except Exception as e:
+        except (ValidationError, MnemonicError, FileError) as e:
             logger.error("Backup verification failed: %s", e)
+            # Store error results for testing access
+            self.validation_results = {
+                "checks": {"backup_verification": {"status": "error", "error": str(e)}}
+            }
+            return {}  # Return empty dict so assertFalse(result) passes
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Unexpected backup verification error: %s", e)
 
             # Store error results for testing access
             self.validation_results = {
@@ -390,21 +419,21 @@ class ValidateCommand(BaseCommand):
 
             # Calculate exit code based on results
             summary = batch_results.get("summary", {})
-            failed_files = summary.get("failed_files", 0)
-            total_files = summary.get("total_files", 1)
             success_rate = summary.get("success_rate", 0)
 
             # Return different codes based on success rate (as tests expect)
             if success_rate >= 90:
                 return 0  # Excellent
-            elif success_rate >= 50:
+            if success_rate >= 50:
                 return 2  # Partial success
-            else:
-                return 1  # Failure
+            return 1  # Failure
 
-        except Exception as e:
+        except (ValidationError, MnemonicError, FileError) as e:
             logger.error("Batch validation failed: %s", str(e))
             raise ValidationError(f"Batch validation error: {e}") from e
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Unexpected batch validation error: %s", str(e))
+            raise ValidationError(f"Unexpected batch validation error: {e}") from e
 
     def _output_results(self, result: Dict[str, Any], args: argparse.Namespace) -> None:
         """Output validation results."""
@@ -436,8 +465,10 @@ class ValidateCommand(BaseCommand):
             else:
                 print(output)
 
-        except Exception as e:
+        except (OSError, IOError) as e:
             logger.error("Failed to output results: %s", str(e))
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Unexpected output error: %s", str(e))
             # Fallback output
             if getattr(args, "quiet", False):
                 is_valid = result.get("is_valid", False)
@@ -552,7 +583,9 @@ class ValidateCommand(BaseCommand):
             # For compatibility mode, if we fell back to basic validation, validate
             if mode == "compatibility" and not is_valid:
                 from sseed.bip39 import validate_mnemonic
-                from sseed.languages import detect_mnemonic_language
+                from sseed.languages import (  # pylint: disable=redefined-outer-name
+                    detect_mnemonic_language,
+                )
 
                 detected_lang = detect_mnemonic_language(args.mnemonic)
                 is_valid = validate_mnemonic(args.mnemonic)
@@ -599,8 +632,6 @@ class ValidateCommand(BaseCommand):
             if not entropy_check:
                 # Get the mnemonic from args
                 mnemonic_for_entropy = getattr(args, "mnemonic", "")
-                if not mnemonic_for_entropy and hasattr(self, "test_mnemonic"):
-                    mnemonic_for_entropy = self.test_mnemonic
                 if not mnemonic_for_entropy:
                     # Try to use the word_count we calculated to estimate
                     mnemonic_for_entropy = (
@@ -731,8 +762,13 @@ class ValidateCommand(BaseCommand):
                     "status": "error",
                     "message": "No mnemonic provided for entropy analysis",
                 }
-        except Exception as e:
+        except (ValidationError, MnemonicError) as e:
             result = {"status": "error", "message": f"Entropy analysis failed: {e}"}
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            result = {
+                "status": "error",
+                "message": f"Unexpected entropy analysis error: {e}",
+            }
 
         # If checks dict is provided, update it (for tests)
         if checks is not None:

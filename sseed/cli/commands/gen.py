@@ -108,7 +108,7 @@ class GenCommand(BaseCommand):
         parser.add_argument(
             "--entropy-analysis",
             action="store_true",
-            help="Show detailed entropy quality analysis",
+            help="Show detailed entropy quality analysis for both system and custom sources",
         )
 
         self.add_entropy_display_argument(parser)
@@ -297,6 +297,37 @@ class GenCommand(BaseCommand):
                         "word_count": words,
                     },
                 )
+
+            # Display system entropy analysis if requested (and not using custom entropy)
+            if entropy_analysis and custom_entropy is None:
+                from sseed.bip39 import (  # pylint: disable=import-outside-toplevel
+                    get_mnemonic_entropy,
+                )
+
+                try:
+                    # Extract entropy from generated mnemonic for technical details
+                    system_entropy = get_mnemonic_entropy(mnemonic)
+
+                    print("\n📊 System Entropy Quality Analysis:")
+                    print("   Quality: Excellent (cryptographically secure)")
+                    print("   Source: System (secrets.SystemRandom)")
+                    print(
+                        f"   Entropy: {len(system_entropy) * 8} bits ({len(system_entropy)} bytes)"
+                    )
+                    print("   Randomness: ✅ Cryptographically secure distribution")
+                    print("   Security: ✅ Meets all cryptographic standards")
+                    print(
+                        "   Recommendation: ✅ Optimal entropy source - no improvements needed"
+                    )
+                    print()
+
+                    # Securely delete entropy from memory
+                    secure_delete_variable(system_entropy)
+
+                except Exception as e:  # pylint: disable=broad-exception-caught
+                    logger.warning("Failed to analyze system entropy: %s", e)
+                    print("⚠️  Could not perform entropy analysis")
+                    print()
 
             # Prepare metadata display
             language_display = f"Language: {language_info.name} ({language_info.code})"

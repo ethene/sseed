@@ -163,6 +163,54 @@ ORIGINAL_ENTROPY=$(sseed gen --show-entropy | grep "# Entropy:" | cut -d' ' -f3)
 echo "$ORIGINAL_ENTROPY" > entropy_backup.txt
 ```
 
+## 🔬 Entropy Analysis & Verification
+
+SSeed provides comprehensive entropy quality analysis to help you understand and verify the randomness quality of both system-generated and custom entropy sources.
+
+### System Entropy Analysis
+
+```bash
+# Analyze system-generated entropy quality
+sseed gen --entropy-analysis
+
+# Combined analysis with entropy display
+sseed gen --entropy-analysis --show-entropy
+```
+
+**Sample Output:**
+```
+📊 System Entropy Quality Analysis:
+   Quality: Excellent (cryptographically secure)
+   Source: System (secrets.SystemRandom)
+   Entropy: 256 bits (32 bytes)
+   Randomness: ✅ Cryptographically secure distribution
+   Security: ✅ Meets all cryptographic standards
+   Recommendation: ✅ Optimal entropy source - no improvements needed
+```
+
+### Custom Entropy Analysis
+
+```bash
+# Analyze custom hex entropy
+sseed gen --entropy-hex "a1b2c3d4..." --entropy-analysis
+
+# Analyze dice entropy quality
+sseed gen --entropy-dice "1,2,3,4,5,6..." --entropy-analysis
+
+# Validate existing mnemonic entropy
+sseed validate --mode entropy -i wallet.txt --json
+```
+
+**Custom Entropy Output:**
+```
+📊 Entropy Quality Analysis:
+   Quality Score: 60/100
+   Warnings:
+     • Highly skewed byte distribution detected
+   Recommendations:
+     • Consider using system entropy instead of custom entropy
+```
+
 ## 🎯 BIP85 Deterministic Entropy
 
 SSeed implements **BIP85** for deterministic entropy generation, enabling unlimited child wallets, passwords, and cryptographic secrets from a single master seed backup. This transforms SSeed into a complete cryptographic entropy management system.

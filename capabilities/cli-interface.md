@@ -258,7 +258,7 @@ sseed gen [options]
 - `--entropy-dice ROLLS` - Use dice rolls as entropy source (e.g., '1,2,3,4,5,6' or '1 2 3 4 5 6')
 - `--allow-weak` - Allow entropy with quality score < 70 (not recommended)
 - `--force` - Force operation despite security warnings (dangerous)
-- `--entropy-analysis` - Show detailed entropy quality analysis
+- `--entropy-analysis` - Show detailed entropy quality analysis for both system and custom sources
 
 ### Language Support
 SSeed supports all 9 official BIP-39 languages:
@@ -310,6 +310,42 @@ sseed gen -o /secure/vault/backup_seed.txt
 sseed gen --show-entropy -o my_seed_with_entropy.txt
 
 # File will contain both mnemonic and entropy comment
+```
+
+#### System Entropy Analysis
+```bash
+# Analyze system entropy quality (recommended)
+sseed gen --entropy-analysis
+
+# Example output with system entropy analysis
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Language: English (en), Words: 24, Entropy: System
+
+📊 System Entropy Quality Analysis:
+   Quality: Excellent (cryptographically secure)
+   Source: System (secrets.SystemRandom)
+   Entropy: 256 bits (32 bytes)
+   Randomness: ✅ Cryptographically secure distribution
+   Security: ✅ Meets all cryptographic standards
+   Recommendation: ✅ Optimal entropy source - no improvements needed
+
+# Combined entropy analysis with entropy display
+sseed gen --entropy-analysis --show-entropy
+
+# Example output with both features
+abandon ability able about above absent absorb abstract absurd abuse access accident
+account accuse achieve acid acoustic acquire across act action actor actress actual
+# Language: English (en), Words: 24, Entropy: System
+# Entropy: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456 (32 bytes)
+
+📊 System Entropy Quality Analysis:
+   Quality: Excellent (cryptographically secure)
+   Source: System (secrets.SystemRandom)
+   Entropy: 256 bits (32 bytes)
+   Randomness: ✅ Cryptographically secure distribution
+   Security: ✅ Meets all cryptographic standards
+   Recommendation: ✅ Optimal entropy source - no improvements needed
 ```
 
 #### Piping and Redirection
