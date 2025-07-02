@@ -373,18 +373,19 @@ make build             # Build distribution packages
 
 **SLIP-39 Implementation:**
 - **Standard**: SLIP-0039 (SatoshiLabs Improvement Proposal 39)
-- **Library**: `shamir-mnemonic` v0.3.0 (Official Trezor reference implementation)
+- **Library**: `shamir-mnemonic` v0.3.0+ (Official Trezor reference implementation)
 - **Word List**: 1024-word SLIP-39 wordlist (10 bits per word, 4-8 characters each)
 - **Algorithm**: Shamir's Secret Sharing in GF(256) finite field
 - **Security**: Information-theoretic security with perfect secrecy
 - **Maintainers**: Trezor/SatoshiLabs team (matejcik, satoshilabs, stick)
 - **Specification**: https://github.com/satoshilabs/slips/blob/master/slip-0039.md
+- **Repository**: https://github.com/trezor/python-shamir-mnemonic
 
 ### Cross-Tool Compatibility
 
 SSeed is fully compatible with the official Trezor `shamir` CLI tool from [python-shamir-mnemonic](https://github.com/trezor/python-shamir-mnemonic):
 
-- **Perfect Interoperability**: Both use `shamir-mnemonic==0.3.0`
+- **Perfect Interoperability**: Both use `shamir-mnemonic>=0.3.0`
 - **Interchangeable Shards**: SLIP-39 shards work between both tools
 - **No Vendor Lock-in**: Migrate freely between implementations
 

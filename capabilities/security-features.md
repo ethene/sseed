@@ -321,8 +321,8 @@ All dependencies are carefully vetted for security.
 #### Dependency Analysis
 ```python
 # Core cryptographic dependencies
-"bip-utils>=2.9.3",    # BIP-39 implementation
-"slip39>=13.1.0",      # SLIP-39 implementation
+"bip-utils>=2.9.3",          # BIP-39 implementation
+"shamir-mnemonic>=0.3.0",    # SLIP-39 implementation (Official Trezor)
 
 # No network dependencies
 # No web framework dependencies  

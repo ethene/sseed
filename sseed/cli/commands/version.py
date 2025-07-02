@@ -75,9 +75,9 @@ class VersionCommand(BaseCommand):
                 dependencies["bip-utils"] = "not installed"
 
             try:
-                dependencies["slip39"] = metadata.version("slip39")
+                dependencies["shamir-mnemonic"] = metadata.version("shamir-mnemonic")
             except metadata.PackageNotFoundError:
-                dependencies["slip39"] = "not installed"
+                dependencies["shamir-mnemonic"] = "not installed"
 
             version_info["dependencies"] = dependencies
 
