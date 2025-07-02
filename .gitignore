@@ -294,5 +294,9 @@ playground/
 experiments/ 
 # Test reports (can be large)
 pytest-report.html
+pytest-report*.html
 pytest-results.xml
+pytest-results*.xml
+test-report*.html
+test-results*.xml
 seed.txt
