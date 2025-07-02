@@ -69,6 +69,15 @@ def _lazy_load_validate_command() -> Type[BaseCommand]:
     return ValidateCommand
 
 
+def _lazy_load_derive_addresses_command() -> Type[BaseCommand]:
+    """Lazy load DeriveAddressesCommand."""
+    from .derive_addresses import (  # pylint: disable=import-outside-toplevel
+        DeriveAddressesCommand,
+    )
+
+    return DeriveAddressesCommand
+
+
 # Command registry with lazy loaders - maps command names to loader functions
 _COMMAND_LOADERS: Dict[str, Callable[[], Type[BaseCommand]]] = {
     "gen": _lazy_load_gen_command,
@@ -78,6 +87,7 @@ _COMMAND_LOADERS: Dict[str, Callable[[], Type[BaseCommand]]] = {
     "version": _lazy_load_version_command,
     "bip85": _lazy_load_bip85_command,
     "validate": _lazy_load_validate_command,
+    "derive-addresses": _lazy_load_derive_addresses_command,
 }
 
 # Cache for loaded commands to avoid repeated imports
@@ -98,6 +108,7 @@ class LazyCommandRegistry:
             "version": self._load_version_command,
             "bip85": self._load_bip85_command,
             "validate": self._load_validate_command,
+            "derive-addresses": self._load_derive_addresses_command,
         }
 
     def __getitem__(self, name: str) -> Any:
@@ -163,6 +174,14 @@ class LazyCommandRegistry:
         from .validate import ValidateCommand  # pylint: disable=import-outside-toplevel
 
         return ValidateCommand
+
+    def _load_derive_addresses_command(self) -> Any:
+        """Load the derive-addresses command class."""
+        from .derive_addresses import (  # pylint: disable=import-outside-toplevel
+            DeriveAddressesCommand,
+        )
+
+        return DeriveAddressesCommand
 
 
 # Global command registry instance
@@ -233,6 +252,15 @@ def handle_validate_command(args: Any) -> int:
     return _handler(args)
 
 
+def handle_derive_addresses_command(args: Any) -> int:
+    """Lazy wrapper for derive-addresses command handler."""
+    from .derive_addresses import (
+        handle_derive_addresses_command as _handler,  # pylint: disable=import-outside-toplevel
+    )
+
+    return _handler(args)
+
+
 # Backward compatibility - lazy class access
 def __getattr__(name: str) -> Any:
     """Support for direct class imports with lazy loading."""
@@ -251,7 +279,8 @@ __all__ = [
     "handle_version_command",
     "handle_bip85_command",
     "handle_validate_command",
+    "handle_derive_addresses_command",
     # Note: Command classes are available via __getattr__ for lazy loading
     # "GenCommand", "ShardCommand", "RestoreCommand", "SeedCommand",
-    # "VersionCommand", "Bip85Command"
+    # "VersionCommand", "Bip85Command", "DeriveAddressesCommand"
 ]

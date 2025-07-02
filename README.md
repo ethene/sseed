@@ -17,6 +17,7 @@
 - 🔐 **Generate secure BIP-39 mnemonics** with flexible word counts (12, 15, 18, 21, or 24 words) using cryptographically secure entropy
 - 🌱 **Generate master seeds from mnemonics** using PBKDF2-HMAC-SHA512 per BIP-39 specification
 - 🎯 **BIP85 deterministic entropy derivation** - unlimited child wallets, passwords, and keys from single master
+- 💰 **HD wallet address derivation** - Generate Bitcoin, Ethereum, Litecoin addresses from mnemonics with BIP32/44/49/84 support
 - 🔄 **Split secrets using SLIP-39** with flexible group/threshold configurations
 - 🔧 **Reconstruct mnemonics from shards** with integrity validation
 - 🚫 **100% offline operation** - zero network calls, air-gapped security
@@ -161,6 +162,35 @@ sseed restore --show-entropy shard1.txt shard2.txt shard3.txt
 # Entropy consistency verification workflow
 ORIGINAL_ENTROPY=$(sseed gen --show-entropy | grep "# Entropy:" | cut -d' ' -f3)
 echo "$ORIGINAL_ENTROPY" > entropy_backup.txt
+```
+
+### HD Wallet Address Derivation
+
+```bash
+# Generate Bitcoin addresses from mnemonic
+sseed derive-addresses -c bitcoin -n 5 < mnemonic.txt
+# Outputs 5 Native SegWit addresses (bc1q...)
+
+# Generate Bitcoin Legacy addresses  
+sseed derive-addresses -c bitcoin -t legacy -n 3 < mnemonic.txt
+# Outputs 3 Legacy addresses (1...)
+
+# Generate Ethereum addresses
+sseed derive-addresses -c ethereum -n 2 < mnemonic.txt
+# Outputs 2 Ethereum addresses (0x...)
+
+# Custom derivation parameters
+sseed derive-addresses -c bitcoin -t native-segwit -a 1 --change 1 --start-index 10 -n 5
+# Account 1, change addresses, starting from index 10
+
+# JSON output with private keys (use with caution)
+sseed derive-addresses --format json --include-private-keys -n 1 < mnemonic.txt
+
+# CSV output for spreadsheet import
+sseed derive-addresses --format csv -c bitcoin -n 10 > addresses.csv
+
+# Generate extended keys (xpub/xprv)
+sseed derive-addresses --extended-keys -c bitcoin -t native-segwit
 ```
 
 ## 🔬 Entropy Analysis & Verification
@@ -340,6 +370,7 @@ make build             # Build distribution packages
 | `sseed gen` | Generate BIP-39 mnemonic | `sseed gen -l es -o backup.txt` |
 | `sseed seed` | Generate BIP-32 master seed from BIP-39 mnemonic | `sseed seed -i mnemonic.txt --hex` |
 | `sseed bip85` | Generate BIP85 deterministic entropy | `sseed bip85 bip39 --words 12 --index 0` |
+| `sseed derive-addresses` | Derive HD wallet addresses | `sseed derive-addresses -c bitcoin -n 5` |
 | `sseed shard` | Split into SLIP-39 shards | `sseed shard -g 3-of-5 -i seed.txt` |
 | `sseed restore` | Reconstruct from shards | `sseed restore shard*.txt` |
 

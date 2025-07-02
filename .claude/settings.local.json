@@ -47,7 +47,10 @@
       "Bash(sed:*)",
       "Bash(pytest:*)",
       "Bash(git fetch:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(rm:*)",
+      "WebFetch(domain:bip-utils.readthedocs.io)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }
