@@ -11,7 +11,6 @@ These tests verify exact mathematical equivalence by comparing entropy values.
 import os
 import subprocess
 import tempfile
-from pathlib import Path
 
 import pytest
 from bip_utils import Bip39MnemonicGenerator
@@ -141,7 +140,7 @@ class TestShamirCliCompatibility:
                 f"This indicates the tools are not mathematically equivalent"
             )
 
-            print(f"✅ EXACT MATCH: Original entropy = Recovered entropy")
+            print("✅ EXACT MATCH: Original entropy = Recovered entropy")
             print(f"   Entropy: {original_entropy_hex}")
 
         finally:
@@ -238,7 +237,7 @@ class TestShamirCliCompatibility:
                 f"This indicates the tools are not mathematically equivalent"
             )
 
-            print(f"✅ EXACT MATCH: Original entropy = Reconstructed entropy")
+            print("✅ EXACT MATCH: Original entropy = Reconstructed entropy")
             print(
                 f"   Entropy: {original_entropy_hex} ({len(original_entropy_hex)//2} bytes)"
             )
@@ -284,7 +283,7 @@ class TestShamirCliCompatibility:
             f"Converted mnemonic: {converted_mnemonic}"
         )
 
-        print(f"✅ PERFECT ROUND-TRIP: entropy → mnemonic → entropy")
+        print("✅ PERFECT ROUND-TRIP: entropy → mnemonic → entropy")
         print(f"   Original entropy: {original_entropy_hex}")
         print(f"   Converted mnemonic: {converted_mnemonic}")
         print(f"   Roundtrip entropy: {roundtrip_entropy_hex}")
@@ -375,7 +374,7 @@ class TestShamirCliCompatibility:
             restored_entropy_hex = entropy_bytes_to_hex(restored_entropy_bytes)
 
             # 4. Verify all entropy values match
-            print(f"\n🔍 MATHEMATICAL EQUIVALENCE TEST:")
+            print("\n🔍 MATHEMATICAL EQUIVALENCE TEST:")
             print(f"   SSeed original entropy:     {sseed_entropy_hex}")
             print(f"   Shamir recovered entropy:   {shamir_entropy_hex}")
             print(f"   Shamir original entropy:    {shamir_original_entropy}")
@@ -389,7 +388,7 @@ class TestShamirCliCompatibility:
                 shamir_original_entropy == restored_entropy_hex
             ), "Shamir→SSeed entropy mismatch"
 
-            print(f"✅ PERFECT MATHEMATICAL EQUIVALENCE across all tool combinations!")
+            print("✅ PERFECT MATHEMATICAL EQUIVALENCE across all tool combinations!")
 
             # Cleanup temp shard files
             for temp_file in temp_shards:

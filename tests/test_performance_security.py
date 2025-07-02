@@ -5,23 +5,17 @@ Tests execution time, memory usage, secure memory handling, and verifies no inte
 """
 
 import gc
-import io
 import os
 import platform
 import subprocess
 import sys
 import time
 import unittest
-from contextlib import (
-    redirect_stderr,
-    redirect_stdout,
-)
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
 import psutil
-import pytest
 
 # Add the sseed package to the path for testing
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -31,7 +25,6 @@ from sseed.bip39 import (
     get_mnemonic_entropy,
     validate_mnemonic,
 )
-from sseed.cli import main as cli_main
 from sseed.entropy import (
     generate_entropy_bits,
     generate_entropy_bytes,
@@ -553,7 +546,7 @@ class TestPerformanceAndSecurity(unittest.TestCase):
         reconstructed = reconstruct_mnemonic_from_shards(shards[:2])
         restore_time = (time.perf_counter() - start_time) * 1000
 
-        print(f"Quick benchmark:")
+        print("Quick benchmark:")
         print(f"  - Mnemonic generation: {gen_time:.2f}ms")
         print(f"  - SLIP-39 sharding: {shard_time:.2f}ms")
         print(f"  - SLIP-39 reconstruction: {restore_time:.2f}ms")

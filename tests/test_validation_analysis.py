@@ -6,8 +6,6 @@ from unittest.mock import (
     patch,
 )
 
-import pytest
-
 from sseed.exceptions import ValidationError
 from sseed.validation.analysis import (
     MnemonicAnalysisResult,

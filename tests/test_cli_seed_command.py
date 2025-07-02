@@ -1,8 +1,6 @@
 """Tests for CLI seed command edge cases and missing coverage."""
 
 import io
-import os
-import sys
 import tempfile
 import unittest
 from pathlib import Path

@@ -7,7 +7,6 @@ legacy CLI functionality and exit codes.
 
 import importlib.util
 import os
-import sys
 
 import pytest
 

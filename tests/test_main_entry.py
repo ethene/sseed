@@ -2,7 +2,6 @@
 
 import subprocess
 import sys
-from unittest.mock import patch
 
 
 class TestMainEntry:

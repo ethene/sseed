@@ -5,15 +5,11 @@ and performance improvements to validate 50% performance targets.
 """
 
 import time
-from typing import List
 
 import pytest
 
 from sseed.bip85.applications import Bip85Applications
-from sseed.bip85.cache import (
-    clear_global_cache,
-    get_global_cache,
-)
+from sseed.bip85.cache import clear_global_cache
 from sseed.bip85.optimized_applications import OptimizedBip85Applications
 
 
@@ -96,7 +92,7 @@ class TestOptimizationPerformance:
             * 100
         )
 
-        print(f"\n🚀 BIP39 Caching Performance:")
+        print("\n🚀 BIP39 Caching Performance:")
         print(f"   Standard: {standard_stats['mean_ms']:.2f}ms avg")
         print(f"   Optimized: {optimized_stats['mean_ms']:.2f}ms avg")
         print(f"   Improvement: {improvement_percent:.1f}%")
@@ -131,11 +127,11 @@ class TestOptimizationPerformance:
             # Verify results are different
             assert (
                 result != result1
-            ), f"Different indices should produce different results"
+            ), "Different indices should produce different results"
 
         avg_subsequent_time = sum(subsequent_times) / len(subsequent_times)
 
-        print(f"\n🗄️ Caching Benefit Analysis:")
+        print("\n🗄️ Caching Benefit Analysis:")
         print(f"   First operation (cache miss): {first_time:.2f}ms")
         print(f"   Subsequent ops (cache hit): {avg_subsequent_time:.2f}ms avg")
         print(
@@ -180,7 +176,7 @@ class TestOptimizationPerformance:
         # Calculate improvement
         improvement_percent = (individual_time - batch_time) / individual_time * 100
 
-        print(f"\n⚡ Batch Operation Performance:")
+        print("\n⚡ Batch Operation Performance:")
         print(f"   Individual ops: {individual_time:.2f}ms total")
         print(f"   Batch operation: {batch_time:.2f}ms total")
         print(f"   Improvement: {improvement_percent:.1f}%")
@@ -237,7 +233,7 @@ class TestOptimizationPerformance:
         operations_count = 3 * 3 * 5  # 3 rounds × 3 apps × 5 indices
         avg_time_per_op = total_time / operations_count
 
-        print(f"\n🔀 Multi-Application Caching:")
+        print("\n🔀 Multi-Application Caching:")
         print(f"   Total operations: {operations_count}")
         print(f"   Total time: {total_time:.2f}ms")
         print(f"   Average per operation: {avg_time_per_op:.2f}ms")
@@ -350,7 +346,7 @@ class TestCacheEfficiency:
 
         final_stats = optimized_apps.get_performance_stats()["cache_stats"]
 
-        print(f"\n🗑️ Cache Memory Management:")
+        print("\n🗑️ Cache Memory Management:")
         print(f"   Cache size: {final_stats['cache_size']}")
         print(f"   Max entries: {final_stats['max_entries']}")
         print(f"   Evictions: {final_stats['evictions']}")

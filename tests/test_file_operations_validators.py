@@ -3,14 +3,10 @@
 This module tests all validator functions to boost coverage significantly.
 """
 
-import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import (
-    mock_open,
-    patch,
-)
+from unittest.mock import patch
 
 from sseed.exceptions import FileError
 from sseed.file_operations.validators import (

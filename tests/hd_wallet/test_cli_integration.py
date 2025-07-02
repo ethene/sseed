@@ -15,7 +15,6 @@ from sseed.cli.commands.derive_addresses import (
     DeriveAddressesCommand,
     handle_derive_addresses_command,
 )
-from sseed.hd_wallet.exceptions import HDWalletError
 
 
 class TestDeriveAddressesCommand:

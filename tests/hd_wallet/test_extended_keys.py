@@ -21,8 +21,6 @@ from sseed.hd_wallet.extended_keys import (
     derive_extended_keys_batch,
     format_extended_key_summary,
     get_extended_key_csv_headers,
-    get_extended_key_info,
-    validate_extended_key,
 )
 
 

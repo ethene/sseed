@@ -6,16 +6,9 @@ Tests the B.3 Advanced Validation feature implementation.
 
 import json
 from argparse import Namespace
-from pathlib import Path
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
-
-import pytest
+from unittest.mock import patch
 
 from sseed.cli.commands.validate import ValidateCommand
-from sseed.exceptions import ValidationError
 
 
 def create_test_args(**kwargs):

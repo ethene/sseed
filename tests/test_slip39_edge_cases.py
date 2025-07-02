@@ -7,10 +7,7 @@ from unittest.mock import (
 
 import pytest
 
-from sseed.exceptions import (
-    MnemonicError,
-    ShardError,
-)
+from sseed.exceptions import ShardError
 from sseed.slip39_operations import (
     create_slip39_shards,
     parse_group_config,

@@ -10,17 +10,13 @@ These tests verify:
 """
 
 import importlib.util
-import re
 import subprocess
 
 # Import the BumpVersion class from the script
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from unittest.mock import patch
 
 import pytest
 

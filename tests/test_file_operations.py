@@ -386,10 +386,7 @@ class TestFileOperations:
 
     def test_write_to_stdout(self) -> None:
         """Test writing to stdout."""
-        from unittest.mock import (
-            MagicMock,
-            patch,
-        )
+        from unittest.mock import patch
 
         test_content = "test output content"
 

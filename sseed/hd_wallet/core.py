@@ -7,13 +7,12 @@ This module provides the main HDWalletManager class that coordinates
 all HD wallet operations while leveraging existing SSeed infrastructure.
 """
 
-import hashlib
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     List,
     Optional,
-    TYPE_CHECKING,
 )
 
 from bip_utils import (
@@ -31,9 +30,7 @@ from sseed.logging_config import (
 from sseed.validation import normalize_input
 
 from .derivation import (
-    DerivationPath,
     build_derivation_path,
-    get_path_info,
     parse_derivation_path,
     validate_path,
 )

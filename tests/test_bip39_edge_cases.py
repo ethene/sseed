@@ -1,12 +1,8 @@
 """Comprehensive BIP39 edge case tests for sseed."""
 
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from unittest.mock import patch
 
 import pytest
-from bip_utils import Bip39Languages
 
 from sseed.bip39 import (
     generate_mnemonic,

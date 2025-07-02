@@ -15,7 +15,6 @@ from typing import (
 )
 
 from bip_utils import (
-    Bip32Secp256k1,
     Bip44,
     Bip49,
     Bip84,
@@ -321,7 +320,6 @@ def validate_extended_key(extended_key: str, key_type: str = "auto") -> Dict[str
     """
     try:
         from bip_utils import (  # pylint: disable=import-outside-toplevel
-            Bip32DeserializedKey,
             Bip32KeyDeserializer,
         )
 

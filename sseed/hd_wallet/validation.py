@@ -10,7 +10,6 @@ specific validation logic.
 from typing import (
     Any,
     Dict,
-    List,
     Optional,
 )
 
@@ -21,7 +20,6 @@ from .derivation import (
     validate_path,
 )
 from .exceptions import (
-    DerivationError,
     HDWalletError,
     InvalidPathError,
     UnsupportedCoinError,

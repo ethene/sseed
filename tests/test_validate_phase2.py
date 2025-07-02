@@ -7,13 +7,9 @@ This module tests the enhanced validation capabilities including:
 - Comprehensive reporting
 """
 
-import json
 import unittest
 from argparse import Namespace
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from unittest.mock import patch
 
 from sseed.cli.commands.validate import ValidateCommand
 

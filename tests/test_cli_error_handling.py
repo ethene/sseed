@@ -5,18 +5,12 @@ comprehensive coverage of CLI error handling logic.
 """
 
 import io
-import os
 import subprocess
 import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
-
-import pytest
+from unittest.mock import patch
 
 from sseed.cli import (
     EXIT_CRYPTO_ERROR,
@@ -28,7 +22,6 @@ from sseed.cli import (
     handle_restore_command,
     handle_shard_command,
 )
-from sseed.cli.main import main
 from sseed.exceptions import (
     EntropyError,
     FileError,
@@ -64,7 +57,6 @@ class TestCLIErrorHandling:
         dummy_args.show_entropy = False
 
         # Import the gen command to force module loading
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = None
@@ -85,7 +77,6 @@ class TestCLIErrorHandling:
     def test_gen_mnemonic_error_handling(self):
         """Test gen command handling MnemonicError."""
         # Force the lazy loading to happen first
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = None
@@ -103,7 +94,6 @@ class TestCLIErrorHandling:
     def test_gen_security_error_handling(self):
         """Test gen command handling SecurityError."""
         # Force the lazy loading to happen first
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = None
@@ -121,7 +111,6 @@ class TestCLIErrorHandling:
     def test_gen_validation_error_handling(self):
         """Test gen command handling ValidationError."""
         # Force the lazy loading to happen first
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = None
@@ -139,7 +128,6 @@ class TestCLIErrorHandling:
     def test_gen_file_error_handling(self):
         """Test gen command handling FileError."""
         # Force the lazy loading to happen first
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = None
@@ -157,7 +145,6 @@ class TestCLIErrorHandling:
     def test_gen_unexpected_error_handling(self):
         """Test gen command handling unexpected exceptions."""
         # Force the lazy loading to happen first
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = None
@@ -175,7 +162,6 @@ class TestCLIErrorHandling:
     def test_gen_checksum_validation_failure(self):
         """Test gen command when generated mnemonic fails checksum validation."""
         # Force the lazy loading to happen first
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = None
@@ -198,7 +184,6 @@ class TestCLIErrorHandling:
     def test_gen_file_write_error(self):
         """Test gen command when file writing fails."""
         # Force the lazy loading to happen first
-        from sseed.cli.commands import gen
 
         args = mock.MagicMock()
         args.output = "/invalid/path/file.txt"

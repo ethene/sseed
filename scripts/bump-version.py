@@ -197,7 +197,7 @@ class BumpVersion:
         tag_name = f"v{version}"
 
         if dry_run:
-            print(f"[DRY RUN] Would run: git add .")
+            print("[DRY RUN] Would run: git add .")
             print(f'[DRY RUN] Would run: git commit -m "{message}"')
             print(f"[DRY RUN] Would run: git tag {tag_name}")
             return
@@ -215,7 +215,7 @@ class BumpVersion:
             subprocess.run(["git", "tag", tag_name], check=True, cwd=self.project_root)
 
             print(f"✅ Created git commit and tag: {tag_name}")
-            print(f"💡 To push: git push && git push --tags")
+            print("💡 To push: git push && git push --tags")
 
         except subprocess.CalledProcessError as e:
             raise VersionError(f"Git operation failed: {e}")
@@ -228,7 +228,7 @@ class BumpVersion:
         message: Optional[str] = None,
     ) -> None:
         """Main execution function."""
-        print(f"🔍 SSeed Version Bumping Script")
+        print("🔍 SSeed Version Bumping Script")
         print(f"Project root: {self.project_root}")
 
         # Get current version

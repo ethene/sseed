@@ -29,7 +29,6 @@ from hypothesis import strategies as st
 from hypothesis.stateful import (
     Bundle,
     RuleBasedStateMachine,
-    invariant,
     rule,
 )
 
@@ -43,7 +42,6 @@ from sseed.exceptions import (
 )
 from sseed.slip39_operations import (
     create_slip39_shards,
-    parse_group_config,
     reconstruct_mnemonic_from_shards,
 )
 
@@ -194,7 +192,7 @@ class TestSlip39Properties:
                         with pytest.raises(ShardError):
                             reconstruct_mnemonic_from_shards(test_shards)
 
-        except Exception as e:
+        except Exception:
             # Skip invalid configurations
             assume(False)
 
@@ -232,7 +230,7 @@ class TestSlip39Properties:
                 r == mnemonic for r in reconstructions
             ), f"Incorrect reconstruction: got {reconstructions[0]}, expected {mnemonic}"
 
-        except Exception as e:
+        except Exception:
             assume(False)
 
     @given(mnemonic=valid_mnemonics())
@@ -269,7 +267,7 @@ class TestSlip39Properties:
                 reconstructions[0] == mnemonic
             ), f"Incorrect reconstruction: got {reconstructions[0]}, expected {mnemonic}"
 
-        except Exception as e:
+        except Exception:
             assume(False)
 
     @given(mnemonic=valid_mnemonics(), groups=valid_group_configs())
@@ -347,7 +345,7 @@ class TestSlip39Properties:
                 with pytest.raises(ShardError):
                     reconstruct_mnemonic_from_shards(fail_shards)
 
-        except Exception as e:
+        except Exception:
             assume(False)
 
 
@@ -382,7 +380,7 @@ class TestSlip39AdvancedProperties:
                 r == mnemonic for r in reconstructions
             ), f"Configuration-dependent results: {set(reconstructions)}"
 
-        except Exception as e:
+        except Exception:
             assume(False)
 
     @given(mnemonic=valid_mnemonics())
@@ -415,7 +413,7 @@ class TestSlip39AdvancedProperties:
             assert reconstructed_empty == mnemonic
             assert reconstructed_none == mnemonic
 
-        except Exception as e:
+        except Exception:
             assume(False)
 
 

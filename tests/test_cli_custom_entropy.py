@@ -8,12 +8,9 @@ Tests the Phase 3 CLI integration of custom entropy sources including:
 - Integration with existing features
 """
 
-import os
 import subprocess
 import tempfile
 from pathlib import Path
-
-import pytest
 
 
 class TestCustomEntropyCLI:

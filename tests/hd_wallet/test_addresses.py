@@ -4,10 +4,7 @@ Tests for address generation, formatting, and validation following
 SSeed testing patterns and conventions.
 """
 
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from unittest.mock import patch
 
 import pytest
 

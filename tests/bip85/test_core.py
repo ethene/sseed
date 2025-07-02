@@ -8,10 +8,7 @@ Comprehensive test suite covering all BIP85 core operations including:
 - Security features
 """
 
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from unittest.mock import patch
 
 import pytest
 from bip_utils import Bip32Secp256k1
@@ -487,4 +484,4 @@ class TestBip85OfficialTestVectors:
 
         # English should match our known test vector
         expected_en = bytes.fromhex("6250b68daf746d12a24d58b4787a714b")
-        assert entropy_en == expected_en, f"English entropy should match test vector"
+        assert entropy_en == expected_en, "English entropy should match test vector"

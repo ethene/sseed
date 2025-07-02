@@ -6,7 +6,6 @@ Covers all applications (BIP39, hex, password) and CLI scenarios.
 
 import argparse
 import tempfile
-from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -20,10 +19,6 @@ from sseed.bip39 import (
 from sseed.cli.commands.bip85 import (
     Bip85Command,
     handle_bip85_command,
-)
-from sseed.exceptions import (
-    CryptoError,
-    MnemonicError,
 )
 
 

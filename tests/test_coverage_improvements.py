@@ -3,16 +3,12 @@
 import argparse
 import io
 import logging
-import os
 import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import (
-    Mock,
-    patch,
-)
+from unittest.mock import patch
 
 from sseed.cli.main import main
 from sseed.cli.parser import (

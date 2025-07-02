@@ -6,9 +6,7 @@ including round-trip testing, shard combination validation, and CLI integration.
 """
 
 import json
-import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import (
     MagicMock,
     Mock,

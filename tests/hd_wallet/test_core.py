@@ -4,14 +4,10 @@ Tests for HDWalletManager class and core HD wallet operations following
 SSeed testing patterns and conventions.
 """
 
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from unittest.mock import patch
 
 import pytest
 
-from sseed.exceptions import MnemonicError
 from sseed.hd_wallet import (
     HDWalletManager,
     derive_addresses_from_mnemonic,

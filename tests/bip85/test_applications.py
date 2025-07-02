@@ -12,7 +12,6 @@ from unittest.mock import patch
 
 import pytest
 
-import sseed.bip85.applications as apps_module
 from sseed.bip85.applications import Bip85Applications
 from sseed.bip85.exceptions import (
     Bip85ApplicationError,

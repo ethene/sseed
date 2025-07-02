@@ -12,16 +12,9 @@ from typing import (
     Any,
     Dict,
     List,
-    Optional,
 )
 
-from bip_utils import (
-    Bip32Secp256k1,
-    Bip44,
-    Bip49,
-    Bip84,
-    Bip86,
-)
+from bip_utils import Bip32Secp256k1
 
 from sseed.entropy import secure_delete_variable
 from sseed.logging_config import (

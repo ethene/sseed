@@ -4,10 +4,8 @@ This module provides comprehensive testing for CLI commands with multi-language 
 ensuring all workflows function correctly across all 9 supported BIP-39 languages.
 """
 
-import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 

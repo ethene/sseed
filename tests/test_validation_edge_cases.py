@@ -5,7 +5,6 @@ malformed input scenarios, and boundary conditions to achieve comprehensive
 coverage of validation logic.
 """
 
-import unittest.mock as mock
 from unittest.mock import patch
 
 import pytest

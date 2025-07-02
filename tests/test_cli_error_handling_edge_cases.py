@@ -1,12 +1,8 @@
 """Tests for CLI error handling edge cases and missing coverage."""
 
 import io
-import sys
 import unittest
-from unittest.mock import (
-    Mock,
-    patch,
-)
+from unittest.mock import patch
 
 from sseed.cli.error_handling import (
     handle_common_errors,

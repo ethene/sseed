@@ -1,6 +1,5 @@
 """Tests to fill coverage gaps in sseed.validation.structure module."""
 
-import logging
 from unittest.mock import patch
 
 import pytest

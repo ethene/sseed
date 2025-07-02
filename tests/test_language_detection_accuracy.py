@@ -152,7 +152,7 @@ class TestLanguageDetectionAccuracy:
 
         for variation in variations:
             detected = detect_mnemonic_language(variation)
-            assert detected is not None, f"Failed to detect whitespace variation"
+            assert detected is not None, "Failed to detect whitespace variation"
             assert (
                 detected.code == "en"
             ), f"Incorrect detection for whitespace variation: {detected.code}"

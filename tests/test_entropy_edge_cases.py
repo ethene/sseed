@@ -5,7 +5,6 @@ to achieve comprehensive coverage of entropy handling logic.
 """
 
 import os
-import unittest.mock as mock
 from unittest.mock import (
     MagicMock,
     patch,

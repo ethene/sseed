@@ -164,7 +164,7 @@ def _validate_application_specific_parameters(application: int, length: int) -> 
     elif application == 128:  # Hex
         if not 16 <= length <= 64:
             raise Bip85ValidationError(
-                f"Hex length must be 16-64",
+                "Hex length must be 16-64",
                 parameter="length",
                 value=length,
                 valid_range="16 to 64 bytes",
