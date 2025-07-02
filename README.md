@@ -112,11 +112,11 @@ $ sseed restore shard1.txt shard2.txt shard3.txt
 ```bash
 # Show comprehensive version information
 $ sseed version
-🔐 SSeed v1.5.0
+🔐 SSeed v1.12.0
 ========================================
 
 📋 Core Information:
-   Version: 1.5.0
+   Version: 1.12.0
    Python:  3.12.2 (CPython)
 
 🖥️  System Information:
@@ -125,11 +125,11 @@ $ sseed version
 
 📦 Dependencies:
    ✅ bip-utils: 2.9.3
-   ✅ slip39: 13.1.0
+   ✅ shamir-mnemonic: 0.3.0
 
 # JSON format for automation
 $ sseed version --json
-{"sseed": "1.5.0", "python": "3.12.2", "platform": {...}}
+{"sseed": "1.12.0", "python": "3.12.2", "platform": {...}}
 ```
 
 ### Advanced Usage
