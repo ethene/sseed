@@ -190,6 +190,7 @@ class TestDeriveExtendedKeys:
     ):
         """Test extended key derivation with unsupported purpose."""
         from dataclasses import replace
+
         address_config = bitcoin_config.get_address_type("native-segwit")
         address_config = replace(address_config, purpose=999)  # Unsupported purpose
 
@@ -209,6 +210,7 @@ class TestDeriveExtendedKeys:
     ):
         """Test extended key derivation with invalid configuration."""
         from dataclasses import replace
+
         address_config = bitcoin_config.get_address_type("native-segwit")
         invalid_config = replace(address_config, purpose=123)  # Invalid purpose
 

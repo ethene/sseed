@@ -101,6 +101,7 @@ class TestHDWalletManager:
     def test_derive_key_invalid_path(self, wallet_manager):
         """Test key derivation with invalid path."""
         from sseed.hd_wallet.exceptions import InvalidPathError
+
         with pytest.raises(InvalidPathError):
             wallet_manager.derive_key_at_path("invalid/path")
 
@@ -151,12 +152,14 @@ class TestHDWalletManager:
     def test_derive_addresses_batch_invalid_coin(self, wallet_manager):
         """Test batch address derivation with invalid coin."""
         from sseed.hd_wallet.exceptions import UnsupportedCoinError
+
         with pytest.raises(UnsupportedCoinError):
             wallet_manager.derive_addresses_batch(coin="invalid_coin", count=1)
 
     def test_derive_addresses_batch_invalid_address_type(self, wallet_manager):
         """Test batch address derivation with invalid address type."""
         from sseed.hd_wallet.exceptions import UnsupportedCoinError
+
         with pytest.raises(UnsupportedCoinError):
             wallet_manager.derive_addresses_batch(
                 coin="bitcoin", count=1, address_type="invalid_type"
@@ -300,6 +303,7 @@ class TestHDWalletErrorHandling:
 
         # Test invalid count
         from sseed.hd_wallet.exceptions import HDWalletError
+
         with pytest.raises(HDWalletError):
             manager.derive_addresses_batch(coin="bitcoin", count=0)
 

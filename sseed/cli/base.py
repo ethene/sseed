@@ -115,11 +115,12 @@ class BaseCommand(ABC):
             if format_arg in ["json", "csv"]:
                 # Write structured data without comments
                 from pathlib import Path
+
                 Path(output_file).write_text(content, encoding="utf-8")
             else:
                 # Write mnemonic with comments
                 write_mnemonic_to_file(content, output_file, include_comments=True)
-            
+
             logger.info("Output written to file: %s", output_file)
             if success_message:
                 print(success_message.format(file=output_file))

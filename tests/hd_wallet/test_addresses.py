@@ -207,6 +207,7 @@ class TestGenerateAddress:
         """Test address generation with unsupported BIP purpose."""
         # Create a fake address config with unsupported purpose
         from dataclasses import replace
+
         address_config = bitcoin_config.get_address_type("native-segwit")
         address_config = replace(address_config, purpose=999)  # Unsupported purpose
 
