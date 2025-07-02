@@ -423,9 +423,6 @@ def get_coin_by_symbol(symbol: str) -> Optional[CoinConfig]:
         >>> config = get_coin_by_symbol("BTC")
         >>> print(config.name if config else "Not found")  # bitcoin
     """
-    if not isinstance(symbol, str):
-        return None
-
     symbol = symbol.upper().strip()
 
     for coin_name in SUPPORTED_COINS:

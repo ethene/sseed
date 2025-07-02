@@ -499,7 +499,7 @@ def _validate_address_format(
         return False
 
 
-def _secure_cleanup_variables(*variables) -> None:
+def _secure_cleanup_variables(*variables: Any) -> None:
     """Securely clean up sensitive variables.
 
     Uses SSeed's secure deletion patterns to clean up any sensitive
@@ -578,7 +578,7 @@ def format_address_summary(addresses: List[AddressInfo]) -> str:
     count = len(addresses)
 
     # Group by coin and address type
-    groups = {}
+    groups: Dict[str, List[AddressInfo]] = {}
     for addr in addresses:
         key = f"{addr.coin}_{addr.address_type}"
         if key not in groups:
@@ -599,9 +599,9 @@ def format_address_summary(addresses: List[AddressInfo]) -> str:
             addr_list = [addr.address for addr in group_addresses]
             addr_range = ", ".join(addr_list)
         else:
-            first_addr = group_addresses[0].address
-            last_addr = group_addresses[-1].address
-            addr_range = f"{first_addr} ... {last_addr}"
+            first_address = group_addresses[0].address
+            last_address = group_addresses[-1].address
+            addr_range = f"{first_address} ... {last_address}"
 
         summary_parts.append(
             f"{count} {coin_name} {addr_type} address{'es' if count > 1 else ''}: {addr_range}"

@@ -9,10 +9,14 @@ that can be used for watch-only wallets and address generation.
 
 from dataclasses import dataclass
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Optional,
 )
+
+if TYPE_CHECKING:
+    from .core import HDWalletManager
 
 from bip_utils import (
     Bip44,
@@ -466,7 +470,7 @@ def _get_key_prefix_info(prefix: str) -> Dict[str, str]:
     return prefix_map.get(prefix, {"network": "unknown", "purpose": "unknown"})
 
 
-def _secure_cleanup_extended_key_variables(*variables) -> None:
+def _secure_cleanup_extended_key_variables(*variables: Any) -> None:
     """Securely clean up extended key variables.
 
     Uses SSeed's secure deletion patterns to clean up any sensitive
@@ -520,7 +524,7 @@ def format_extended_key_summary(extended_keys: list[ExtendedKeyInfo]) -> str:
     count = len(extended_keys)
 
     # Group by coin and address type
-    groups = {}
+    groups: Dict[str, list[ExtendedKeyInfo]] = {}
     for key in extended_keys:
         group_key = f"{key.coin}_{key.address_type}"
         if group_key not in groups:

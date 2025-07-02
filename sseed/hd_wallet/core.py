@@ -503,7 +503,7 @@ class HDWalletManager:
             "master_seed_cached": self._master_seed is not None,
         }
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Secure cleanup on destruction."""
         if hasattr(self, "_initialized") and self._initialized:
             self._secure_cleanup()
@@ -548,7 +548,11 @@ class HDWalletManager:
 
 # Convenience function matching SSeed patterns
 def derive_addresses_from_mnemonic(
-    mnemonic: str, coin: str, count: int = 1, validate_mnemonic: bool = True, **kwargs
+    mnemonic: str,
+    coin: str,
+    count: int = 1,
+    validate_mnemonic: bool = True,
+    **kwargs: Any,
 ) -> List["AddressInfo"]:
     """Convenience function for direct address derivation.
 
