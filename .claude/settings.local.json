@@ -46,7 +46,8 @@
       "Bash(pip uninstall:*)",
       "Bash(sed:*)",
       "Bash(pytest:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": []
   }
