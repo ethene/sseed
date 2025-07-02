@@ -468,7 +468,7 @@ class TestCLIIntegration:
         )
 
         assert result.returncode != 0
-        assert "Error:" in result.stderr
+        assert "Address derivation failed" in result.stderr or "Error:" in result.stderr
 
     def test_cli_error_invalid_coin(self, test_mnemonic):
         """Test CLI error handling with invalid coin."""

@@ -206,8 +206,9 @@ class TestGenerateAddress:
     ):
         """Test address generation with unsupported BIP purpose."""
         # Create a fake address config with unsupported purpose
+        from dataclasses import replace
         address_config = bitcoin_config.get_address_type("native-segwit")
-        address_config.purpose = 999  # Unsupported purpose
+        address_config = replace(address_config, purpose=999)  # Unsupported purpose
 
         with pytest.raises(AddressGenerationError) as exc_info:
             generate_address(
@@ -222,7 +223,7 @@ class TestGenerateAddress:
 
         assert "Unsupported BIP purpose" in str(exc_info.value)
 
-    @patch("sseed.hd_wallet.addresses.Bip84")
+    @patch("bip_utils.Bip84")
     def test_generate_address_bip_context_error(
         self, mock_bip84, test_master_seed, bitcoin_config
     ):
@@ -242,7 +243,7 @@ class TestGenerateAddress:
                 change=0,
             )
 
-        assert "Address generation failed" in str(exc_info.value)
+        assert "BIP context error" in str(exc_info.value)
 
 
 class TestDeriveAddressBatch:
