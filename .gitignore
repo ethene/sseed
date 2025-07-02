@@ -299,4 +299,6 @@ pytest-results.xml
 pytest-results*.xml
 test-report*.html
 test-results*.xml
+**/pytest-report.html
+**/pytest-report*.html
 seed.txt
