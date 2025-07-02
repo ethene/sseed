@@ -136,7 +136,7 @@ class TestVersionCommand(unittest.TestCase):
             # Verify dependencies
             dependencies = version_data["dependencies"]
             self.assertIn("bip-utils", dependencies)
-            self.assertIn("slip39", dependencies)
+            self.assertIn("shamir-mnemonic", dependencies)
 
         except json.JSONDecodeError as e:
             self.fail(
@@ -166,7 +166,7 @@ class TestVersionCommand(unittest.TestCase):
                 from importlib.metadata import PackageNotFoundError
 
                 raise PackageNotFoundError("Package not found")
-            return "13.1.0"  # slip39 version
+            return "0.3.0"  # shamir-mnemonic version
 
         mock_version.side_effect = side_effect
 
@@ -189,7 +189,7 @@ class TestVersionCommand(unittest.TestCase):
         # Verify JSON output handles missing dependency
         version_data = json.loads(output)
         self.assertEqual(version_data["dependencies"]["bip-utils"], "not installed")
-        self.assertEqual(version_data["dependencies"]["slip39"], "13.1.0")
+        self.assertEqual(version_data["dependencies"]["shamir-mnemonic"], "0.3.0")
 
 
 if __name__ == "__main__":
