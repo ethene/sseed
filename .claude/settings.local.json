@@ -52,7 +52,8 @@
       "WebFetch(domain:bip-utils.readthedocs.io)",
       "Bash(mkdir:*)",
       "Bash(git rm:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(/Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -m black:*)"
     ],
     "deny": []
   }

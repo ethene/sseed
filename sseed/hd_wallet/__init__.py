@@ -22,7 +22,7 @@ Example Usage:
     >>> addresses = generate_addresses("word1 word2 ...", "bitcoin", count=5)
     >>> for addr in addresses:
     ...     print(f"{addr.index}: {addr.address}")
-    
+
     >>> from sseed.hd_wallet import HDWalletManager
     >>> manager = HDWalletManager("word1 word2 ...")
     >>> btc_addresses = manager.derive_addresses_batch("bitcoin", count=10)
